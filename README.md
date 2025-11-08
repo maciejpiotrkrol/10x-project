@@ -1,94 +1,117 @@
-# 10x Astro Starter
+# Athletica
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+## Project Description
+
+Athletica is a Minimum Viable Product (MVP) web application designed to simplify the process of planning running training. Using artificial intelligence (AI), the application generates personalized, 10-week training plans based on user-provided data. Key functionalities include a user account system, a survey to determine goals and skill level, a plan generation module, and a simple interface for viewing and tracking training progress. The application is aimed at amateur runners looking for an easy and effective way to create a tailored training plan.
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
+- **Framework**: [Astro 5](https://astro.build/) & [React 19](https://react.dev/)
+- **Language**: [TypeScript 5](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind 4](https://tailwindcss.com/)
+- **UI Components**: [Shadcn/ui](https://ui.shadcn.com/)
 
-## Prerequisites
+### Backend
+- **Platform**: [Supabase](https://supabase.io/)
+  - **Database**: PostgreSQL
+  - **Authentication**: Supabase Auth
+  - **SDK**: Backend-as-a-Service
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### AI
+- **Service**: [Openrouter.ai](https://openrouter.ai/) for access to various AI models.
 
-## Getting Started
+### DevOps
+- **CI/CD**: [GitHub Actions](https://github.com/features/actions)
+- **Hosting**: [DigitalOcean](https://www.digitalocean.com/) (via Docker)
 
-1. Clone the repository:
+## Getting Started Locally
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+### Prerequisites
 
-2. Install dependencies:
+- Node.js version `22.14.0` (as specified in the `.nvmrc` file). We recommend using a version manager like `nvm`.
 
-```bash
-npm install
-```
+### Installation
 
-3. Run the development server:
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/athletica.git
+    cd athletica
+    ```
 
-```bash
-npm run dev
-```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-4. Build for production:
+3.  **Set up environment variables:**
 
-```bash
-npm run build
-```
+    Create a `.env` file in the root of the project by copying the example file:
+    ```bash
+    cp .env.example .env
+    ```
+    You will need to add your Supabase and Openrouter.ai API keys to this file.
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:4321](http://localhost:4321) to view the application in your browser.
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+In the project directory, you can run the following commands:
 
-## Project Structure
+- `npm run dev`
+  - Runs the app in development mode.
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+- `npm run build`
+  - Builds the app for production.
 
-## AI Development Support
+- `npm run preview`
+  - Previews the production build locally.
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+- `npm run lint`
+  - Lints the codebase using ESLint.
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+- `npm run lint:fix`
+  - Lints and automatically fixes issues.
 
-### Cursor IDE
+- `npm run format`
+  - Formats code using Prettier.
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+## Project Scope
 
-### GitHub Copilot
+### Key Features (MVP)
+- **User Authentication**: Secure user registration, login, and password reset.
+- **AI-Powered Plan Generation**: A multi-step survey captures user goals, fitness level, and personal data to generate a personalized 10-week running plan.
+- **Interactive Training Plan**: A clean user interface to view the daily training schedule.
+- **Progress Tracking**: Users can mark each workout as "completed" to track their progress.
+- **User Profile**: A read-only profile page displaying the data provided in the last survey.
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+### Out of Scope for MVP
+The following features are not included in the current MVP version:
+- Importing/exporting training plans.
+- Social sharing of plans.
+- Integrations with third-party platforms like Strava or Garmin Connect.
+- Native mobile applications.
+- Editing or deleting individual workouts within a generated plan.
 
-### Windsurf
+## Project Status
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
+**Current Status: MVP (Minimum Viable Product)**
 
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+This project is currently in the MVP stage. The project is under active development to introduce new features and improvements.
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See the `LICENSE` file for more details.

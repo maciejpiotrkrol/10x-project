@@ -3,15 +3,19 @@
 ## 1. Typy niestandardowe (ENUM)
 
 ### gender_type
+
 ```sql
 CREATE TYPE gender_type AS ENUM ('M', 'F');
 ```
+
 Typ określający płeć użytkownika.
 
 ### distance_type
+
 ```sql
 CREATE TYPE distance_type AS ENUM ('5K', '10K', 'Half Marathon', 'Marathon');
 ```
+
 Typ określający dystanse celowe i rekordy życiowe. Wspólny dla `profiles.goal_distance` i `personal_records.distance`.
 
 ---
@@ -38,6 +42,7 @@ CREATE TABLE profiles (
 ```
 
 **Kolumny:**
+
 - `user_id` (UUID, PRIMARY KEY, FK): Identyfikator użytkownika z Supabase Auth
 - `goal_distance` (distance_type, NOT NULL): Dystans docelowy użytkownika
 - `weekly_km` (DECIMAL(6,2), NOT NULL): Średni tygodniowy kilometraż
@@ -50,6 +55,7 @@ CREATE TABLE profiles (
 - `updated_at` (TIMESTAMPTZ, NOT NULL): Data ostatniej aktualizacji profilu
 
 **Constraints:**
+
 - CHECK dla `training_days_per_week`: wartość między 2 a 7
 - CHECK dla `age`: wartość większa od 0 i mniejsza od 120
 - CHECK dla `weight`: wartość większa od 0 i mniejsza od 300
@@ -73,6 +79,7 @@ CREATE TABLE personal_records (
 ```
 
 **Kolumny:**
+
 - `id` (UUID, PRIMARY KEY): Unikalny identyfikator rekordu
 - `user_id` (UUID, NOT NULL, FK): Identyfikator użytkownika
 - `distance` (distance_type, NOT NULL): Dystans, na którym osiągnięto rekord
@@ -80,6 +87,7 @@ CREATE TABLE personal_records (
 - `created_at` (TIMESTAMPTZ, NOT NULL): Data dodania rekordu
 
 **Constraints:**
+
 - CHECK dla `time_seconds`: wartość większa od 0
 - ON DELETE CASCADE: usunięcie użytkownika usuwa jego rekordy
 
@@ -105,6 +113,7 @@ CREATE TABLE training_plans (
 ```
 
 **Kolumny:**
+
 - `id` (UUID, PRIMARY KEY): Unikalny identyfikator planu
 - `user_id` (UUID, NOT NULL, FK): Identyfikator użytkownika
 - `start_date` (DATE, NOT NULL): Data rozpoczęcia planu (dzień generowania)
@@ -116,10 +125,12 @@ CREATE TABLE training_plans (
 - `updated_at` (TIMESTAMPTZ, NOT NULL): Data ostatniej aktualizacji rekordu
 
 **Constraints:**
+
 - UNIQUE constraint: tylko jeden aktywny plan na użytkownika (`unique_active_plan`)
 - ON DELETE CASCADE: usunięcie użytkownika usuwa jego plany (i kaskadowo workout_days)
 
 **Notatki:**
+
 - Partial unique index automatycznie filtruje tylko rekordy z `is_active = true`
 - Kolumna `metadata` przygotowana na przyszłe rozszerzenia bez konieczności migracji
 
@@ -145,6 +156,7 @@ CREATE TABLE workout_days (
 ```
 
 **Kolumny:**
+
 - `id` (UUID, PRIMARY KEY): Unikalny identyfikator dnia treningowego
 - `training_plan_id` (UUID, NOT NULL, FK): Identyfikator planu treningowego
 - `day_number` (INTEGER, NOT NULL): Numer dnia w planie (1-70)
@@ -155,12 +167,14 @@ CREATE TABLE workout_days (
 - `completed_at` (TIMESTAMPTZ, NULL): Timestamp oznaczenia jako wykonany (NULL jeśli niewykonany)
 
 **Constraints:**
+
 - CHECK dla `day_number`: wartość między 1 a 70
 - UNIQUE constraint: unikalna kombinacja `training_plan_id` + `day_number`
 - CHECK constraint: dni odpoczynku nie mogą być oznaczone jako wykonane
 - ON DELETE CASCADE: usunięcie planu usuwa wszystkie jego dni treningowe
 
 **Notatki:**
+
 - Typ TEXT dla `workout_description` zapewnia elastyczność dla AI do generowania sformatowanych bloków tekstowych
 - `completed_at` umożliwia śledzenie, kiedy trening został oznaczony jako wykonany (bez historii zmian w MVP)
 
@@ -222,12 +236,14 @@ CREATE INDEX idx_workout_days_date ON workout_days(date);
 ```
 
 **Uzasadnienie:**
+
 - `idx_personal_records_user_id`: Szybkie pobieranie wszystkich rekordów użytkownika
 - `idx_training_plans_user_active`: Partial index optymalizuje najczęstsze zapytanie (pobieranie aktywnego planu użytkownika)
 - `idx_workout_days_plan_id`: Szybkie pobieranie wszystkich dni dla konkretnego planu
 - `idx_workout_days_date`: Umożliwia filtrowanie i sortowanie dni treningowych po dacie
 
 **Strategia indeksowania w MVP:**
+
 - Minimalistyczne podejście - tylko niezbędne indeksy
 - Unikanie over-indexing (mniejszy koszt INSERT/UPDATE)
 - Możliwość dodania dodatkowych indeksów w przyszłości na podstawie rzeczywistych danych użytkowania
@@ -419,6 +435,7 @@ USING (false);
 ```
 
 **Notatki dotyczące RLS:**
+
 - Wszystkie tabele mają włączone RLS
 - Granularne polityki per operacja (SELECT, INSERT, UPDATE, DELETE)
 - Separacja ról: `anon` (brak dostępu), `authenticated` (pełny dostęp do własnych danych)
@@ -457,6 +474,7 @@ EXECUTE FUNCTION update_updated_at_column();
 ```
 
 **Notatki:**
+
 - Funkcja automatycznie aktualizuje kolumnę `updated_at` przy każdej operacji UPDATE
 - Triggery stosowane tylko dla tabel z kolumną `updated_at` (`profiles`, `training_plans`)
 - Tabela `workout_days` nie wymaga `updated_at` - używa `completed_at` do śledzenia zmian statusu
@@ -480,6 +498,7 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
    - `end_date` = `start_date` + 69 dni (70 dni łącznie, licząc od dnia 1)
 
 4. **Proces generowania nowego planu treningowego**
+
    ```sql
    -- Krok 1: Dezaktywacja starego planu
    UPDATE training_plans
@@ -500,6 +519,7 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
    - Wyświetlenie pop-up z gratulacjami
 
 **Zalety walidacji na poziomie aplikacji:**
+
 - Bardziej czytelne komunikaty błędów dla użytkownika
 - Łatwiejsze debugowanie i testowanie
 - Mniejsze obciążenie bazy danych
@@ -512,26 +532,31 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ### 8.1. Decyzje architektoniczne
 
 **Brak historyzacji profilu**
+
 - Dane z ankiety są nadpisywane przy każdym wypełnieniu nowej ankiety
 - Upraszcza to strukturę i jest wystarczające dla MVP
 - W przyszłości można dodać tabelę `profile_history` bez konieczności migracji danych
 
 **Soft-delete dla training_plans**
+
 - Zamiast fizycznego usuwania, stare plany są oznaczane jako `is_active = false`
 - Przygotowuje na przyszłą funkcję "historia planów"
 - Minimalne koszty storage w MVP, duża wartość dla analiz produktowych
 
 **Granularna struktura workout_days**
+
 - 70 osobnych rekordów zamiast JSONB
 - Ułatwia query'owanie, filtrowanie i aktualizacje statusu wykonania
 - Umożliwia indeksowanie i wydajne wyszukiwanie po dacie
 
 **UUID zamiast SERIAL**
+
 - Globalna unikalność identyfikatorów
 - Bezpieczeństwo (trudniejsze do przewidzenia niż sekwencyjne ID)
 - Przygotowanie na distributed systems w przyszłości
 
 **TIMESTAMPTZ zamiast TIMESTAMP**
+
 - Prawidłowe zarządzanie strefami czasowymi
 - Ważne dla użytkowników z różnych lokalizacji
 - Zgodność z best practices PostgreSQL
@@ -539,16 +564,19 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ### 8.2. Wydajność i skalowalność
 
 **Indeksowanie**
+
 - Minimalistyczne podejście - tylko niezbędne indeksy
 - Możliwość dodania dodatkowych indeksów w przyszłości na podstawie rzeczywistych danych użytkowania
 - Partial index dla aktywnych planów optymalizuje najczęstsze zapytania
 
 **Storage**
+
 - Zachowywanie nieaktywnych planów - koszt minimalny w MVP, wartość dla przyszłych analiz
 - Brak automatycznego czyszczenia - dane historyczne przydatne dla product insights
 - W przyszłości można rozważyć partycjonowanie tabeli `workout_days` po dacie
 
 **Query optimization**
+
 - Relacje 1:N i 1:1 zapewniają wydajne JOIN'y
 - ON DELETE CASCADE automatycznie czyści powiązane dane
 - RLS policies używają indeksowanych kolumn (`user_id`, `is_active`)
@@ -556,17 +584,20 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ### 8.3. Bezpieczeństwo
 
 **Row Level Security (RLS)**
+
 - Włączone dla wszystkich tabel
 - Granularne polityki per operacja
 - Separacja ról: `anon` (brak dostępu), `authenticated` (dostęp do własnych danych)
 - Dodatkowe zabezpieczenie poza autentykacją Supabase
 
 **Constraints**
+
 - Foreign keys z ON DELETE CASCADE zapobiegają osieroconým rekordom
 - CHECK constraints zapewniają poprawność danych na poziomie DB
 - UNIQUE constraints zapobiegają duplikatom (tylko jeden aktywny plan)
 
 **Walidacja**
+
 - Podstawowa walidacja na poziomie DB (CHECK constraints)
 - Szczegółowa walidacja na poziomie aplikacji (lepsze UX)
 - Brak zaufania do danych wejściowych (defense in depth)
@@ -574,12 +605,14 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ### 8.4. Migracja i deployment
 
 **Pojedynczy plik migracji**
+
 - `supabase/migrations/20250108000000_create_initial_schema.sql`
 - Zawiera wszystkie elementy schematu w jednym miejscu
 - Atomowość operacji - albo wszystko się powiedzie, albo nic
 - Kompletny snapshot struktury DB
 
 **Kolejność operacji w migracji:**
+
 1. CREATE TYPE (gender_type, distance_type)
 2. CREATE TABLE (profiles, personal_records, training_plans, workout_days)
 3. CREATE INDEX
@@ -589,6 +622,7 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 7. CREATE TRIGGER
 
 **Rollback strategy:**
+
 - Migracja powinna zawierać sekcję `-- Down migration` dla cofnięcia zmian
 - Kolejność rollback odwrotna do kolejności tworzenia
 - Testowanie migracji na środowisku deweloperskim przed production
@@ -596,26 +630,31 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ### 8.5. Przyszłe rozszerzenia (poza MVP)
 
 **Historia planów treningowych**
+
 - Obecnie przygotowane przez soft-delete (`is_active = false`)
 - W przyszłości dodać UI do przeglądania historycznych planów
 - Możliwość porównywania planów i śledzenia długoterminowych postępów
 
 **Analityka i metryki**
+
 - Widoki materializowane dla dashboardu administracyjnego
 - Funkcje agregujące dla "procentu wykonanych treningów"
 - Analiza retencji użytkowników
 
 **Rozszerzenie dystansów**
+
 - Obecnie tylko 4 popularne dystanse (5K, 10K, Half Marathon, Marathon)
 - W przyszłości: 15K, 30K, Ultra Marathon, custom distances
 - Zmiana ENUM wymaga migracji, alternatywa: tabela `distances`
 
 **Partycjonowanie**
+
 - Jeśli liczba użytkowników i planów znacznie wzrośnie
 - Partycjonowanie `workout_days` po dacie lub `training_plan_id`
 - Poprawa wydajności zapytań dla dużych zbiorów danych
 
 **Backup i recovery**
+
 - Polityka retencji dla nieaktywnych planów (np. 2 lata)
 - Automatyczne archiwizowanie starych danych
 - Point-in-time recovery dla przypadków utraty danych
@@ -625,6 +664,7 @@ Poniższe reguły walidacji powinny być implementowane na poziomie aplikacji (n
 ## 9. Podsumowanie
 
 Schemat bazy danych PostgreSQL dla Athletica MVP został zaprojektowany z myślą o:
+
 - **Prostocie**: Minimalistyczne podejście - tylko niezbędne elementy
 - **Wydajności**: Odpowiednie indeksowanie i optymalizacja zapytań
 - **Bezpieczeństwie**: RLS policies i constraints zapewniające integralność danych

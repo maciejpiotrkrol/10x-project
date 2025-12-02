@@ -1,11 +1,15 @@
 # Dokument wymagań produktu (PRD) - Athletica
+
 ## 1. Przegląd produktu
+
 Athletica to aplikacja internetowa w wersji MVP (Minimum Viable Product), której celem jest uproszczenie procesu planowania treningów biegowych. Za pomocą sztucznej inteligencji (AI), aplikacja generuje spersonalizowane, 10-tygodniowe plany treningowe na podstawie danych wprowadzonych przez użytkownika. Główne funkcjonalności obejmują system kont użytkowników, ankietę określającą cele i poziom zaawansowania, moduł generujący plany oraz prosty interfejs do przeglądania i śledzenia postępów w treningach. Aplikacja jest skierowana do biegaczy-amatorów, którzy szukają łatwego i skutecznego sposobu na stworzenie dopasowanego do nich planu treningowego.
 
 ## 2. Problem użytkownika
+
 Planowanie spersonalizowanego i efektywnego treningu biegowego jest procesem złożonym i czasochłonnym, który często stanowi wyzwanie dla amatorów. Biegacze mają trudności z dostosowaniem gotowych planów do swojej aktualnej formy, celów i możliwości, co może prowadzić do braku postępów, przetrenowania lub kontuzji. Athletica rozwiązuje ten problem, oferując narzędzie, które w oparciu o AI tworzy plan treningowy idealnie dopasowany do indywidualnych potrzeb użytkownika, czyniąc proces planowania łatwym i przyjemnym.
 
 ## 3. Wymagania funkcjonalne
+
 - 3.1. System kont użytkowników:
   - 3.1.1. Użytkownik może założyć konto przy użyciu adresu e-mail i hasła.
   - 3.1.2. Użytkownik może zalogować się do swojego konta.
@@ -29,7 +33,9 @@ Planowanie spersonalizowanego i efektywnego treningu biegowego jest procesem zł
   - 3.6.1. Pod ankietą wyświetlany jest prosty disclaimer prawny, który użytkownik musi wziąć pod uwagę przed wygenerowaniem planu.
 
 ## 4. Granice produktu
+
 Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Viable Product):
+
 - Importowanie gotowych treningów i planów treningowych.
 - Generowanie treningów w formacie umożliwiającym eksport do zegarków sportowych lub innych urządzeń.
 - Współdzielenie planów treningowych z innymi użytkownikami.
@@ -42,7 +48,9 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
 - Kontekstowe wskazówki od AI dotyczące techniki biegu, diety czy regeneracji.
 
 ## 5. Historyjki użytkowników
+
 ---
+
 - ID: US-001
 - Tytuł: Rejestracja nowego użytkownika
 - Opis: Jako nowy użytkownik, chcę móc założyć konto w aplikacji przy użyciu mojego adresu e-mail i hasła, aby uzyskać dostęp do jej funkcjonalności.
@@ -54,6 +62,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 5. W przypadku, gdy użytkownik o podanym adresie e-mail już istnieje, wyświetlany jest odpowiedni komunikat błędu.
 
 ---
+
 - ID: US-002
 - Tytuł: Logowanie do systemu
 - Opis: Jako zarejestrowany użytkownik, chcę móc zalogować się do aplikacji przy użyciu mojego e-maila i hasła, aby uzyskać dostęp do mojego planu treningowego.
@@ -63,6 +72,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 3. W przypadku podania błędnego e-maila lub hasła, wyświetlany jest odpowiedni komunikat błędu.
 
 ---
+
 - ID: US-003
 - Tytuł: Wylogowanie z systemu
 - Opis: Jako zalogowany użytkownik, chcę móc się wylogować z aplikacji, aby zabezpieczyć dostęp do mojego konta.
@@ -71,6 +81,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 2. Po kliknięciu przycisku, sesja użytkownika jest kończona i zostaje on przekierowany na stronę logowania.
 
 ---
+
 - ID: US-004
 - Tytuł: Resetowanie hasła
 - Opis: Jako zarejestrowany użytkownik, który zapomniał hasła, chcę mieć możliwość jego zresetowania, aby odzyskać dostęp do konta.
@@ -81,6 +92,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 4. Po przejściu pod link, użytkownik może ustawić nowe hasło.
 
 ---
+
 - ID: US-005
 - Tytuł: Wypełnienie ankiety i generacja pierwszego planu
 - Opis: Jako nowy użytkownik, po pierwszym zalogowaniu, chcę wypełnić ankietę dotyczącą moich celów i obecnej formy, aby otrzymać mój pierwszy spersonalizowany plan treningowy.
@@ -91,6 +103,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 4. Pod ankietą znajduje się disclaimer prawny.
 
 ---
+
 - ID: US-006
 - Tytuł: Przeglądanie aktywnego planu treningowego
 - Opis: Jako użytkownik z aktywnym planem, chcę móc przeglądać listę wszystkich treningów w moim planie, aby wiedzieć, co mam do zrobienia każdego dnia.
@@ -101,6 +114,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 4. Aplikacja po załadowaniu zawsze pokazuje listę od góry.
 
 ---
+
 - ID: US-007
 - Tytuł: Oznaczanie treningu jako wykonanego
 - Opis: Jako użytkownik, chcę móc oznaczyć dany trening jako "wykonany", aby śledzić swoje postępy.
@@ -110,6 +124,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 3. Akcja jest zapisywana w systemie.
 
 ---
+
 - ID: US-008
 - Tytuł: Cofanie oznaczenia treningu jako wykonanego
 - Opis: Jako użytkownik, chcę mieć możliwość cofnięcia oznaczenia treningu jako "wykonany" na wypadek, gdybym zrobił to przez pomyłkę.
@@ -119,6 +134,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 3. Zmiana jest zapisywana w systemie.
 
 ---
+
 - ID: US-009
 - Tytuł: Generowanie nowego planu (nadpisanie istniejącego)
 - Opis: Jako użytkownik, który ma już aktywny plan, chcę móc wygenerować nowy plan treningowy, aby dostosować go do nowych celów, co spowoduje zastąpienie starego planu.
@@ -129,6 +145,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 4. Po potwierdzeniu, stary plan jest zastępowany nowym, 10-tygodniowym planem.
 
 ---
+
 - ID: US-010
 - Tytuł: Wyświetlanie dni odpoczynku
 - Opis: Jako użytkownik, chcę wyraźnie widzieć w moim planie dni przeznaczone na odpoczynek, aby wiedzieć, kiedy nie mam zaplanowanego treningu.
@@ -138,6 +155,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 3. Kafelek dnia wolnego nie posiada opcji oznaczenia jako "wykonany".
 
 ---
+
 - ID: US-011
 - Tytuł: Przeglądanie profilu użytkownika
 - Opis: Jako użytkownik, chcę mieć dostęp do strony mojego profilu, gdzie mogę zobaczyć dane, które podałem podczas ostatniego generowania planu.
@@ -147,6 +165,7 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 3. Nie ma możliwości edycji danych bezpośrednio na stronie profilu.
 
 ---
+
 - ID: US-012
 - Tytuł: Zakończenie planu treningowego
 - Opis: Jako użytkownik, który ukończył swój 10-tygodniowy plan, chcę otrzymać informację zwrotną i zachętę do podjęcia kolejnych kroków.
@@ -155,7 +174,9 @@ Poniższe funkcjonalności i cechy znajdują się poza zakresem MVP (Minimum Via
   - 2. Pop-up zawiera przycisk/link zachęcający do wygenerowania nowego planu treningowego.
 
 ## 6. Metryki sukcesu
+
 Głównym kryterium sukcesu dla wersji MVP aplikacji Athletica jest zaangażowanie użytkowników w realizację wygenerowanych planów treningowych. Sposób mierzenia sukcesu został zdefiniowany przez następujące metryki:
+
 - 6.1. Główna metryka: Procent wykonanych treningów.
   - Opis: Dla każdego użytkownika z aktywnym planem, system będzie obliczał stosunek liczby treningów oznaczonych jako "wykonane" do całkowitej liczby treningów w planie.
   - Cel: Monitorowanie, jak aktywnie użytkownicy realizują swoje plany. Dane te są nadpisywane w momencie wygenerowania nowego planu przez użytkownika.

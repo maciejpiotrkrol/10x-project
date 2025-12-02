@@ -16,21 +16,25 @@ Athletica is a Minimum Viable Product (MVP) web application designed to simplify
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: [Astro 5](https://astro.build/) & [React 19](https://react.dev/)
 - **Language**: [TypeScript 5](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind 4](https://tailwindcss.com/)
 - **UI Components**: [Shadcn/ui](https://ui.shadcn.com/)
 
 ### Backend
+
 - **Platform**: [Supabase](https://supabase.io/)
   - **Database**: PostgreSQL
   - **Authentication**: Supabase Auth
   - **SDK**: Backend-as-a-Service
 
 ### AI
+
 - **Service**: [Openrouter.ai](https://openrouter.ai/) for access to various AI models.
 
 ### DevOps
+
 - **CI/CD**: [GitHub Actions](https://github.com/features/actions)
 - **Hosting**: [DigitalOcean](https://www.digitalocean.com/) (via Docker)
 
@@ -43,12 +47,14 @@ Athletica is a Minimum Viable Product (MVP) web application designed to simplify
 ### Installation
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/your-username/athletica.git
     cd athletica
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     npm install
     ```
@@ -56,9 +62,11 @@ Athletica is a Minimum Viable Product (MVP) web application designed to simplify
 3.  **Set up environment variables:**
 
     Create a `.env` file in the root of the project by copying the example file:
+
     ```bash
     cp .env.example .env
     ```
+
     You will need to add your Supabase and Openrouter.ai API keys to this file.
 
 4.  **Run the development server:**
@@ -92,6 +100,7 @@ In the project directory, you can run the following commands:
 ## Project Scope
 
 ### Key Features (MVP)
+
 - **User Authentication**: Secure user registration, login, and password reset.
 - **AI-Powered Plan Generation**: A multi-step survey captures user goals, fitness level, and personal data to generate a personalized 10-week running plan.
 - **Interactive Training Plan**: A clean user interface to view the daily training schedule.
@@ -99,7 +108,9 @@ In the project directory, you can run the following commands:
 - **User Profile**: A read-only profile page displaying the data provided in the last survey.
 
 ### Out of Scope for MVP
+
 The following features are not included in the current MVP version:
+
 - Importing/exporting training plans.
 - Social sharing of plans.
 - Integrations with third-party platforms like Strava or Garmin Connect.

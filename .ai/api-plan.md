@@ -913,7 +913,7 @@ if (!input.personal_records || input.personal_records.length === 0) {
 
 ### Endpoints to Implement
 
-- [ ] GET /api/profile
+- [x] GET /api/profile
 - [ ] GET /api/personal-records
 - [ ] POST /api/personal-records
 - [ ] DELETE /api/personal-records/:id
@@ -924,8 +924,8 @@ if (!input.personal_records || input.personal_records.length === 0) {
 ### Shared Utilities to Create
 
 - [ ] `src/lib/api/validation.ts` - Zod schemas
-- [ ] `src/lib/api/errors.ts` - Error response helpers
-- [ ] `src/lib/api/auth.ts` - Auth verification helper
+- [x] `src/lib/api/responses.ts` - Response formatting helpers (success/error)
+- [x] `src/lib/api/auth.ts` - Auth verification helper
 - [ ] `src/lib/services/ai-generator.ts` - AI plan generation service
 - [ ] `src/lib/services/training-plan.ts` - Plan business logic
 

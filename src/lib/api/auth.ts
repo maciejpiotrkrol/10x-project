@@ -25,9 +25,7 @@ export async function verifyAuth(context: APIContext) {
       created_at: new Date().toISOString(),
     };
 
-    console.warn(
-      "⚠️  SKIP_AUTH is enabled - using mock user for development. Never use this in production!"
-    );
+    console.warn("⚠️  SKIP_AUTH is enabled - using mock user for development. Never use this in production!");
 
     return { user: mockUser as any, error: false };
   }

@@ -23,16 +23,29 @@ export function successResponse<T>(data: T, status = 200): Response {
  * @param message - Human-readable error message
  * @param status - HTTP status code (default: 500)
  * @param code - Optional error code for programmatic handling
+ * @param details - Optional validation error details (for 400 Bad Request)
  * @returns Response object with JSON error body
  *
  * @example
  * return errorResponse("Unauthorized", 401);
  * return errorResponse("Profile not found", 404, "PROFILE_NOT_FOUND");
+ * return errorResponse("Validation failed", 400, undefined, [
+ *   { field: "age", message: "Age must be at least 1" }
+ * ]);
  */
-export function errorResponse(message: string, status = 500, code?: string): Response {
+export function errorResponse(
+  message: string,
+  status = 500,
+  code?: string,
+  details?: { field: string; message: string }[]
+): Response {
   return new Response(
     JSON.stringify({
-      error: { message, code },
+      error: {
+        message,
+        ...(code && { code }),
+        ...(details && { details }),
+      },
     } as ApiErrorResponse),
     {
       status,

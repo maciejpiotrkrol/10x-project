@@ -1,8 +1,75 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import { Button } from "@/components/ui/button";
+
+// Disable prerendering for SSR (required for middleware redirect)
+export const prerender = false;
+
+// Define features data
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const features: Feature[] = [
+  {
+    icon: "🎯",
+    title: "Spersonalizowane cele",
+    description: "Plany treningowe dostosowane do Twoich celów i poziomu zaawansowania"
+  },
+  {
+    icon: "🤖",
+    title: "AI-powered generation",
+    description: "Inteligentne algorytmy tworzą optymalny plan treningowy"
+  },
+  {
+    icon: "📊",
+    title: "Śledzenie postępów",
+    description: "Monitoruj swoje treningi i realizuj cele krok po kroku"
+  }
+];
 ---
 
 <Layout>
-  <Welcome />
+  <main class="min-h-screen flex flex-col items-center justify-center px-4 md:px-6 lg:px-8 py-12 md:py-16">
+    <!-- Hero Section -->
+    <section class="text-center mb-16 md:mb-20 lg:mb-24">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-6 text-gray-900 dark:text-gray-100">
+        Athletica
+      </h1>
+      <p class="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed">
+        Twój osobisty trener biegowy napędzany AI.
+        Stwórz spersonalizowany plan treningowy w 10 tygodni.
+      </p>
+      <Button asChild={true} size="lg" client:load>
+        <a href="/auth/signup" class="text-base md:text-lg">
+          Zacznij za darmo
+        </a>
+      </Button>
+    </section>
+
+    <!-- Features Section -->
+    <section class="max-w-6xl mx-auto w-full">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 lg:gap-12">
+        {features.map((feature) => (
+          <div class="text-center p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <div
+              class="text-4xl md:text-5xl mb-4"
+              role="img"
+              aria-label={`Ikona: ${feature.title}`}
+            >
+              {feature.icon}
+            </div>
+            <h3 class="text-lg md:text-xl font-semibold mb-2 md:mb-3 text-gray-900 dark:text-gray-100">
+              {feature.title}
+            </h3>
+            <p class="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+              {feature.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
 </Layout>

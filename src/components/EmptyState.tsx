@@ -11,9 +11,7 @@ export default function EmptyState({ variant: _variant }: EmptyStateProps) {
     <div className="flex items-center justify-center min-h-[60vh] px-4">
       <Card className="max-w-md w-full">
         <CardHeader>
-          <CardTitle className="text-center text-lg sm:text-xl">
-            Nie masz aktywnego planu treningowego
-          </CardTitle>
+          <CardTitle className="text-center text-lg sm:text-xl">Nie masz aktywnego planu treningowego</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground mb-6 text-sm sm:text-base">

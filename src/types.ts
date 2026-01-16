@@ -196,3 +196,59 @@ export interface ApiSuccessResponse<T> {
  * Use this when handling API responses that could be either success or error
  */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+// ============================================================================
+// ViewModel Types - Dashboard Components
+// ============================================================================
+
+/**
+ * Props for TrainingPlanView component
+ */
+export interface TrainingPlanViewProps {
+  /** Training plan with all workout days and completion statistics */
+  trainingPlan: TrainingPlanWithWorkoutsDTO;
+}
+
+/**
+ * Props for WeekAccordion component
+ */
+export interface WeekAccordionProps {
+  /** Week number (1-10) */
+  weekNumber: number;
+  /** 7 workout days for this week */
+  workoutDays: WorkoutDay[];
+  /** Callback to toggle workout completion status */
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  /** Whether this week contains today's date (for auto-expand) */
+  isCurrentWeek?: boolean;
+}
+
+/**
+ * Props for WorkoutDayCard component
+ */
+export interface WorkoutDayCardProps {
+  /** Workout day data to display */
+  workoutDay: WorkoutDay;
+  /** Callback to toggle workout completion status */
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  /** Whether this is today's workout (for ref and auto-scroll) */
+  isToday?: boolean;
+}
+
+/**
+ * Props for PlanHeader component
+ */
+export interface PlanHeaderProps {
+  /** Training plan data */
+  trainingPlan: TrainingPlan;
+  /** Calculated completion statistics */
+  completionStats: CompletionStatsDTO;
+}
+
+/**
+ * Props for ScrollToTodayFAB component
+ */
+export interface ScrollToTodayFABProps {
+  /** Ref to today's workout card for scrolling */
+  todayCardRef: React.RefObject<HTMLDivElement>;
+}

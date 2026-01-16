@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { formatDate } from "@/lib/utils/date";
 import type { PlanHeaderProps } from "@/types";
 
 /**
@@ -7,23 +8,15 @@ import type { PlanHeaderProps } from "@/types";
  *
  * Displays training plan overview:
  * - Plan title
- * - Date range
- * - Completion statistics
- * - Progress bar
+ * - Date range (start_date - end_date)
+ * - Completion statistics (completed_workouts / total_workouts)
+ * - Progress bar showing completion percentage
+ * - Total rest days count
  */
 export function PlanHeader({ trainingPlan, completionStats }: PlanHeaderProps) {
-  // Format dates
-  const startDate = new Date(trainingPlan.start_date).toLocaleDateString("pl-PL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  const endDate = new Date(trainingPlan.end_date).toLocaleDateString("pl-PL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  // Format dates using helper function
+  const startDate = formatDate(trainingPlan.start_date);
+  const endDate = formatDate(trainingPlan.end_date);
 
   const percentageText = completionStats.completion_percentage.toFixed(0);
 

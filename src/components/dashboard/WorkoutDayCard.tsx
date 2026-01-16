@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 import type { WorkoutDayCardProps } from "@/types";
 
 /**
@@ -14,6 +15,12 @@ import type { WorkoutDayCardProps } from "@/types";
  * - Workout description (expandable)
  * - Completion checkbox (if not rest day)
  * - Visual states: rest day, pending, completed
+ *
+ * US-010 Implementation:
+ * - Rest days display "🛌 Odpoczynek" badge
+ * - Rest days show "Dzień wolny od treningów" message
+ * - Rest days DO NOT have completion checkbox
+ * - Validation prevents marking rest days as completed
  */
 export const WorkoutDayCard = forwardRef<HTMLDivElement, WorkoutDayCardProps>(function WorkoutDayCard(
   { workoutDay, onToggleCompleted },
@@ -32,12 +39,8 @@ export const WorkoutDayCard = forwardRef<HTMLDivElement, WorkoutDayCardProps>(fu
 
   const toggleExpand = () => setIsExpanded((prev) => !prev);
 
-  // Format date
-  const formattedDate = new Date(workoutDay.date).toLocaleDateString("pl-PL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  // Format date using helper function
+  const formattedDate = formatDate(workoutDay.date);
 
   // Determine card styling based on state
   const cardClassName = cn(

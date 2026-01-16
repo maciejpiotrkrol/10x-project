@@ -12,11 +12,7 @@ import type { SurveyFormData } from "@/components/survey/types";
  * @param setValue - Funkcja React Hook Form do ustawiania wartości pól
  * @returns Obiekt z funkcją clearSaved do czyszczenia zapisanych danych
  */
-export function useFormPersistence(
-  key: string,
-  formData: SurveyFormData,
-  setValue: UseFormSetValue<SurveyFormData>
-) {
+export function useFormPersistence(key: string, formData: SurveyFormData, setValue: UseFormSetValue<SurveyFormData>) {
   // Load from sessionStorage on mount
   useEffect(() => {
     const saved = sessionStorage.getItem(key);

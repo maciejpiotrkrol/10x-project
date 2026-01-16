@@ -1,0 +1,20 @@
+---
+import Layout from "./Layout.astro";
+import { Toaster } from "@/components/ui/sonner";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "Dashboard - Athletica", description = "Twój plan treningowy biegowy" } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <main class="min-h-screen bg-background">
+    <!-- Future: Add Navbar.astro here -->
+    <slot />
+    <!-- Future: Add BottomNav.tsx here (mobile only) -->
+  </main>
+  <Toaster client:load />
+</Layout>

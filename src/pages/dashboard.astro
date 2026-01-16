@@ -1,0 +1,34 @@
+---
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import TrainingPlanView from "@/components/TrainingPlanView";
+import type { TrainingPlanWithWorkoutsDTO } from "@/types";
+import type { ApiSuccessResponse } from "@/types";
+
+// Fetch active training plan server-side
+const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
+  headers: {
+    Cookie: Astro.request.headers.get("Cookie") || "",
+  },
+});
+
+let trainingPlan: TrainingPlanWithWorkoutsDTO | null = null;
+
+if (response.ok) {
+  const data = (await response.json()) as ApiSuccessResponse<TrainingPlanWithWorkoutsDTO>;
+  trainingPlan = data.data;
+} else if (response.status === 404) {
+  // No active plan - will show EmptyState
+  trainingPlan = null;
+} else if (response.status === 401) {
+  // Unauthorized - redirect to login
+  return Astro.redirect("/auth/login");
+} else {
+  // 500 or other error - for now pass null, later can add error page
+  console.error("Failed to fetch training plan:", response.status);
+  trainingPlan = null;
+}
+---
+
+<DashboardLayout title="Dashboard - Twój plan treningowy">
+  <TrainingPlanView client:load trainingPlan={trainingPlan} />
+</DashboardLayout>

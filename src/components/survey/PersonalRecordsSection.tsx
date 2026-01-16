@@ -1,20 +1,7 @@
 import { useFormContext, useFieldArray } from "react-hook-form";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
@@ -59,10 +46,7 @@ export function PersonalRecordsSection() {
         {/* Dynamic list of personal records */}
         <div className="space-y-6">
           {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="space-y-4 p-4 border rounded-lg relative"
-            >
+            <div key={field.id} className="space-y-4 p-4 border rounded-lg relative">
               {/* Distance Field */}
               <FormField
                 control={form.control}
@@ -97,22 +81,13 @@ export function PersonalRecordsSection() {
                     <FormLabel>Czas</FormLabel>
                     <div className="relative">
                       <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          min="0"
-                          step="1"
-                          {...field}
-                          className="pr-20"
-                        />
+                        <Input type="number" placeholder="0" min="0" step="1" {...field} className="pr-20" />
                       </FormControl>
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         sekund
                       </span>
                     </div>
-                    <FormDescription>
-                      Najlepszy czas na tym dystansie w sekundach
-                    </FormDescription>
+                    <FormDescription>Najlepszy czas na tym dystansie w sekundach</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -135,21 +110,14 @@ export function PersonalRecordsSection() {
         </div>
 
         {/* Add Record Button */}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAddRecord}
-          className="w-full"
-        >
+        <Button type="button" variant="outline" onClick={handleAddRecord} className="w-full">
           <Plus className="h-4 w-4 mr-2" />
           Dodaj kolejny rekord
         </Button>
 
         {/* Array-level error message */}
         {form.formState.errors.personal_records?.root && (
-          <p className="text-sm font-medium text-destructive">
-            {form.formState.errors.personal_records.root.message}
-          </p>
+          <p className="text-sm font-medium text-destructive">{form.formState.errors.personal_records.root.message}</p>
         )}
       </CardContent>
     </Card>

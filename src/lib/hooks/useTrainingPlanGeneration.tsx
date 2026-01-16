@@ -1,10 +1,6 @@
 import { useState } from "react";
 import type { SurveyFormData } from "@/components/survey/types";
-import type {
-  GenerateTrainingPlanCommand,
-  ApiErrorResponse,
-  DistanceType,
-} from "@/types";
+import type { GenerateTrainingPlanCommand, ApiErrorResponse, DistanceType } from "@/types";
 
 interface GeneratePlanResult {
   success: boolean;
@@ -92,32 +88,22 @@ export function useTrainingPlanGeneration() {
         switch (response.status) {
           case 400:
             // Validation error
-            throw new Error(
-              errorData.error.message || "Błąd walidacji danych"
-            );
+            throw new Error(errorData.error.message || "Błąd walidacji danych");
           case 401:
             // Unauthorized - redirect to login
             window.location.href = "/auth/login";
             throw new Error("Sesja wygasła. Zaloguj się ponownie.");
           case 409:
             // Conflict - active plan exists (shouldn't happen as we check before)
-            throw new Error(
-              "Masz już aktywny plan treningowy. Odśwież stronę i spróbuj ponownie."
-            );
+            throw new Error("Masz już aktywny plan treningowy. Odśwież stronę i spróbuj ponownie.");
           case 500:
             // Server error
-            throw new Error(
-              "Wystąpił błąd serwera. Spróbuj ponownie za chwilę."
-            );
+            throw new Error("Wystąpił błąd serwera. Spróbuj ponownie za chwilę.");
           case 503:
             // AI service unavailable
-            throw new Error(
-              "Usługa AI jest tymczasowo niedostępna. Spróbuj za chwilę."
-            );
+            throw new Error("Usługa AI jest tymczasowo niedostępna. Spróbuj za chwilę.");
           default:
-            throw new Error(
-              errorData.error.message || "Wystąpił nieoczekiwany błąd"
-            );
+            throw new Error(errorData.error.message || "Wystąpił nieoczekiwany błąd");
         }
       }
 

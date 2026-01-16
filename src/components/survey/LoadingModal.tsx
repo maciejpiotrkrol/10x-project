@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, AlertCircle, Clock } from "lucide-react";
@@ -35,13 +29,7 @@ const PROGRESS_MESSAGES = [
  * Modal wyświetlany podczas generowania planu przez AI. Niedomykalny (użytkownik nie może go zamknąć),
  * pokazuje spinner, progress messages i opcjonalnie progress bar. Obsługuje stany: loading, error, timeout.
  */
-export function LoadingModal({
-  isOpen,
-  state,
-  errorMessage,
-  onRetry,
-  onClose,
-}: LoadingModalProps) {
+export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: LoadingModalProps) {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
@@ -92,9 +80,7 @@ export function LoadingModal({
             <DialogHeader>
               <div className="flex flex-col items-center gap-4 py-4">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <DialogTitle className="text-center">
-                  Generowanie planu treningowego
-                </DialogTitle>
+                <DialogTitle className="text-center">Generowanie planu treningowego</DialogTitle>
               </div>
             </DialogHeader>
 
@@ -120,9 +106,7 @@ export function LoadingModal({
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                   <AlertCircle className="h-6 w-6 text-destructive" />
                 </div>
-                <DialogTitle className="text-center">
-                  Wystąpił błąd
-                </DialogTitle>
+                <DialogTitle className="text-center">Wystąpił błąd</DialogTitle>
               </div>
             </DialogHeader>
 
@@ -138,11 +122,7 @@ export function LoadingModal({
                   </Button>
                 )}
                 {onClose && (
-                  <Button
-                    onClick={onClose}
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
+                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
                     Zamknij
                   </Button>
                 )}
@@ -159,16 +139,14 @@ export function LoadingModal({
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10">
                   <Clock className="h-6 w-6 text-orange-500" />
                 </div>
-                <DialogTitle className="text-center">
-                  Przekroczono limit czasu
-                </DialogTitle>
+                <DialogTitle className="text-center">Przekroczono limit czasu</DialogTitle>
               </div>
             </DialogHeader>
 
             <div className="space-y-6 py-4">
               <DialogDescription className="text-center text-base">
-                Generowanie planu trwało zbyt długo. Spróbuj ponownie lub skontaktuj się z pomocą techniczną,
-                jeśli problem się powtarza.
+                Generowanie planu trwało zbyt długo. Spróbuj ponownie lub skontaktuj się z pomocą techniczną, jeśli
+                problem się powtarza.
               </DialogDescription>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -178,11 +156,7 @@ export function LoadingModal({
                   </Button>
                 )}
                 {onClose && (
-                  <Button
-                    onClick={onClose}
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
+                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
                     Zamknij
                   </Button>
                 )}

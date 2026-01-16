@@ -1,20 +1,7 @@
 import { useFormContext } from "react-hook-form";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { SurveyFormData } from "./types";
 
@@ -52,9 +39,7 @@ export function TrainingGoalsSection() {
                   <SelectItem value="Marathon">Maraton</SelectItem>
                 </SelectContent>
               </Select>
-              <FormDescription>
-                Wybierz dystans, do którego chcesz się przygotować
-              </FormDescription>
+              <FormDescription>Wybierz dystans, do którego chcesz się przygotować</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -69,22 +54,11 @@ export function TrainingGoalsSection() {
               <FormLabel>Średni tygodniowy kilometraż</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    step="0.1"
-                    min="0"
-                    {...field}
-                    className="pr-12"
-                  />
+                  <Input type="number" placeholder="0" step="0.1" min="0" {...field} className="pr-12" />
                 </FormControl>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                  km
-                </span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">km</span>
               </div>
-              <FormDescription>
-                Ile kilometrów przeciętnie biegasz tygodniowo?
-              </FormDescription>
+              <FormDescription>Ile kilometrów przeciętnie biegasz tygodniowo?</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -99,23 +73,13 @@ export function TrainingGoalsSection() {
               <FormLabel>Liczba dni treningowych w tygodniu</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    min="2"
-                    max="7"
-                    step="1"
-                    {...field}
-                    className="pr-28"
-                  />
+                  <Input type="number" placeholder="0" min="2" max="7" step="1" {...field} className="pr-28" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                   dni/tydzień
                 </span>
               </div>
-              <FormDescription>
-                Ile dni w tygodniu możesz trenować? (2-7 dni)
-              </FormDescription>
+              <FormDescription>Ile dni w tygodniu możesz trenować? (2-7 dni)</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -37,27 +37,17 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel }: ConfirmDialogProp
         </DialogHeader>
 
         <DialogDescription className="text-base leading-relaxed pt-2">
-          Masz już aktywny plan treningowy. Wygenerowanie nowego planu spowoduje nadpisanie
-          obecnego. <strong>Wszystkie dane dotyczące postępów w obecnym planie zostaną utracone.</strong>
+          Masz już aktywny plan treningowy. Wygenerowanie nowego planu spowoduje nadpisanie obecnego.{" "}
+          <strong>Wszystkie dane dotyczące postępów w obecnym planie zostaną utracone.</strong>
         </DialogDescription>
 
-        <DialogDescription className="text-base pt-2">
-          Czy na pewno chcesz kontynuować?
-        </DialogDescription>
+        <DialogDescription className="text-base pt-2">Czy na pewno chcesz kontynuować?</DialogDescription>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Anuluj
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onConfirm}
-          >
+          <Button type="button" variant="destructive" onClick={onConfirm}>
             Tak, wygeneruj nowy plan
           </Button>
         </DialogFooter>

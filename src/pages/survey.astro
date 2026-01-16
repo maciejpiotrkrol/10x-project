@@ -64,21 +64,15 @@ try {
     <div class="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
       <div class="mb-8">
-        <h1 class="text-3xl font-bold tracking-tight mb-2">
-          Ankieta treningowa
-        </h1>
+        <h1 class="text-3xl font-bold tracking-tight mb-2">Ankieta treningowa</h1>
         <p class="text-muted-foreground text-lg">
-          Wypełnij poniższy formularz, aby wygenerować spersonalizowany
-          10-tygodniowy plan treningowy dopasowany do Twoich celów i możliwości.
+          Wypełnij poniższy formularz, aby wygenerować spersonalizowany 10-tygodniowy plan treningowy dopasowany do
+          Twoich celów i możliwości.
         </p>
       </div>
 
       {/* Survey Form */}
-      <SurveyForm
-        client:load
-        initialProfile={initialProfile}
-        initialPersonalRecords={initialPersonalRecords}
-      />
+      <SurveyForm client:load initialProfile={initialProfile} initialPersonalRecords={initialPersonalRecords} />
     </div>
   </main>
 </Layout>

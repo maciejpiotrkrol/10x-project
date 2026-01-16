@@ -27,10 +27,7 @@ interface SurveyFormProps {
  * React Hook Form i Zod validation. Odpowiada za orkiestrację wszystkich sekcji,
  * obsługę submitu, wywołania API, wyświetlanie dialogów i obsługę błędów.
  */
-export function SurveyForm({
-  initialProfile,
-  initialPersonalRecords = [],
-}: SurveyFormProps) {
+export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: SurveyFormProps) {
   // Setup React Hook Form with Zod validation
   const form = useForm<SurveyFormData>({
     resolver: zodResolver(surveyFormSchema),
@@ -48,19 +45,20 @@ export function SurveyForm({
       gender: initialProfile?.gender || "",
 
       // Personal Records
-      personal_records: initialPersonalRecords.length > 0
-        ? initialPersonalRecords.map(record => ({
-            id: crypto.randomUUID(),
-            distance: record.distance,
-            time_seconds: record.time_seconds.toString(),
-          }))
-        : [
-            {
+      personal_records:
+        initialPersonalRecords.length > 0
+          ? initialPersonalRecords.map((record) => ({
               id: crypto.randomUUID(),
-              distance: "",
-              time_seconds: "",
-            },
-          ],
+              distance: record.distance,
+              time_seconds: record.time_seconds.toString(),
+            }))
+          : [
+              {
+                id: crypto.randomUUID(),
+                distance: "",
+                time_seconds: "",
+              },
+            ],
 
       // Disclaimer
       disclaimer_accepted: false,
@@ -75,11 +73,7 @@ export function SurveyForm({
 
   // Custom hooks
   const { checkActivePlan, generatePlan } = useTrainingPlanGeneration();
-  const { clearSaved } = useFormPersistence(
-    "survey-form-data",
-    form.watch(),
-    form.setValue
-  );
+  const { clearSaved } = useFormPersistence("survey-form-data", form.watch(), form.setValue);
 
   // Timeout logic for LoadingModal (60 seconds)
   useEffect(() => {
@@ -175,12 +169,7 @@ export function SurveyForm({
 
           {/* Submit Button */}
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              size="lg"
-              disabled={form.formState.isSubmitting}
-              className="min-w-[200px]"
-            >
+            <Button type="submit" size="lg" disabled={form.formState.isSubmitting} className="min-w-[200px]">
               {form.formState.isSubmitting ? "Generowanie..." : "Wygeneruj plan"}
             </Button>
           </div>
@@ -188,11 +177,7 @@ export function SurveyForm({
       </Form>
 
       {/* Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
-      />
+      <ConfirmDialog isOpen={showConfirmDialog} onConfirm={handleConfirm} onCancel={handleCancel} />
 
       {/* Loading Modal */}
       <LoadingModal

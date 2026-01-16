@@ -9,15 +9,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.supabase = skipAuth ? supabaseServiceClient : supabaseClient;
 
   // Redirect logged-in users from landing page to dashboard
-  const { data: { user }, error } = await context.locals.supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await context.locals.supabase.auth.getUser();
 
   if (error) {
     // Log error server-side but fail-safe: continue to next (show landing page)
-    console.error('Auth check error:', error);
+    console.error("Auth check error:", error);
   }
 
-  if (user && context.url.pathname === '/') {
-    return context.redirect('/dashboard');
+  if (user && context.url.pathname === "/") {
+    return context.redirect("/dashboard");
   }
 
   return next();

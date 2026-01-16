@@ -13,8 +13,4 @@ export { LoadingModal } from "./LoadingModal";
 
 // Types and schemas
 export { surveyFormSchema } from "./types";
-export type {
-  SurveyFormData,
-  PersonalRecordFormData,
-  LoadingModalState,
-} from "./types";
+export type { SurveyFormData, PersonalRecordFormData, LoadingModalState } from "./types";

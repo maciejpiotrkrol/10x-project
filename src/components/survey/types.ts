@@ -40,74 +40,61 @@ export interface SurveyFormData {
  */
 export const surveyFormSchema = z.object({
   goal_distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
-    errorMap: () => ({ message: "Wybierz dystans docelowy" })
+    errorMap: () => ({ message: "Wybierz dystans docelowy" }),
   }),
-  weekly_km: z.string()
+  weekly_km: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => !isNaN(Number(val)) && Number(val) > 0,
-      "Kilometraż musi być większy od 0"
-    ),
-  training_days_per_week: z.string()
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Kilometraż musi być większy od 0"),
+  training_days_per_week: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num >= 2 && num <= 7;
-      },
-      "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7"
-    ),
-  age: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num >= 2 && num <= 7;
+    }, "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7"),
+  age: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 119;
-      },
-      "Wiek musi być liczbą całkowitą od 1 do 119"
-    ),
-  weight: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 119;
+    }, "Wiek musi być liczbą całkowitą od 1 do 119"),
+  weight: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num > 0 && num <= 300;
-      },
-      "Waga musi być liczbą od 0 do 300 kg"
-    ),
-  height: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && num > 0 && num <= 300;
+    }, "Waga musi być liczbą od 0 do 300 kg"),
+  height: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num > 0 && num <= 300;
-      },
-      "Wzrost musi być liczbą całkowitą od 0 do 300 cm"
-    ),
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num > 0 && num <= 300;
+    }, "Wzrost musi być liczbą całkowitą od 0 do 300 cm"),
   gender: z.enum(["M", "F"], {
-    errorMap: () => ({ message: "Wybierz płeć" })
+    errorMap: () => ({ message: "Wybierz płeć" }),
   }),
-  personal_records: z.array(
-    z.object({
-      id: z.string(),
-      distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
-        errorMap: () => ({ message: "Wybierz dystans" })
-      }),
-      time_seconds: z.string()
-        .min(1, "Pole wymagane")
-        .refine(
-          (val) => {
+  personal_records: z
+    .array(
+      z.object({
+        id: z.string(),
+        distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
+          errorMap: () => ({ message: "Wybierz dystans" }),
+        }),
+        time_seconds: z
+          .string()
+          .min(1, "Pole wymagane")
+          .refine((val) => {
             const num = Number(val);
             return !isNaN(num) && Number.isInteger(num) && num > 0;
-          },
-          "Czas musi być liczbą całkowitą większą od 0"
-        )
-    })
-  ).min(1, "Wymagany jest co najmniej jeden rekord życiowy"),
-  disclaimer_accepted: z.boolean().refine(
-    (val) => val === true,
-    "Musisz zaakceptować warunki aby kontynuować"
-  )
+          }, "Czas musi być liczbą całkowitą większą od 0"),
+      })
+    )
+    .min(1, "Wymagany jest co najmniej jeden rekord życiowy"),
+  disclaimer_accepted: z.boolean().refine((val) => val === true, "Musisz zaakceptować warunki aby kontynuować"),
 });
 
 /**

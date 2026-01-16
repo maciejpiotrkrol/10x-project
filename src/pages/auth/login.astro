@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { LoginForm } from "@/components/auth/LoginForm";
+
+// Disable prerendering for SSR
+export const prerender = false;
+---
+
+<Layout
+  title="Logowanie - Athletica"
+  description="Zaloguj się do Athletica i zarządzaj swoimi planami treningowymi"
+>
+  <main class="min-h-screen flex items-center justify-center px-4 py-12 bg-background">
+    <div class="w-full max-w-md">
+      <LoginForm client:load />
+    </div>
+  </main>
+</Layout>

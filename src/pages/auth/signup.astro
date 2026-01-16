@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { SignupForm } from "@/components/auth/SignupForm";
+
+// Disable prerendering for SSR
+export const prerender = false;
+---
+
+<Layout
+  title="Rejestracja - Athletica"
+  description="Utwórz konto w Athletica i zacznij tworzyć spersonalizowane plany treningowe"
+>
+  <main class="min-h-screen flex items-center justify-center px-4 py-12 bg-background">
+    <div class="w-full max-w-md">
+      <SignupForm client:load />
+    </div>
+  </main>
+</Layout>

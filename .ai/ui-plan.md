@@ -29,11 +29,13 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Przyciągnięcie nowych użytkowników i przedstawienie wartości aplikacji
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Nazwa aplikacji i krótki opis (value proposition)
 - Główne korzyści (cele, AI, trening)
 - Call-to-action: „Zacznij za darmo"
 
 **Kluczowe komponenty widoku:**
+
 - Hero section z głównym CTA
 - 3 ikony przedstawiające kluczowe funkcje:
   - 🎯 Spersonalizowane cele
@@ -42,6 +44,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Button: „Zacznij za darmo" → /auth/signup
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Single-page layout (bez scrollowania)
 - Automatyczne przekierowanie zalogowanych użytkowników do /dashboard
 - Semantyczny HTML (header, main, section)
@@ -50,6 +53,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Alt text dla ikon
 
 **Względy techniczne:**
+
 - Statyczny Astro component
 - Middleware sprawdza status auth → przekierowanie jeśli zalogowany
 - Meta tags dla SEO (title, description)
@@ -61,11 +65,13 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Umożliwienie zalogowanym użytkownikom dostępu do konta
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Formularz logowania (email, hasło)
 - Link do resetowania hasła
 - Link do rejestracji
 
 **Kluczowe komponenty widoku:**
+
 - AuthForm component (React)
   - Input: Email (type="email", required, walidacja formatu)
   - Input: Hasło (type="password", required, min 8 znaków)
@@ -76,6 +82,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Toast notifications dla błędów API
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Real-time validation (po blur lub submit)
 - Clear error messages (user-friendly)
 - Password visibility toggle (opcjonalnie)
@@ -87,6 +94,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Focus management (pierwszy error field)
 
 **Flow po zalogowaniu:**
+
 1. Supabase Auth SDK: `signInWithPassword()`
 2. Sprawdzenie czy użytkownik ma profil (GET /api/profile)
 3. Przekierowanie:
@@ -94,6 +102,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
    - Profil istnieje → /dashboard
 
 **Względy techniczne:**
+
 - AuthLayout.astro (centered form container)
 - React Hook Form + Zod validation
 - Supabase client-side auth
@@ -106,10 +115,12 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Umożliwienie nowym użytkownikom założenia konta
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Formularz rejestracji (email, hasło, potwierdzenie hasła)
 - Link do logowania dla istniejących użytkowników
 
 **Kluczowe komponenty widoku:**
+
 - AuthForm component (React) - variant: signup
   - Input: Email (type="email", required, walidacja formatu)
   - Input: Hasło (type="password", required, min 8 znaków)
@@ -120,6 +131,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Toast notification dla sukcesu/błędu
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Real-time password match validation
 - Clear error messages
 - Email uniqueness check (backend)
@@ -129,11 +141,13 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Semantic form structure
 
 **Flow po rejestracji:**
+
 1. Supabase Auth SDK: `signUp()`
 2. Automatyczne logowanie
 3. Przekierowanie → /survey
 
 **Względy techniczne:**
+
 - Ten sam AuthForm component co login (props dla variant)
 - React Hook Form + Zod validation
 - Walidacja: hasła muszą być identyczne
@@ -146,11 +160,13 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Umożliwienie resetowania zapomnianego hasła
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Formularz z polem email
 - Informacja o wysłaniu linku resetującego
 - Link powrotny do logowania
 
 **Kluczowe komponenty widoku:**
+
 - AuthForm component (React) - variant: reset
   - Input: Email (type="email", required)
   - Button: „Wyślij link resetujący" (loading state)
@@ -159,6 +175,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Toast notification
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Clear instructions po wysłaniu linku
 - Email format validation
 - Rate limiting (Supabase)
@@ -166,6 +183,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - ARIA live region dla success message
 
 **Flow resetowania:**
+
 1. User wpisuje email
 2. Supabase Auth SDK: `resetPasswordForEmail()`
 3. Email wysłany z magicznym linkiem
@@ -173,6 +191,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 5. Nowe hasło zapisane
 
 **Względy techniczne:**
+
 - AuthLayout.astro
 - Ten sam AuthForm component (props dla reset variant)
 - Supabase handles email sending
@@ -184,10 +203,12 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Zebranie danych użytkownika do wygenerowania spersonalizowanego planu treningowego
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Formularz ankiety (single-step, podzielony wizualnie na sekcje)
 - Disclaimer prawny z checkboxem akceptacji
 
 **Kluczowe komponenty widoku:**
+
 - SurveyForm component (React)
 
   **Sekcja 1: Cele treningowe (Card)**
@@ -218,6 +239,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - LoadingModal component (podczas generowania AI)
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Real-time validation z React Hook Form + Zod
 - Inline error messages pod każdym polem
 - Wizualne grupowanie sekcji (Card borders)
@@ -231,6 +253,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Scroll to first error on submit
 
 **Flow generowania planu:**
+
 1. User wypełnia formularz
 2. Client-side validation (Zod)
 3. Submit → sprawdzenie czy ma aktywny plan (GET /api/training-plans/active)
@@ -247,6 +270,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 9. Success → redirect /dashboard
 
 **Względy techniczne:**
+
 - DashboardLayout.astro (navbar visible)
 - React Hook Form dla zarządzania stanem formularza
 - Zod schemas dla validation
@@ -261,12 +285,14 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Wyświetlenie aktywnego planu treningowego i umożliwienie śledzenia postępów
 
 **Kluczowe informacje do wyświetlenia:**
+
 - 10-tygodniowy plan treningowy (70 dni)
 - Statystyki wykonania planu
 - Status każdego dnia (rest, pending, completed)
 - Bieżący dzień (today)
 
 **Kluczowe komponenty widoku:**
+
 - TrainingPlanView component (React)
 
   **Header planu:**
@@ -309,6 +335,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
   - Button: "Wygeneruj nowy plan" → /survey
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Auto-scroll to today's card on load (smooth scroll, block: 'center')
 - Optimistic UI dla marking completed:
   - Natychmiastowa zmiana stanu (visual feedback)
@@ -324,6 +351,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Focus management po marking completed
 
 **Flow interakcji:**
+
 1. Page load → SSR fetch active plan (GET /api/training-plans/active)
 2. Render plan z all workout days
 3. Auto-scroll to today's card
@@ -334,12 +362,14 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 8. Error → Rollback + Toast: "Nie udało się zaktualizować. Spróbuj ponownie."
 
 **Przypadki brzegowe:**
+
 - Brak aktywnego planu → EmptyState component
 - Plan ukończony (all workouts done lub end_date passed) → CompletionModal
 - Network error → Toast with retry button
 - API timeout → Toast: "Sprawdź połączenie internetowe"
 
 **Względy techniczne:**
+
 - DashboardLayout.astro
 - SSR: Fetch active plan server-side (Astro)
 - Pass data as props to TrainingPlanView (React)
@@ -355,10 +385,12 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Główny cel:** Wyświetlenie danych użytkownika z ostatniej ankiety (read-only)
 
 **Kluczowe informacje do wyświetlenia:**
+
 - Dane z ostatniej wypełnionej ankiety
 - Button do wygenerowania nowego planu
 
 **Kluczowe komponenty widoku:**
+
 - ProfileView component (React)
 
   **Sekcja 1: Cele treningowe (Card)**
@@ -385,6 +417,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
   - Button: "Wypełnij ankietę" → /survey
 
 **UX, dostępność i bezpieczeństwo:**
+
 - Read-only display (brak edycji inline)
 - Edycja tylko przez generowanie nowego planu
 - Clear labels dla każdej wartości
@@ -394,6 +427,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - ARIA labels dla read-only values
 
 **Flow:**
+
 1. Page load → SSR fetch profile (GET /api/profile)
 2. Fetch personal records (GET /api/personal-records)
 3. Render ProfileView z danymi
@@ -401,10 +435,12 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 5. Redirect → /survey (pre-filled z obecnymi danymi)
 
 **Przypadki brzegowe:**
+
 - Brak profilu (404 z API) → EmptyState + redirect /survey
 - Network error → Toast + retry button
 
 **Względy techniczne:**
+
 - DashboardLayout.astro
 - SSR: Fetch profile + personal records server-side
 - Pass data as props to ProfileView (React)
@@ -417,11 +453,13 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 ### 3.1. Podróż nowego użytkownika (First-time user)
 
 **Krok 1: Odkrywanie aplikacji**
+
 - Landing Page (/)
 - User widzi value proposition
 - CTA: "Zacznij za darmo"
 
 **Krok 2: Rejestracja**
+
 - Click CTA → /auth/signup
 - Wypełnienie formularza rejestracji (email, hasło)
 - Walidacja client-side
@@ -430,6 +468,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Redirect → /survey
 
 **Krok 3: Wypełnienie ankiety**
+
 - Survey Page (/survey)
 - Wypełnienie 3 sekcji danych (cele, dane osobowe, rekordy)
 - Akceptacja disclaimer
@@ -437,6 +476,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Persist w sessionStorage (ochrona przed utratą danych)
 
 **Krok 4: Generowanie planu**
+
 - Click "Wygeneruj plan"
 - LoadingModal pojawia się
 - Komunikaty postępu (20-60s)
@@ -445,12 +485,14 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Success → redirect /dashboard
 
 **Krok 5: Przeglądanie planu**
+
 - Dashboard Page (/dashboard)
 - Auto-scroll do dzisiejszego dnia
 - Przegląd tygodni (accordion)
 - Zapoznanie się z treningami
 
 **Krok 6: Śledzenie postępów**
+
 - Wykonanie treningu
 - Oznaczenie jako wykonany (checkbox)
 - Optimistic UI update
@@ -458,6 +500,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Kontynuacja przez 10 tygodni
 
 **Krok 7: Ukończenie planu**
+
 - Last workout completed LUB end_date passed
 - CompletionModal z gratulacjami
 - CTA: "Wygeneruj nowy plan"
@@ -468,28 +511,33 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 ### 3.2. Podróż powracającego użytkownika (Returning user)
 
 **Krok 1: Powrót do aplikacji**
+
 - Landing Page (/)
 - Middleware wykrywa zalogowanego usera
 - Automatyczny redirect → /dashboard
 
 **Krok 2: Dashboard**
+
 - Dashboard Page (/dashboard)
 - Widok aktywnego planu (gdzie przerwał)
 - Auto-scroll do dzisiejszego dnia
 - Sprawdzenie co ma do zrobienia dzisiaj
 
 **Krok 3: Interakcje**
+
 - Oznaczanie treningów jako wykonane
 - Przeglądanie nadchodzących treningów
 - Sprawdzanie statystyk (procent ukończenia)
 
 **Krok 4: Przeglądanie profilu (opcjonalnie)**
+
 - Click "Profil" w navbar
 - Profile Page (/profile)
 - Przegląd swoich danych
 - Powrót do Dashboard
 
 **Krok 5: Generowanie nowego planu (opcjonalnie)**
+
 - Click "Nowy Plan" w navbar LUB button w Profile
 - Redirect → /survey (pre-filled)
 - Edycja danych jeśli potrzeba
@@ -501,6 +549,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 ### 3.3. Alternatywne ścieżki
 
 **Ścieżka A: Reset hasła**
+
 - Landing → Login
 - Click "Zapomniałem hasła"
 - Reset Password Page (/auth/reset-password)
@@ -512,6 +561,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Zalogowanie z nowym hasłem
 
 **Ścieżka B: Brak aktywnego planu**
+
 - Returning user → Dashboard
 - GET /api/training-plans/active → 404
 - EmptyState component
@@ -520,6 +570,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Generowanie pierwszego/nowego planu
 
 **Ścieżka C: Błędy i edge cases**
+
 - API timeout podczas generowania → Error modal z retry
 - Network error przy marking completed → Rollback + toast z retry
 - Session expired → Redirect /auth/login + toast "Sesja wygasła"
@@ -532,6 +583,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 ### 4.1. Główna nawigacja (Top Navbar)
 
 **Desktop i Tablet (≥768px):**
+
 - Logo Athletica (left) → click: /dashboard
 - Menu items (center/right):
   - Dashboard → /dashboard
@@ -542,6 +594,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Horizontal layout
 
 **Mobile (<768px):**
+
 - Top navbar tylko logo (left)
 - Bottom navigation bar (fixed bottom):
   - Icon: 🏠 Dashboard → /dashboard
@@ -551,12 +604,14 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 - Hide on scroll down, show on scroll up (auto-hide behavior)
 
 **Wyjątki nawigacji:**
+
 - Landing page: brak nawigacji (tylko CTA)
 - Auth pages (login/signup/reset): tylko logo, brak menu
 - Survey page: pełna navbar (możliwość anulowania)
 - Profile page bez danych: navbar tylko logo + wyloguj
 
 **Implementacja:**
+
 - Navbar.astro component (static)
 - BottomNav.tsx component (React, auto-hide behavior)
 - Active route highlighting (Astro.url.pathname)
@@ -570,7 +625,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 
 1. **Root level:**
    - / (Landing) - publiczny
-   - /auth/* (Auth pages) - publiczny
+   - /auth/\* (Auth pages) - publiczny
 
 2. **App level (chronione):**
    - /dashboard (główny widok)
@@ -580,6 +635,7 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 **Breadcrumbs:** NIE w MVP (płaska struktura, tylko 3 główne widoki)
 
 **Back navigation:**
+
 - Browser back button (standardowy)
 - Brak custom back buttons (niepotrzebne w płaskiej strukturze)
 
@@ -588,17 +644,20 @@ Athletica to aplikacja webowa do generowania spersonalizowanych 10-tygodniowych 
 ### 4.3. Routing i ochrona tras
 
 **Public routes (dostępne dla niezalogowanych):**
+
 - /
 - /auth/login
 - /auth/signup
 - /auth/reset-password
 
 **Protected routes (wymagają auth):**
+
 - /dashboard
 - /survey
 - /profile
 
 **Middleware logic:**
+
 ```
 Request → Middleware checks Supabase session
 
@@ -624,6 +683,7 @@ ELSE:
 ### 4.4. Deep linking i URL structure
 
 **Struktura URL:**
+
 - `/` - landing
 - `/auth/login` - logowanie
 - `/auth/signup` - rejestracja
@@ -645,24 +705,28 @@ ELSE:
 ### 5.1. Layout Components (Astro - Static)
 
 #### Layout.astro
+
 - **Cel:** Główny layout wrapper dla wszystkich stron
 - **Elementy:** HTML structure, head, meta tags, global styles
 - **Props:** title, description (dla SEO)
 - **Zastosowanie:** Wszystkie strony
 
 #### AuthLayout.astro
+
 - **Cel:** Layout dla stron autoryzacji
 - **Elementy:** Centered container, logo, form wrapper
 - **Design:** Minimal, focused na formularz
 - **Zastosowanie:** /auth/login, /auth/signup, /auth/reset-password
 
 #### DashboardLayout.astro
+
 - **Cel:** Layout dla chronionych stron aplikacji
 - **Elementy:** Navbar, BottomNav (mobile), main content area, footer (opcjonalnie)
 - **Props:** user (dla navbar)
 - **Zastosowanie:** /dashboard, /survey, /profile
 
 #### Navbar.astro
+
 - **Cel:** Główna nawigacja aplikacji
 - **Elementy:** Logo, menu items, logout button
 - **Responsive:** Full menu (desktop/tablet), logo only (mobile)
@@ -674,6 +738,7 @@ ELSE:
 ### 5.2. Navigation Components (React - Interactive)
 
 #### BottomNav.tsx
+
 - **Cel:** Mobile bottom navigation bar
 - **Elementy:** 3 icon buttons (Dashboard, Profile, New Plan)
 - **Behavior:** Auto-hide on scroll down, show on scroll up
@@ -686,6 +751,7 @@ ELSE:
 ### 5.3. Auth Components (React - Interactive)
 
 #### AuthProvider.tsx
+
 - **Cel:** React Context dla auth state
 - **Provides:** { user, loading, logout }
 - **Init:** useEffect → Supabase getUser()
@@ -693,6 +759,7 @@ ELSE:
 - **Wraps:** Cała aplikacja (Layout component)
 
 #### AuthForm.tsx
+
 - **Cel:** Reusable formularz auth (login/signup/reset)
 - **Props:** variant ('login' | 'signup' | 'reset')
 - **Elementy:** Inputs (email, password), submit button, links
@@ -705,6 +772,7 @@ ELSE:
 ### 5.4. Survey Components (React - Interactive)
 
 #### SurveyForm.tsx
+
 - **Cel:** Formularz ankiety do generowania planu
 - **Struktura:** Single-step, 3 Card sections + disclaimer
 - **Elementy:**
@@ -719,6 +787,7 @@ ELSE:
 - **Submit flow:** Check active plan → Confirmation dialog → LoadingModal → API call
 
 #### LoadingModal.tsx
+
 - **Cel:** Modal podczas generowania planu AI
 - **Elementy:** Spinner, progress messages, progress bar
 - **Behavior:** NOT closable, auto-close on success/error
@@ -727,6 +796,7 @@ ELSE:
 - **Props:** isOpen, onSuccess, onError
 
 #### ConfirmDialog.tsx
+
 - **Cel:** Confirmation dialog przed nadpisaniem planu
 - **Trigger:** Submit survey gdy ma aktywny plan
 - **Message:** "Masz już aktywny plan. Nadpisanie spowoduje utratę obecnego. Kontynuować?"
@@ -738,6 +808,7 @@ ELSE:
 ### 5.5. Dashboard Components (React - Interactive)
 
 #### TrainingPlanView.tsx
+
 - **Cel:** Container dla całego planu treningowego
 - **Elementy:**
   - Plan header z statystykami (Card)
@@ -749,6 +820,7 @@ ELSE:
 - **Empty state:** EmptyState component jeśli brak planu
 
 #### WeekAccordion.tsx
+
 - **Cel:** Accordion item dla jednego tygodnia
 - **Elementy:**
   - AccordionTrigger: "Tydzień X: Y/Z wykonanych"
@@ -758,6 +830,7 @@ ELSE:
 - **Component:** Shadcn/ui Accordion
 
 #### WorkoutDayCard.tsx
+
 - **Cel:** Card dla pojedynczego dnia treningowego
 - **Elementy:**
   - Header: Data (DD.MM.YYYY) + day number
@@ -778,6 +851,7 @@ ELSE:
 ### 5.6. Profile Components (React - Interactive)
 
 #### ProfileView.tsx
+
 - **Cel:** Read-only display profilu użytkownika
 - **Elementy:**
   - 3 Card sections (jak w SurveyForm ale read-only)
@@ -794,18 +868,21 @@ ELSE:
 ### 5.7. Shared UI Components (React - Interactive)
 
 #### EmptyState.tsx
+
 - **Cel:** Placeholder gdy brak danych
 - **Variants:** No plan, no profile
 - **Elementy:** Icon, message, CTA button
 - **Props:** variant, ctaText, ctaLink
 
 #### ErrorBoundary.tsx
+
 - **Cel:** Catch unhandled React errors
 - **Fallback UI:** "Coś poszło nie tak" + "Odśwież stronę" button
 - **Logging:** console.error (production: Sentry opcjonalnie)
 - **Wraps:** Root level React components
 
 #### CompletionModal.tsx
+
 - **Cel:** Popup z gratulacjami po ukończeniu planu (US-012)
 - **Trigger:** is_plan_completed === true
 - **Elementy:** 🎉 icon, "Gratulacje!", message, CTA
@@ -841,6 +918,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /auth/signup
 
 **Elementy UI:**
+
 - AuthForm component (variant: signup)
 - Input: Email (validation: format)
 - Input: Hasło (validation: min 8 chars)
@@ -850,6 +928,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Toast on error
 
 **Kryteria akceptacji → UI:**
+
 1. Formularz z polami → AuthForm inputs
 2. Walidacja email → Zod schema + React Hook Form
 3. Sprawdzenie identyczności haseł → Zod .refine()
@@ -863,6 +942,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /auth/login
 
 **Elementy UI:**
+
 - AuthForm component (variant: login)
 - Input: Email
 - Input: Hasło
@@ -872,6 +952,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Toast on error
 
 **Kryteria akceptacji → UI:**
+
 1. Formularz z email i hasłem → AuthForm inputs
 2. Redirect po zalogowaniu → Middleware logic (profile check → /dashboard lub /survey)
 3. Komunikat błędu → Toast + inline error message
@@ -883,11 +964,13 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** Navbar component (wszystkie chronione strony)
 
 **Elementy UI:**
+
 - Button/Link: "Wyloguj się" w Navbar
 - Confirm logout (opcjonalnie)
 - Toast: "Wylogowano pomyślnie"
 
 **Kryteria akceptacji → UI:**
+
 1. Przycisk "Wyloguj" → Navbar.astro / BottomNav.tsx
 2. Kończenie sesji + redirect → Supabase signOut + redirect /auth/login
 
@@ -898,6 +981,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /auth/reset-password
 
 **Elementy UI:**
+
 - AuthForm component (variant: reset)
 - Input: Email
 - Button: "Wyślij link resetujący" (loading state)
@@ -905,6 +989,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Toast notification
 
 **Kryteria akceptacji → UI:**
+
 1. Link "Zapomniałem hasła" → /auth/login link
 2. Podanie email → AuthForm input
 3. Wysłanie email z linkiem → Supabase resetPasswordForEmail + toast
@@ -917,6 +1002,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /survey
 
 **Elementy UI:**
+
 - SurveyForm component
 - 3 Card sections (goals, personal data, personal records)
 - Dynamic personal records list (min 1)
@@ -926,6 +1012,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - ConfirmDialog (jeśli ma aktywny plan)
 
 **Kryteria akceptacji → UI:**
+
 1. Ankieta ze wszystkimi polami → SurveyForm z 3 sekcjami Card
 2. Generowanie planu AI → POST /api/training-plans/generate + LoadingModal
 3. Redirect po generacji → Success handler → Astro.redirect /dashboard
@@ -938,6 +1025,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /dashboard
 
 **Elementy UI:**
+
 - TrainingPlanView component
 - Plan header z statystykami
 - 10x WeekAccordion (collapsible)
@@ -945,6 +1033,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - FAB: "Dzisiaj" (scroll to today)
 
 **Kryteria akceptacji → UI:**
+
 1. Domyślny widok po zalogowaniu → Middleware redirect /dashboard
 2. Lista chronologiczna → WorkoutDayCard sorted by day_number
 3. Każdy kafelek = 1 dzień → WorkoutDayCard component
@@ -957,11 +1046,13 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /dashboard → WorkoutDayCard component
 
 **Elementy UI:**
+
 - Checkbox "Oznacz jako wykonany" (w WorkoutDayCard)
 - Visual state change (green border, ✓ icon)
 - Toast: "Trening oznaczony jako wykonany"
 
 **Kryteria akceptacji → UI:**
+
 1. Interaktywny element → Checkbox (Shadcn/ui)
 2. Zmiana statusu wizualnego → Conditional styling (completed state)
 3. Zapisanie w systemie → PATCH /api/workout-days/:id (optimistic update)
@@ -973,11 +1064,13 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /dashboard → WorkoutDayCard component
 
 **Elementy UI:**
+
 - Ten sam Checkbox (toggle behavior)
 - Visual state change (neutral border, unchecked)
 - Toast: "Oznaczenie cofnięte"
 
 **Kryteria akceptacji → UI:**
+
 1. Cofnięcie przez tę samą interakcję → Checkbox toggle (uncheck)
 2. Powrót do stanu początkowego → Conditional styling (pending state)
 3. Zapisanie zmiany → PATCH /api/workout-days/:id { is_completed: false }
@@ -989,12 +1082,14 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /survey (z pre-filled danymi)
 
 **Elementy UI:**
+
 - Button "Nowy Plan" w Navbar → redirect /survey
 - SurveyForm (pre-filled z profile data z sessionStorage)
 - ConfirmDialog przed submit
 - LoadingModal podczas generowania
 
 **Kryteria akceptacji → UI:**
+
 1. Opcja generowania nowego → Button "Nowy Plan" w Navbar + button w Profile
 2. Wyświetlenie ankiety → /survey z pre-filled data
 3. Okno dialogowe potwierdzenia → ConfirmDialog component (Shadcn Dialog)
@@ -1007,12 +1102,14 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /dashboard → WorkoutDayCard component (rest day variant)
 
 **Elementy UI:**
+
 - WorkoutDayCard z muted styling
 - Icon: 🛌
 - Tekst: "Odpoczynek"
 - Brak checkboxa (disabled state)
 
 **Kryteria akceptacji → UI:**
+
 1. Dedykowany kafelek → WorkoutDayCard (is_rest_day === true)
 2. Informacja "Odpoczynek" → Conditional rendering (tekst + icon)
 3. Brak opcji "wykonany" → Checkbox not rendered dla rest days
@@ -1024,6 +1121,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /profile
 
 **Elementy UI:**
+
 - ProfileView component
 - 3 Card sections (read-only)
 - Section 1: Training goals
@@ -1032,6 +1130,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Button: "Wygeneruj nowy plan"
 
 **Kryteria akceptacji → UI:**
+
 1. Link do profilu → "Profil" w Navbar
 2. Wyświetlenie danych read-only → ProfileView component (bez edit)
 3. Brak edycji bezpośredniej → Edycja tylko przez /survey (new plan generation)
@@ -1043,6 +1142,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Widok:** /dashboard → CompletionModal component
 
 **Elementy UI:**
+
 - CompletionModal (popup)
 - 🎉 Icon
 - Tytuł: "Gratulacje!"
@@ -1050,6 +1150,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Button: "Wygeneruj nowy plan" → /survey
 
 **Kryteria akceptacji → UI:**
+
 1. Pop-up po upływie 10 tygodni / ostatni trening → CompletionModal (is_plan_completed)
 2. Zachęta do nowego planu → Button CTA → redirect /survey
 
@@ -1060,6 +1161,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 7.1. User Experience (UX)
 
 **Feedback i komunikacja:**
+
 - Natychmiastowy feedback dla wszystkich akcji (optimistic UI)
 - Toast notifications dla sukcesu/błędów (non-intrusive)
 - Loading states (spinners, skeleton loaders)
@@ -1067,23 +1169,27 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Clear error messages (user-friendly, simplified)
 
 **Progressive disclosure:**
+
 - Accordion dla tygodni (nie overwhelm 70 kart naraz)
 - Truncated descriptions w collapsed state
 - FAB "Dzisiaj" pojawia się tylko gdy needed
 
 **Cognitive load reduction:**
+
 - Single-step survey (nie multi-step wizard)
 - Visual grouping (Cards dla sekcji)
 - Clear labels i helper texts
 - Consistent patterns (Button styles, Card layouts)
 
 **Error prevention:**
+
 - Real-time validation (catch errors early)
 - Confirmation dialogs (dla destructive actions)
 - Disabled states (prevent invalid submissions)
 - sessionStorage persistence (nie tracić danych)
 
 **Performance:**
+
 - SSR dla initial load (fast first paint)
 - Lazy loading dla heavy components (opcjonalnie)
 - Optimistic updates (perceived performance)
@@ -1094,6 +1200,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 7.2. Accessibility (A11y)
 
 **Semantic HTML:**
+
 - Proper heading hierarchy (h1 → h6)
 - Landmarks (header, nav, main, footer, aside)
 - Lists dla navigation items (ul, li)
@@ -1101,6 +1208,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Definition lists dla read-only data (dl, dt, dd)
 
 **ARIA attributes:**
+
 - aria-label dla icon-only buttons
 - aria-expanded/aria-controls dla accordion
 - aria-live dla dynamic updates (toast, completion status)
@@ -1109,6 +1217,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - aria-current dla active navigation item
 
 **Keyboard navigation:**
+
 - Tab order logiczny (focus flow)
 - Enter/Space dla button actions
 - Arrow keys dla accordion navigation (opcjonalnie)
@@ -1117,6 +1226,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Focus management (pierwszy error po validation)
 
 **Visual accessibility:**
+
 - Color contrast ratio: WCAG AA minimum (4.5:1 dla tekstu)
 - Focus-visible states (Shadcn/ui provides)
 - Not relying on color alone (icons + text dla statusów)
@@ -1124,6 +1234,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Touch targets minimum 44x44px (mobile)
 
 **Screen reader support:**
+
 - Alt text dla ikon (jeśli nie decorative)
 - Skip to content link (optional)
 - Descriptive link text (nie "click here")
@@ -1135,6 +1246,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 7.3. Security
 
 **Authentication & Authorization:**
+
 - JWT tokens via Supabase (HttpOnly cookies)
 - Row Level Security (RLS) na database level
 - Protected routes (middleware checks)
@@ -1142,12 +1254,14 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - CSRF protection (Supabase handles)
 
 **Input validation & sanitization:**
+
 - Client-side validation (Zod schemas)
 - Server-side validation (API endpoints)
 - SQL injection prevention (Supabase parametrized queries)
 - XSS prevention (React escapes by default)
 
 **Data protection:**
+
 - HTTPS only (production)
 - Sensitive data nie w localStorage (tylko sessionStorage dla non-sensitive)
 - JWT w HttpOnly cookies (nie accessible via JS)
@@ -1155,6 +1269,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Rate limiting (Supabase handles auth attempts)
 
 **Privacy:**
+
 - Minimal data collection (tylko co potrzebne dla planu)
 - User owns their data (może wygenerować nowy plan)
 - No third-party tracking w MVP
@@ -1173,6 +1288,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 8.2. Layout adaptations
 
 **Mobile (<768px):**
+
 - Stack layout (1 kolumna)
 - Bottom navigation bar (3 ikony)
 - Top navbar (tylko logo)
@@ -1182,12 +1298,14 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - Simplified interactions (mniej hover states)
 
 **Tablet (768px - 1024px):**
+
 - Top navbar (pełna)
 - 1-2 kolumny (opcjonalnie dla wide content)
 - Cards z padding
 - Desktop-like interactions
 
 **Desktop (>1024px):**
+
 - Top navbar (pełna)
 - Max-width container (1280px, centered)
 - Cards z margins
@@ -1197,12 +1315,14 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 8.3. Touch vs Mouse interactions
 
 **Touch (mobile/tablet):**
+
 - Tap to expand/collapse (accordion, cards)
 - Swipe gestures (opcjonalnie, not MVP)
 - Long press (opcjonalnie)
 - No hover states (tylko active)
 
 **Mouse (desktop):**
+
 - Hover states (buttons, cards, links)
 - Click to expand/collapse
 - Tooltips on hover (opcjonalnie)
@@ -1217,6 +1337,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** User traci połączenie podczas API call
 
 **Obsługa:**
+
 - Toast notification: "Sprawdź połączenie internetowe"
 - Retry button w toast
 - Rollback optimistic updates (jeśli applicable)
@@ -1229,6 +1350,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** AI generation przekracza 60 sekund
 
 **Obsługa:**
+
 - LoadingModal timeout handler
 - Error message: "Generowanie trwało zbyt długo. Spróbuj ponownie."
 - Close modal + toast z retry button
@@ -1241,6 +1363,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** JWT token expires podczas sesji
 
 **Obsługa:**
+
 - API returns 401 Unauthorized
 - Middleware catches → redirect /auth/login
 - Toast: "Sesja wygasła. Zaloguj się ponownie."
@@ -1253,6 +1376,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** User submits invalid form data
 
 **Obsługa:**
+
 - Client-side validation (Zod) catches before submit
 - Inline error messages (red text pod fields)
 - Focus first error field
@@ -1266,6 +1390,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario A:** User ma konto ale brak profilu
 
 **Obsługa:**
+
 - /dashboard → GET /api/profile → 404
 - Automatic redirect /survey
 - Navbar simplified (logo + logout)
@@ -1273,6 +1398,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario B:** User ma profil ale brak aktywnego planu
 
 **Obsługa:**
+
 - /dashboard → GET /api/training-plans/active → 404
 - EmptyState component
 - Message: "Nie masz aktywnego planu treningowego"
@@ -1285,6 +1411,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** User kończy wszystkie treningi LUB end_date passed
 
 **Obsługa:**
+
 - /dashboard → is_plan_completed === true
 - CompletionModal auto-opens
 - Gratulacje + CTA "Nowy plan"
@@ -1297,6 +1424,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** User ma otwarte 2 tabs, oznacza trening w obu
 
 **Obsługa:**
+
 - Optimistic update w obu tabs
 - API call z obu → eventual consistency
 - Ostatni request wins
@@ -1310,6 +1438,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 **Scenario:** User refreshuje stronę podczas generowania planu
 
 **Obsługa:**
+
 - LoadingModal state lost (nie persist)
 - User wraca do /survey
 - sessionStorage preserves form data
@@ -1339,6 +1468,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ✅ **Wszystkie 12 historyjek użytkownika** zmapowane do konkretnych widoków i komponentów
 
 ✅ **Wymagania funkcjonalne:**
+
 - 3.1: System kont → Auth pages + Supabase integration
 - 3.2: Ankieta i generowanie → SurveyForm + LoadingModal + API
 - 3.3: Interfejs planu → TrainingPlanView + WorkoutDayCard
@@ -1347,6 +1477,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 - 3.6: Disclaimer → Survey section 4
 
 ✅ **Metryki sukcesu:**
+
 - 6.1: Procent wykonanych treningów → Trackable via PATCH /api/workout-days/:id
 - 6.2: Aktywacja planu → Trackable via POST /api/training-plans/generate
 
@@ -1355,6 +1486,7 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 10.3. Zgodność z API Plan
 
 ✅ **Wszystkie 7 endpointów** zintegrowane w architekturze UI:
+
 - GET /api/profile → ProfileView, Survey pre-fill
 - GET /api/personal-records → ProfileView
 - POST /api/personal-records → (not used directly w MVP)
@@ -1372,35 +1504,19 @@ Wykorzystywane komponenty z Shadcn/ui (new-york style):
 ### 10.4. Priorytetyzacja implementacji
 
 **Phase 1: Foundation (Critical)**
+
 1. Dodanie Shadcn/ui components (Input, Select, Dialog, Toast, Accordion, Skeleton)
 2. Layouty (AuthLayout, DashboardLayout)
 3. AuthProvider (React Context)
 4. Navbar + BottomNav
 
-**Phase 2: Auth Flow**
-5. Login page
-6. Signup page
-7. Reset password page
-8. Protected routes middleware
+**Phase 2: Auth Flow** 5. Login page 6. Signup page 7. Reset password page 8. Protected routes middleware
 
-**Phase 3: Core Features**
-9. Landing page
-10. Survey page (SurveyForm)
-11. LoadingModal + ConfirmDialog
-12. Dashboard (TrainingPlanView + WeekAccordion + WorkoutDayCard)
-13. Optimistic updates dla workout completion
+**Phase 3: Core Features** 9. Landing page 10. Survey page (SurveyForm) 11. LoadingModal + ConfirmDialog 12. Dashboard (TrainingPlanView + WeekAccordion + WorkoutDayCard) 13. Optimistic updates dla workout completion
 
-**Phase 4: Secondary Features**
-14. Profile page
-15. Empty states
-16. CompletionModal
-17. FAB (scroll to today)
+**Phase 4: Secondary Features** 14. Profile page 15. Empty states 16. CompletionModal 17. FAB (scroll to today)
 
-**Phase 5: Polish**
-18. Error handling (toast, error boundary)
-19. Responsiveness (mobile/tablet/desktop testing)
-20. Accessibility audit
-21. Testing (manual + automated opcjonalnie)
+**Phase 5: Polish** 18. Error handling (toast, error boundary) 19. Responsiveness (mobile/tablet/desktop testing) 20. Accessibility audit 21. Testing (manual + automated opcjonalnie)
 
 ---
 

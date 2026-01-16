@@ -1,6 +1,8 @@
 ---
 import Layout from "./Layout.astro";
 import { Toaster } from "@/components/ui/sonner";
+import Navbar from "@/components/navigation/Navbar.astro";
+import { BottomNav } from "@/components/navigation/BottomNav";
 
 interface Props {
   title?: string;
@@ -8,13 +10,16 @@ interface Props {
 }
 
 const { title = "Dashboard - Athletica", description = "Twój plan treningowy biegowy" } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 
 <Layout title={title} description={description}>
-  <main class="min-h-screen bg-background">
-    <!-- Future: Add Navbar.astro here -->
-    <slot />
-    <!-- Future: Add BottomNav.tsx here (mobile only) -->
-  </main>
+  <div class="min-h-screen bg-background">
+    <Navbar />
+    <main class="pb-20 md:pb-0">
+      <slot />
+    </main>
+    <BottomNav client:load currentPath={currentPath} />
+  </div>
   <Toaster client:load />
 </Layout>

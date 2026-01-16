@@ -5,6 +5,7 @@
 Widok Dashboard umożliwia użytkownikom przeglądanie swojego 10-tygodniowego planu treningowego oraz oznaczanie poszczególnych treningów jako wykonanych. Widok implementuje pattern Optimistic UI, zapewniając natychmiastowy feedback użytkownikowi przy zachowaniu spójności danych z backendem. Każdy trening może być oznaczony jako wykonany lub niewykonany poprzez interakcję z checkboxem, przy czym dni odpoczynku nie mogą być oznaczane.
 
 **Kluczowe funkcjonalności:**
+
 - Wyświetlanie 70 dni treningowych pogrupowanych w 10 tygodni (accordion)
 - Oznaczanie treningu jako wykonanego (toggle checkbox)
 - Cofanie oznaczenia treningu jako wykonanego (ten sam checkbox)
@@ -20,6 +21,7 @@ Widok Dashboard umożliwia użytkownikom przeglądanie swojego 10-tygodniowego p
 **Ochrona:** Protected route (wymaga autentykacji)
 
 **Middleware logic:**
+
 - Sprawdzenie czy użytkownik jest zalogowany
 - Jeśli nie ma profilu → redirect do `/survey`
 - Jeśli nie ma aktywnego planu → wyświetlenie EmptyState z CTA do `/survey`
@@ -41,6 +43,7 @@ DashboardLayout.astro (SSR)
 ```
 
 **Hierarchia:**
+
 1. **DashboardLayout.astro** - Layout strony z nawigacją (SSR)
 2. **TrainingPlanView.tsx** - Główny kontener planu (React, zarządzanie stanem)
 3. **WeekAccordion.tsx** - Accordion dla pojedynczego tygodnia (React)
@@ -56,6 +59,7 @@ DashboardLayout.astro (SSR)
 Layout aplikacji dla chronionych stron. Zawiera nawigację (Navbar na desktop, BottomNav na mobile), główną sekcję content oraz renderuje komponenty React z danymi pobranymi server-side.
 
 **Główne elementy:**
+
 - `<Layout>` - bazowy layout z meta tags
 - `<Navbar>` - górna nawigacja (desktop/tablet)
 - `<main>` - główna sekcja content
@@ -63,46 +67,46 @@ Layout aplikacji dla chronionych stron. Zawiera nawigację (Navbar na desktop, B
 - `<BottomNav client:load>` - dolna nawigacja (mobile)
 
 **Obsługiwane zdarzenia:**
+
 - Brak (statyczny layout)
 
 **Warunki walidacji:**
+
 - Sprawdzenie czy użytkownik jest zalogowany (middleware)
 - Sprawdzenie czy ma profil (redirect do `/survey` jeśli nie)
 - Sprawdzenie czy ma aktywny plan (wyświetlenie EmptyState jeśli nie)
 
 **Typy:**
+
 - `Astro.locals.supabase: SupabaseClient`
 - `trainingPlan: TrainingPlanWithWorkoutsDTO | null`
 
 **Propsy:**
+
 - Brak (Astro page component)
 
 **Kod szkieletowy:**
+
 ```astro
 ---
 // Fetch active training plan server-side
 const { data: trainingPlan } = await Astro.locals.supabase
-  .from('training_plans')
-  .select(`
+  .from("training_plans")
+  .select(
+    `
     *,
     workout_days(*)
-  `)
-  .eq('user_id', user.id)
-  .eq('is_active', true)
+  `
+  )
+  .eq("user_id", user.id)
+  .eq("is_active", true)
   .single();
 ---
 
 <Layout title="Dashboard - Athletica">
   <Navbar />
   <main class="container mx-auto px-4 py-8">
-    {trainingPlan ? (
-      <TrainingPlanView
-        client:load
-        trainingPlan={trainingPlan}
-      />
-    ) : (
-      <EmptyState />
-    )}
+    {trainingPlan ? <TrainingPlanView client:load trainingPlan={trainingPlan} /> : <EmptyState />}
   </main>
   <BottomNav client:load />
 </Layout>
@@ -116,25 +120,30 @@ const { data: trainingPlan } = await Astro.locals.supabase
 Główny kontener widoku planu treningowego. Zarządza stanem workout days z implementacją Optimistic UI pattern. Grupuje workout days po tygodniach i przekazuje je do komponentów WeekAccordion. Odpowiada za API calls do oznaczania treningów jako wykonanych.
 
 **Główne elementy:**
+
 - `PlanHeader` - nagłówek z statystykami
 - Array of `WeekAccordion` components (10 sztuk)
 - `ScrollToTodayFAB` - floating action button
 - `Toast` provider (Shadcn/ui)
 
 **Obsługiwane zdarzenia:**
+
 - `onToggleCompleted(id: string, currentStatus: boolean)` - toggle workout completion
 
 **Obsługiwana walidacja:**
+
 - Sprawdzenie czy workout nie jest rest day przed API call
 - Walidacja response z API (status codes)
 - Rollback przy błędzie
 
 **Typy:**
+
 - `TrainingPlanViewProps` - props komponentu
 - `WorkoutDay[]` - tablica workout days
 - `Map<number, WorkoutDay[]>` - workout days pogrupowane po tygodniach
 
 **Propsy:**
+
 ```typescript
 interface TrainingPlanViewProps {
   trainingPlan: TrainingPlanWithWorkoutsDTO;
@@ -142,15 +151,17 @@ interface TrainingPlanViewProps {
 ```
 
 **Custom hooks:**
+
 - `useOptimisticWorkouts(initialWorkouts: WorkoutDay[])`
 - `useScrollToToday(workoutDays: WorkoutDay[])`
 
 **Logika implementacji:**
+
 ```typescript
 // 1. Grupowanie workout days po tygodniach
 const groupByWeeks = (workouts: WorkoutDay[]): Map<number, WorkoutDay[]> => {
   const weeks = new Map<number, WorkoutDay[]>();
-  workouts.forEach(workout => {
+  workouts.forEach((workout) => {
     const weekNumber = Math.ceil(workout.day_number / 7);
     if (!weeks.has(weekNumber)) {
       weeks.set(weekNumber, []);
@@ -165,42 +176,42 @@ const handleToggleCompleted = async (id: string, currentStatus: boolean) => {
   const newStatus = !currentStatus;
 
   // Optimistic update
-  setWorkouts(prev => prev.map(w =>
-    w.id === id
-      ? { ...w, is_completed: newStatus, completed_at: newStatus ? new Date().toISOString() : null }
-      : w
-  ));
+  setWorkouts((prev) =>
+    prev.map((w) =>
+      w.id === id ? { ...w, is_completed: newStatus, completed_at: newStatus ? new Date().toISOString() : null } : w
+    )
+  );
 
   try {
     // API call
     const response = await fetch(`/api/workout-days/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ is_completed: newStatus })
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_completed: newStatus }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update workout');
+      throw new Error("Failed to update workout");
     }
 
     // Success toast
     toast({
       title: newStatus ? "Trening oznaczony jako wykonany" : "Oznaczenie cofnięte",
-      variant: "default"
+      variant: "default",
     });
   } catch (error) {
     // Rollback optimistic update
-    setWorkouts(prev => prev.map(w =>
-      w.id === id
-        ? { ...w, is_completed: currentStatus, completed_at: currentStatus ? w.completed_at : null }
-        : w
-    ));
+    setWorkouts((prev) =>
+      prev.map((w) =>
+        w.id === id ? { ...w, is_completed: currentStatus, completed_at: currentStatus ? w.completed_at : null } : w
+      )
+    );
 
     // Error toast
     toast({
       title: "Błąd",
       description: "Nie udało się zaktualizować. Spróbuj ponownie.",
-      variant: "destructive"
+      variant: "destructive",
     });
   }
 };
@@ -214,23 +225,28 @@ const handleToggleCompleted = async (id: string, currentStatus: boolean) => {
 Komponent accordion dla pojedynczego tygodnia treningowego. Wyświetla nagłówek z numerem tygodnia i statystykami wykonanych treningów (X/Y). Zawiera 7 komponentów WorkoutDayCard w collapsible content.
 
 **Główne elementy:**
+
 - `Accordion` (Shadcn/ui)
 - `AccordionItem`
 - `AccordionTrigger` - nagłówek z tekstem "Tydzień X: Y/Z wykonanych"
 - `AccordionContent` - lista 7x WorkoutDayCard
 
 **Obsługiwane zdarzenia:**
+
 - Przekazuje `onToggleCompleted` do WorkoutDayCard
 - Accordion expand/collapse (wbudowane w Shadcn)
 
 **Obsługiwana walidacja:**
+
 - Brak (przekazuje do dzieci)
 
 **Typy:**
+
 - `WeekAccordionProps`
 - `WorkoutDay[]`
 
 **Propsy:**
+
 ```typescript
 interface WeekAccordionProps {
   weekNumber: number;
@@ -241,6 +257,7 @@ interface WeekAccordionProps {
 ```
 
 **Logika implementacji:**
+
 ```typescript
 const WeekAccordion: React.FC<WeekAccordionProps> = ({
   weekNumber,
@@ -281,6 +298,7 @@ const WeekAccordion: React.FC<WeekAccordionProps> = ({
 Kafelek reprezentujący pojedynczy dzień treningowy. Wyświetla datę, numer dnia, opis treningu oraz checkbox do oznaczenia jako wykonany (jeśli nie jest rest day). Obsługuje 3 stany wizualne: rest day, pending workout, completed workout. Implementuje expand/collapse dla pełnego opisu treningu.
 
 **Główne elementy:**
+
 - `Card` (Shadcn/ui) - kontener
 - `CardHeader` - data i numer dnia
 - `CardContent` - opis treningu (truncated lub pełny)
@@ -289,18 +307,22 @@ Kafelek reprezentujący pojedynczy dzień treningowy. Wyświetla datę, numer dn
 - `Checkbox` (Shadcn/ui) - do oznaczenia jako wykonany
 
 **Obsługiwane zdarzenia:**
+
 - `onClick` na Card - toggle expand/collapse
 - `onChange` na Checkbox - wywołanie `onToggleCompleted`
 
 **Obsługiwana walidacja:**
+
 - `is_rest_day === true` → nie renderuj checkbox, pokaż "Odpoczynek", disabled styling
 - `is_rest_day === false` → renderuj checkbox, enable interaction
 
 **Typy:**
+
 - `WorkoutDayCardProps`
 - `WorkoutDay`
 
 **Propsy:**
+
 ```typescript
 interface WorkoutDayCardProps {
   workoutDay: WorkoutDay;
@@ -309,6 +331,7 @@ interface WorkoutDayCardProps {
 ```
 
 **Stany wizualne:**
+
 ```typescript
 // Rest Day
 - Background: muted (bg-muted)
@@ -331,6 +354,7 @@ interface WorkoutDayCardProps {
 ```
 
 **Logika implementacji:**
+
 ```typescript
 const WorkoutDayCard: React.FC<WorkoutDayCardProps> = ({
   workoutDay,
@@ -433,6 +457,7 @@ const WorkoutDayCard: React.FC<WorkoutDayCardProps> = ({
 Nagłówek planu treningowego wyświetlający kluczowe informacje: tytuł planu, zakres dat (start → end), oraz statystyki wykonania (X/Y treningów, procent ukończenia, progress bar).
 
 **Główne elementy:**
+
 - `Card` (Shadcn/ui)
 - Tytuł: "Twój plan treningowy"
 - Daty: "DD.MM.YYYY - DD.MM.YYYY"
@@ -442,16 +467,20 @@ Nagłówek planu treningowego wyświetlający kluczowe informacje: tytuł planu,
 - `Progress` component (Shadcn/ui) - wizualizacja postępu
 
 **Obsługiwane zdarzenia:**
+
 - Brak (read-only display)
 
 **Obsługiwana walidacja:**
+
 - Brak
 
 **Typy:**
+
 - `PlanHeaderProps`
 - `CompletionStatsDTO`
 
 **Propsy:**
+
 ```typescript
 interface PlanHeaderProps {
   trainingPlan: TrainingPlanDTO;
@@ -467,21 +496,26 @@ interface PlanHeaderProps {
 Floating Action Button w prawym dolnym rogu ekranu. Umożliwia szybki scroll do dzisiejszego dnia. Pojawia się tylko gdy today's card nie jest w viewport (ukrywa się automatycznie gdy today's card jest widoczny).
 
 **Główne elementy:**
+
 - `Button` (Shadcn/ui) - circular FAB
 - Icon: `ArrowDown` (lucide-react)
 - Text: "Dzisiaj"
 
 **Obsługiwane zdarzenia:**
+
 - `onClick` - scroll to today's card (smooth scroll)
 
 **Obsługiwana walidacja:**
+
 - Sprawdzenie czy today's card jest w viewport (IntersectionObserver)
 - Ukryj FAB jeśli today's card jest widoczny
 
 **Typy:**
+
 - `ScrollToTodayFABProps`
 
 **Propsy:**
+
 ```typescript
 interface ScrollToTodayFABProps {
   todayCardRef: React.RefObject<HTMLDivElement>;
@@ -489,6 +523,7 @@ interface ScrollToTodayFABProps {
 ```
 
 **Logika implementacji:**
+
 ```typescript
 const ScrollToTodayFAB: React.FC<ScrollToTodayFABProps> = ({ todayCardRef }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -676,9 +711,7 @@ Stan w komponencie `TrainingPlanView`:
 
 ```typescript
 // Workout days z optimistic updates
-const [workouts, setWorkouts] = useState<WorkoutDay[]>(
-  trainingPlan.workout_days
-);
+const [workouts, setWorkouts] = useState<WorkoutDay[]>(trainingPlan.workout_days);
 
 // Ref do dzisiejszego dnia (dla auto-scroll i FAB)
 const todayCardRef = useRef<HTMLDivElement>(null);
@@ -694,9 +727,9 @@ const [updatingWorkoutId, setUpdatingWorkoutId] = useState<string | null>(null);
 **Implementacja:**
 
 ```typescript
-import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import type { WorkoutDay } from '@/types';
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import type { WorkoutDay } from "@/types";
 
 interface UseOptimisticWorkoutsReturn {
   workouts: WorkoutDay[];
@@ -704,9 +737,7 @@ interface UseOptimisticWorkoutsReturn {
   isUpdating: (id: string) => boolean;
 }
 
-export function useOptimisticWorkouts(
-  initialWorkouts: WorkoutDay[]
-): UseOptimisticWorkoutsReturn {
+export function useOptimisticWorkouts(initialWorkouts: WorkoutDay[]): UseOptimisticWorkoutsReturn {
   const [workouts, setWorkouts] = useState<WorkoutDay[]>(initialWorkouts);
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
@@ -715,7 +746,7 @@ export function useOptimisticWorkouts(
     const newStatus = !currentStatus;
 
     // Znajdź workout
-    const workout = workouts.find(w => w.id === id);
+    const workout = workouts.find((w) => w.id === id);
     if (!workout) return;
 
     // Nie pozwól na oznaczenie rest day
@@ -729,11 +760,11 @@ export function useOptimisticWorkouts(
     }
 
     // Mark as updating
-    setUpdatingIds(prev => new Set(prev).add(id));
+    setUpdatingIds((prev) => new Set(prev).add(id));
 
     // Optimistic update
-    setWorkouts(prev =>
-      prev.map(w =>
+    setWorkouts((prev) =>
+      prev.map((w) =>
         w.id === id
           ? {
               ...w,
@@ -747,16 +778,16 @@ export function useOptimisticWorkouts(
     try {
       // API call
       const response = await fetch(`/api/workout-days/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ is_completed: newStatus }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error?.message || 'Failed to update workout');
+        throw new Error(error.error?.message || "Failed to update workout");
       }
 
       // Success toast
@@ -766,8 +797,8 @@ export function useOptimisticWorkouts(
       });
     } catch (error) {
       // Rollback optimistic update
-      setWorkouts(prev =>
-        prev.map(w =>
+      setWorkouts((prev) =>
+        prev.map((w) =>
           w.id === id
             ? {
                 ...w,
@@ -786,7 +817,7 @@ export function useOptimisticWorkouts(
       });
     } finally {
       // Remove from updating
-      setUpdatingIds(prev => {
+      setUpdatingIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
         return next;
@@ -807,8 +838,8 @@ export function useOptimisticWorkouts(
 **Implementacja:**
 
 ```typescript
-import { useEffect, useRef } from 'react';
-import type { WorkoutDay } from '@/types';
+import { useEffect, useRef } from "react";
+import type { WorkoutDay } from "@/types";
 
 export function useScrollToToday(workoutDays: WorkoutDay[]) {
   const todayCardRef = useRef<HTMLDivElement>(null);
@@ -817,8 +848,8 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
     // Scroll to today's card on mount
     const timer = setTimeout(() => {
       todayCardRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
+        behavior: "smooth",
+        block: "center",
       });
     }, 500); // Delay dla lepszej UX (pozwól stronie się załadować)
 
@@ -826,8 +857,8 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
   }, []); // Run only on mount
 
   // Find today's workout
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  const todayWorkout = workoutDays.find(w => w.date === today);
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const todayWorkout = workoutDays.find((w) => w.date === today);
 
   return { todayCardRef, todayWorkout };
 }
@@ -848,9 +879,11 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 **Authentication:** Required (JWT token via Supabase session)
 
 **Path Parameters:**
+
 - `id` (string, uuid) - ID workout day do aktualizacji
 
 **Request Headers:**
+
 ```typescript
 {
   'Content-Type': 'application/json'
@@ -858,17 +891,20 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 ```
 
 **Request Body:**
+
 ```typescript
 {
-  is_completed: boolean // true - oznacz jako wykonany, false - cofnij oznaczenie
+  is_completed: boolean; // true - oznacz jako wykonany, false - cofnij oznaczenie
 }
 ```
 
 **Validation Rules:**
+
 1. `is_completed` - Required, must be boolean
 2. Cannot mark rest days as completed (enforced by database constraint)
 
 **Response Success (200 OK):**
+
 ```typescript
 {
   data: {
@@ -887,6 +923,7 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 **Response Errors:**
 
 1. **400 Bad Request** - Invalid input lub próba oznaczenia rest day
+
 ```typescript
 {
   error: {
@@ -903,15 +940,17 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 ```
 
 2. **401 Unauthorized** - Brak/nieprawidłowy token
+
 ```typescript
 {
   error: {
-    message: "Unauthorized"
+    message: "Unauthorized";
   }
 }
 ```
 
 3. **404 Not Found** - Workout nie istnieje lub należy do innego użytkownika (RLS)
+
 ```typescript
 {
   error: {
@@ -922,10 +961,11 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 ```
 
 4. **500 Internal Server Error** - Błąd serwera
+
 ```typescript
 {
   error: {
-    message: "Internal server error"
+    message: "Internal server error";
   }
 }
 ```
@@ -935,14 +975,11 @@ export function useScrollToToday(workoutDays: WorkoutDay[]) {
 ```typescript
 // W komponencie WorkoutDayCard lub custom hook
 
-const toggleWorkoutCompletion = async (
-  workoutId: string,
-  newStatus: boolean
-): Promise<WorkoutDay> => {
+const toggleWorkoutCompletion = async (workoutId: string, newStatus: boolean): Promise<WorkoutDay> => {
   const response = await fetch(`/api/workout-days/${workoutId}`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       is_completed: newStatus,
@@ -951,7 +988,7 @@ const toggleWorkoutCompletion = async (
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to update workout');
+    throw new Error(error.error?.message || "Failed to update workout");
   }
 
   const result = await response.json();
@@ -968,6 +1005,7 @@ const toggleWorkoutCompletion = async (
 **Trigger:** User klika checkbox na WorkoutDayCard (nie rest day)
 
 **Flow:**
+
 1. `onChange` event na Checkbox
 2. Wywołanie `handleToggleCompleted(workoutId, currentStatus)`
 3. **Optimistic update:**
@@ -984,6 +1022,7 @@ const toggleWorkoutCompletion = async (
    - Toast notification: "Błąd: [message]. Spróbuj ponownie."
 
 **Expected result:**
+
 - Natychmiastowy feedback (optimistic UI)
 - Zmiana koloru bordera kafelka (neutral → green lub green → neutral)
 - Pojawienie się/zniknięcie ikony ✓
@@ -998,11 +1037,13 @@ const toggleWorkoutCompletion = async (
 **Trigger:** User klika na obszar Card (poza checkboxem)
 
 **Flow:**
+
 1. `onClick` event na Card
 2. Toggle local state `isExpanded`
 3. Conditional rendering: pokaż pełny opis lub truncated (line-clamp-2)
 
 **Expected result:**
+
 - Rozwinięcie/zwinięcie opisu treningu
 - Animacja transition (smooth)
 - Brak wpływu na completion status
@@ -1014,11 +1055,13 @@ const toggleWorkoutCompletion = async (
 **Trigger:** User klika Floating Action Button w prawym dolnym rogu
 
 **Flow:**
+
 1. `onClick` event na Button
 2. Wywołanie `scrollToToday()`
 3. Smooth scroll do today's card: `todayCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })`
 
 **Expected result:**
+
 - Płynne przewinięcie do dzisiejszego dnia
 - Today's card wycentrowany w viewport
 - FAB automatycznie znika (IntersectionObserver)
@@ -1030,11 +1073,13 @@ const toggleWorkoutCompletion = async (
 **Trigger:** User próbuje kliknąć checkbox na rest day (edge case, nie powinno być możliwe)
 
 **Flow:**
+
 1. Checkbox nie jest renderowany dla rest days
 2. Jeśli jakoś zostanie wywołane (edge case): walidacja w `handleToggleCompleted`
 3. Early return + toast error: "Dni odpoczynku nie mogą być oznaczone jako wykonane"
 
 **Expected result:**
+
 - Brak zmiany stanu
 - Toast notification z błędem
 - Visual cue: rest day ma muted styling i brak checkboxa
@@ -1048,6 +1093,7 @@ const toggleWorkoutCompletion = async (
 **Komponenty:** WorkoutDayCard
 
 **Walidacja:**
+
 ```typescript
 if (workoutDay.is_rest_day === true) {
   // NIE renderuj checkbox
@@ -1058,6 +1104,7 @@ if (workoutDay.is_rest_day === true) {
 ```
 
 **Wpływ na UI:**
+
 - Brak checkboxa w CardFooter
 - Badge z ikoną 🛌 i tekstem "Odpoczynek"
 - Muted background color
@@ -1071,6 +1118,7 @@ if (workoutDay.is_rest_day === true) {
 **Komponenty:** WorkoutDayCard, WeekAccordion (statystyki)
 
 **Walidacja:**
+
 ```typescript
 if (workoutDay.is_completed === true) {
   // Checkbox: checked state
@@ -1081,6 +1129,7 @@ if (workoutDay.is_completed === true) {
 ```
 
 **Wpływ na UI:**
+
 - Zielony border kafelka
 - Checked checkbox
 - Badge "Wykonano" z ikoną ✓
@@ -1105,6 +1154,7 @@ EXISTS (
 ```
 
 **Wpływ na UI:**
+
 - Jeśli user nie jest właścicielem: API zwraca 404 (RLS blocks)
 - Frontend: rollback optimistic update + toast error
 - Security: nie ujawniamy czy workout istnieje (404 dla obu przypadków)
@@ -1116,16 +1166,18 @@ EXISTS (
 **Komponenty:** useOptimisticWorkouts hook
 
 **Walidacja:**
+
 ```typescript
 if (!response.ok) {
   // Rollback optimistic update
   // Toast error notification
   // Log error (console + optional Sentry)
-  throw new Error(error.error?.message || 'Failed to update workout');
+  throw new Error(error.error?.message || "Failed to update workout");
 }
 ```
 
 **Wpływ na UI:**
+
 - Rollback do previous state
 - Toast destructive: "Błąd: [message]"
 - Statystyki nie zmieniają się (rollback)
@@ -1137,12 +1189,14 @@ if (!response.ok) {
 **Komponenty:** TrainingPlanView, WorkoutDayCard
 
 **Walidacja:**
+
 ```typescript
-const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 const isToday = workoutDay.date === today;
 ```
 
 **Wpływ na UI:**
+
 - Auto-scroll do tego dnia po mount
 - Ref przypisany do tego WorkoutDayCard
 - Opcjonalnie: dodatkowy visual indicator (badge "Dzisiaj")
@@ -1155,6 +1209,7 @@ const isToday = workoutDay.date === today;
 **Komponenty:** ScrollToTodayFAB
 
 **Walidacja:**
+
 ```typescript
 // IntersectionObserver
 const observer = new IntersectionObserver(
@@ -1166,6 +1221,7 @@ const observer = new IntersectionObserver(
 ```
 
 **Wpływ na UI:**
+
 - FAB visible gdy today's card nie jest widoczny
 - FAB hidden gdy today's card jest w viewport
 - Smooth transition (fade in/out)
@@ -1179,17 +1235,16 @@ const observer = new IntersectionObserver(
 **Scenario:** User/backend próbuje oznaczyć rest day (błąd walidacji lub constraint violation)
 
 **Obsługa:**
+
 ```typescript
-if (dbError.code === '23514') { // CHECK constraint violation
-  return errorResponse(
-    "Rest days cannot be marked as completed",
-    400,
-    "REST_DAY_COMPLETION_NOT_ALLOWED"
-  );
+if (dbError.code === "23514") {
+  // CHECK constraint violation
+  return errorResponse("Rest days cannot be marked as completed", 400, "REST_DAY_COMPLETION_NOT_ALLOWED");
 }
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Toast: "Dni odpoczynku nie mogą być oznaczone jako wykonane"
 - Visual cue: checkbox nie renderowany dla rest days (prevention)
@@ -1201,10 +1256,11 @@ if (dbError.code === '23514') { // CHECK constraint violation
 **Scenario:** JWT token wygasł lub jest nieprawidłowy
 
 **Obsługa:**
+
 ```typescript
 if (response.status === 401) {
   // Redirect do login page
-  window.location.href = '/auth/login';
+  window.location.href = "/auth/login";
 
   // Toast (opcjonalne, może być wyświetlony przed redirect)
   toast({
@@ -1216,6 +1272,7 @@ if (response.status === 401) {
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Redirect do `/auth/login`
 - Toast notification (przed redirect)
@@ -1227,6 +1284,7 @@ if (response.status === 401) {
 **Scenario:** Workout należy do innego użytkownika (teoretycznie niemożliwe z RLS, ale dla kompletności)
 
 **Obsługa:**
+
 ```typescript
 if (response.status === 403) {
   toast({
@@ -1239,6 +1297,7 @@ if (response.status === 403) {
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Toast error
 - Optional: refresh page dla consistency
@@ -1250,6 +1309,7 @@ if (response.status === 403) {
 **Scenario:** Workout nie istnieje lub został usunięty
 
 **Obsługa:**
+
 ```typescript
 if (response.status === 404) {
   toast({
@@ -1264,6 +1324,7 @@ if (response.status === 404) {
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Toast error z sugestią refresh
 - Auto-refresh (optional)
@@ -1275,6 +1336,7 @@ if (response.status === 404) {
 **Scenario:** Database error, unexpected exception
 
 **Obsługa:**
+
 ```typescript
 if (response.status === 500) {
   toast({
@@ -1287,6 +1349,7 @@ if (response.status === 500) {
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Toast error z retry option
 - Log error (console + Sentry)
@@ -1298,6 +1361,7 @@ if (response.status === 500) {
 **Scenario:** User traci połączenie internetowe podczas API call
 
 **Obsługa:**
+
 ```typescript
 try {
   const response = await fetch(...);
@@ -1315,6 +1379,7 @@ try {
 ```
 
 **Frontend handling:**
+
 - Rollback optimistic update
 - Toast error z retry button
 - Offline indicator (optional)
@@ -1326,6 +1391,7 @@ try {
 **Scenario:** User klika checkbox wielokrotnie szybko
 
 **Obsługa:**
+
 ```typescript
 // W useOptimisticWorkouts:
 const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
@@ -1357,6 +1423,7 @@ const toggleCompleted = async (id: string, currentStatus: boolean) => {
 ```
 
 **Frontend handling:**
+
 - Disable checkbox podczas update
 - Ignore kolejne kliknięcia jeśli request w locie
 - Visual feedback: disabled state (opacity)
@@ -1368,6 +1435,7 @@ const toggleCompleted = async (id: string, currentStatus: boolean) => {
 ### Faza 1: Setup i Shadcn/ui Components
 
 1. **Dodanie brakujących Shadcn/ui components:**
+
    ```bash
    npx shadcn-ui@latest add checkbox
    npx shadcn-ui@latest add accordion
@@ -1377,6 +1445,7 @@ const toggleCompleted = async (id: string, currentStatus: boolean) => {
    ```
 
 2. **Utworzenie struktury folderów dla Dashboard:**
+
    ```
    src/components/dashboard/
    ├── TrainingPlanView.tsx

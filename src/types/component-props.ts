@@ -60,7 +60,13 @@ export interface FloatingActionButtonProps {
  */
 export interface EmptyStateProps {
   /** Type of empty state to display */
-  variant: "no-plan";
+  variant: "no-plan" | "no-profile";
+  /** Custom message to display (optional - uses default based on variant) */
+  message?: string;
+  /** Custom CTA button text (optional - uses default based on variant) */
+  ctaText?: string;
+  /** Custom CTA button link (optional - uses default based on variant) */
+  ctaLink?: string;
 }
 
 /**

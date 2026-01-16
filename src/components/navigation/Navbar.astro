@@ -1,0 +1,70 @@
+---
+/**
+ * Navbar component - desktop/tablet navigation
+ * Displays navigation links for authenticated users
+ * Hidden on mobile (md:flex)
+ */
+
+// Determine current page for active state
+const currentPath = Astro.url.pathname;
+const isActive = (path: string) => currentPath === path;
+---
+
+<nav class="hidden md:flex border-b bg-background">
+  <div class="container mx-auto px-4">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo/Brand -->
+      <div class="flex items-center gap-8">
+        <a href="/dashboard" class="text-xl font-bold text-foreground"> Athletica </a>
+
+        <!-- Navigation Links -->
+        <div class="flex gap-6">
+          <a
+            href="/dashboard"
+            class:list={[
+              "text-sm font-medium transition-colors hover:text-primary",
+              isActive("/dashboard") ? "text-foreground" : "text-muted-foreground",
+            ]}
+            aria-current={isActive("/dashboard") ? "page" : undefined}
+          >
+            Dashboard
+          </a>
+
+          <a
+            href="/profile"
+            class:list={[
+              "text-sm font-medium transition-colors hover:text-primary",
+              isActive("/profile") ? "text-foreground" : "text-muted-foreground",
+            ]}
+            aria-current={isActive("/profile") ? "page" : undefined}
+          >
+            Profil
+          </a>
+
+          <a
+            href="/survey"
+            class:list={[
+              "text-sm font-medium transition-colors hover:text-primary",
+              isActive("/survey") ? "text-foreground" : "text-muted-foreground",
+            ]}
+            aria-current={isActive("/survey") ? "page" : undefined}
+          >
+            Nowy Plan
+          </a>
+        </div>
+      </div>
+
+      <!-- Right side actions -->
+      <div class="flex items-center gap-4">
+        <form action="/api/auth/signout" method="post">
+          <button
+            type="submit"
+            class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Wyloguj się
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>

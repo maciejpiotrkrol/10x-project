@@ -14,6 +14,7 @@ This document contains the complete UI architecture plan for Athletica MVP, an A
 ## Current State
 
 ### ✅ Implemented (Backend)
+
 - Full REST API layer (7 endpoints)
 - Supabase database (4 tables with RLS)
 - AI integration (OpenRouter) for plan generation
@@ -22,6 +23,7 @@ This document contains the complete UI architecture plan for Athletica MVP, an A
 - Zod validation for all endpoints
 
 ### ❌ Missing (Frontend)
+
 - Authentication pages (login/signup/reset)
 - Survey form (user onboarding)
 - Dashboard with training plan display
@@ -32,6 +34,7 @@ This document contains the complete UI architecture plan for Athletica MVP, an A
 - Most UI components (only 3 from Shadcn/ui: Button, Card, Avatar)
 
 ### Tech Stack
+
 - **Frontend:** Astro 5 (SSR) + React 19 + TypeScript 5
 - **Styling:** Tailwind CSS 4 + Shadcn/ui (new-york style)
 - **Backend:** Supabase (PostgreSQL + Auth + BaaS)
@@ -108,12 +111,14 @@ This document contains the complete UI architecture plan for Athletica MVP, an A
 ### 1. Pages and Routing
 
 **Public Pages:**
+
 - `/` - Landing page
 - `/auth/login` - Login
 - `/auth/signup` - Registration
 - `/auth/reset-password` - Password reset
 
 **Protected Pages:**
+
 - `/dashboard` - Main view with training plan
 - `/survey` - Survey form
 - `/profile` - User profile
@@ -241,6 +246,7 @@ Dashboard or Profile
 ### State Management Strategy
 
 **Auth State (React Context):**
+
 ```typescript
 interface AuthContextType {
   user: User | null;
@@ -248,22 +254,26 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 ```
+
 - Initialize with Supabase `getUser()` on mount
 - Available to all React components
 - Persist across navigation
 
 **Training Plan Data:**
+
 - SSR fetch in `/dashboard.astro`
 - Pass as props to `<TrainingPlanView>`
 - Local state for optimistic updates
 - Revalidate on error (rollback)
 
 **Survey Data:**
+
 - Local React state (`useState`)
 - Persist in `sessionStorage` (don't lose on refresh)
 - Submit at end (POST /api/training-plans/generate)
 
 **UI State:**
+
 - Accordion expanded/collapsed (local component state)
 - Modal open/closed (local component state)
 - Toast notifications (local component state)
@@ -291,30 +301,36 @@ interface AuthContextType {
 ### Error Handling
 
 **Validation Errors (400):**
+
 - Inline under form fields (red text)
 - Real-time validation with Zod + React Hook Form
 
 **API Errors:**
+
 - "Something went wrong. Please try again."
 - "Failed to load data. Check your internet connection."
 - Toast notification with retry button
 
 **Auth Errors (401):**
+
 - Redirect to /auth/login
 - Toast: "Session expired"
 
 **Error Boundary:**
+
 - Top-level React Error Boundary
 - Fallback UI: "Something went wrong" + "Refresh page" button
 - Log errors to console (production: Sentry optional)
 
 **Empty States:**
+
 - No profile: Automatic redirect to /survey
 - No plan: Card with CTA "Generate Plan"
 
 ### Responsiveness Details
 
 **Mobile (< 768px):**
+
 - Stack layout (1 column)
 - Top navbar: logo + hamburger (optional)
 - Bottom navigation bar: 3 icons (Dashboard, Profile, New Plan)
@@ -322,10 +338,12 @@ interface AuthContextType {
 - Touch-friendly targets (min 44x44px)
 
 **Tablet (768px - 1024px):**
+
 - Top navbar (full)
 - 1-2 columns (optional for wide cards)
 
 **Desktop (> 1024px):**
+
 - Top navbar (full)
 - Max-width container (1280px)
 - Centered content
@@ -354,18 +372,21 @@ interface AuthContextType {
 ## Implementation Plan (Priority Order)
 
 ### Phase 1: Foundation (Critical for MVP)
+
 1. Add missing Shadcn/ui components (Input, Select, Dialog, Toast, Accordion, Skeleton)
 2. Create layouts (AuthLayout, DashboardLayout)
 3. Implement AuthProvider (React Context)
 4. Create Navbar + BottomNav (mobile)
 
 ### Phase 2: Auth Flow
+
 5. Login page (/auth/login) + AuthForm
 6. Registration page (/auth/signup)
 7. Password reset page (/auth/reset-password)
 8. Protected routes middleware (redirect if not logged in)
 
 ### Phase 3: Core Features
+
 9. Landing page (/) - simple hero + CTA
 10. Survey (/survey) - SurveyForm (1 step, Cards, validation)
 11. Loading modal (AI generation)
@@ -373,12 +394,14 @@ interface AuthContextType {
 13. Optimistic update for workout completion
 
 ### Phase 4: Secondary Features
+
 14. Profile (/profile) - ProfileView (read-only)
 15. Empty states (no plan/no profile)
 16. Confirm dialog (overwrite plan)
 17. Auto-scroll to today + FAB
 
 ### Phase 5: Polish
+
 18. Error handling (toast notifications, error boundary)
 19. Responsiveness (mobile/tablet/desktop)
 20. Accessibility audit (keyboard nav, ARIA)
@@ -391,21 +414,25 @@ interface AuthContextType {
 ### Astro Components (Static)
 
 **Layout.astro** (exists)
+
 - Main layout with HTML structure
 - Meta tags, favicon, global styles
 
 **AuthLayout.astro** (new)
+
 - Layout for auth pages (login/signup/reset)
 - Centered form container
 - No navbar (just logo)
 
 **DashboardLayout.astro** (new)
+
 - Layout for dashboard and profile
 - Includes Navbar component
 - Includes BottomNav for mobile
 - Main content area
 
 **Navbar.astro** (new)
+
 - Logo + navigation links
 - Desktop: Dashboard, Profile, New Plan, Logout
 - Mobile: Logo + hamburger (optional)
@@ -414,11 +441,13 @@ interface AuthContextType {
 ### React Components (Interactive)
 
 **AuthProvider.tsx** (new)
+
 - React Context for auth state
 - Provides: user, loading, logout()
 - Wraps entire app
 
 **AuthForm.tsx** (new)
+
 - Login/signup forms
 - Email + password inputs
 - Form validation (Zod)
@@ -426,6 +455,7 @@ interface AuthContextType {
 - Loading state on submit
 
 **SurveyForm.tsx** (new)
+
 - Single-step survey form
 - 3 Card sections:
   1. Training goals (distance, km/week, days)
@@ -436,6 +466,7 @@ interface AuthContextType {
 - Submit → Loading modal
 
 **TrainingPlanView.tsx** (new)
+
 - Container for 70-day training plan
 - Groups days by weeks
 - Renders WeekAccordion components
@@ -443,12 +474,14 @@ interface AuthContextType {
 - Manages optimistic updates
 
 **WeekAccordion.tsx** (new)
+
 - Accordion item for one week
 - Header: "Week X: Y/Z workouts completed"
 - Content: List of WorkoutDayCard components
 - Collapsible (Shadcn/ui Accordion)
 
 **WorkoutDayCard.tsx** (new)
+
 - Card for single workout day
 - Shows: date, day number, description, status
 - Checkbox to mark as completed (if not rest day)
@@ -459,17 +492,20 @@ interface AuthContextType {
 - Optimistic update on check
 
 **ProfileView.tsx** (new)
+
 - Read-only display of user profile
 - 3 Card sections (same as survey)
 - Button "Generate New Plan" → /survey
 - Fetches data from /api/profile
 
 **EmptyState.tsx** (new)
+
 - Card with message "No active plan"
 - CTA button "Generate Plan" → /survey
 - Used when user has no plan
 
 **LoadingModal.tsx** (new)
+
 - Modal with spinner
 - Progress messages
 - Progress bar (indeterminate)
@@ -478,18 +514,21 @@ interface AuthContextType {
 - Timeout after 60 seconds
 
 **ConfirmDialog.tsx** (new)
+
 - Dialog for plan overwrite confirmation
 - Message about losing current plan
 - Buttons: "Cancel" | "Yes, generate new plan"
 - Calls API with confirmation flag
 
 **BottomNav.tsx** (new)
+
 - Mobile bottom navigation bar
 - 3 icons: Dashboard, Profile, New Plan
 - Active state with accent color
 - Hides on scroll down, shows on scroll up
 
 **ErrorBoundary.tsx** (new)
+
 - React Error Boundary component
 - Catches unhandled errors
 - Fallback UI with "Refresh page" button
@@ -500,12 +539,14 @@ interface AuthContextType {
 ## Styling Guide
 
 ### Tailwind CSS 4
+
 - Utility-first approach
 - Custom color palette (oklch color space)
 - Responsive utilities (sm:, md:, lg:)
 - **NO dark mode in MVP** (only light mode)
 
 ### Shadcn/ui (new-york style)
+
 - Button variants: default, destructive, outline, ghost, link
 - Card composite: CardHeader, CardTitle, CardContent, CardFooter
 - Form components: Input, Select, Radio Group, Checkbox
@@ -514,6 +555,7 @@ interface AuthContextType {
 - Loading: Skeleton, Progress
 
 ### Color Usage
+
 - Primary: Main actions, active states
 - Secondary: Less prominent actions
 - Muted: Rest days, disabled states
@@ -521,6 +563,7 @@ interface AuthContextType {
 - Accent: Highlights, completed workouts (green)
 
 ### Layout Patterns
+
 - **Cards:** Primary grouping mechanism
 - **Stack:** Mobile-first vertical layout
 - **Grid:** Desktop optional for wider content
@@ -535,16 +578,18 @@ interface AuthContextType {
 ```typescript
 // dashboard.astro
 const supabase = Astro.locals.supabase;
-const { data: { user } } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 
 if (!user) {
-  return Astro.redirect('/auth/login');
+  return Astro.redirect("/auth/login");
 }
 
 const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
   headers: {
-    'Authorization': `Bearer ${session.access_token}`
-  }
+    Authorization: `Bearer ${session.access_token}`,
+  },
 });
 
 const planData = await response.json();
@@ -556,24 +601,20 @@ const planData = await response.json();
 // Optimistic update example
 const handleComplete = async (dayId: string) => {
   // Optimistic update
-  setWorkoutDays(prev => prev.map(day =>
-    day.id === dayId ? { ...day, is_completed: true } : day
-  ));
+  setWorkoutDays((prev) => prev.map((day) => (day.id === dayId ? { ...day, is_completed: true } : day)));
 
   try {
     await fetch(`/api/workout-days/${dayId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ is_completed: true })
+      method: "PATCH",
+      body: JSON.stringify({ is_completed: true }),
     });
 
-    toast.success('Workout marked as completed');
+    toast.success("Workout marked as completed");
   } catch (error) {
     // Rollback on error
-    setWorkoutDays(prev => prev.map(day =>
-      day.id === dayId ? { ...day, is_completed: false } : day
-    ));
+    setWorkoutDays((prev) => prev.map((day) => (day.id === dayId ? { ...day, is_completed: false } : day)));
 
-    toast.error('Failed to update. Please try again.');
+    toast.error("Failed to update. Please try again.");
   }
 };
 ```
@@ -583,46 +624,55 @@ const handleComplete = async (dayId: string) => {
 ## Unresolved Issues (Optional, Post-MVP)
 
 ### 1. Branding & Copywriting
+
 - Exact landing page content (H1, H2, icons)
 - Legal disclaimer text (in survey)
 - Success messages (toast notifications)
 - Congratulations popup after plan completion (US-012)
 
 ### 2. Animations & Transitions
+
 - Animations on expand/collapse accordion?
 - Transition on smooth scroll to "today"
 - Loading modal animations (spinner type)
 - Toast slide-in/out animations
 
 ### 3. Icons
+
 - Selection of specific icons from lucide-react
 - Use emoji (🛌, 🎯, 📊, 🏃) or SVG icons?
 
 ### 4. Edge Cases
+
 - What if AI generation timeout (60s) - retry logic?
 - What if user closes browser during generation?
 - What if plan is 70 days but user starts after a few weeks?
 
 ### 5. Analytics (Post-MVP)
+
 - Tracking completion rate (metric from PRD)
 - Event tracking (survey submit, plan complete, etc.)
 - Error logging (Sentry integration?)
 
 ### 6. Internationalization
+
 - Currently Polish only (MVP)
 - Structure for future i18n?
 
 ### 7. SEO
+
 - Meta tags for pages (title, description)
 - OG tags for social sharing
 - Sitemap, robots.txt
 
 ### 8. Performance
+
 - Lazy loading for 70 workout cards?
 - Image optimization (if images added)
 - Bundle size monitoring
 
 ### Decisions to Confirm Before Implementation
+
 - Final color palette (accent color for active states, completed workouts)
 - Exact error message text (only 2 generic vs more details)
 - Hamburger menu on mobile or always visible links in navbar?

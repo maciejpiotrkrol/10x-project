@@ -1,0 +1,92 @@
+---
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import { ProfileView } from "@/components/profile/ProfileView";
+import EmptyState from "@/components/EmptyState";
+import type { Profile, PersonalRecord } from "@/types";
+import type { ApiSuccessResponse } from "@/types";
+
+// Step 1: Verify authentication
+const { data: session, error: authError } = await Astro.locals.supabase.auth.getUser();
+
+if (authError || !session?.user) {
+  return Astro.redirect("/auth/login");
+}
+
+// Step 2: Fetch user profile
+let profile: Profile | null = null;
+let personalRecords: PersonalRecord[] = [];
+let showEmptyState = false;
+let errorMessage: string | null = null;
+
+try {
+  // Fetch profile data
+  const profileResponse = await fetch(`${Astro.url.origin}/api/profile`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+
+  if (profileResponse.ok) {
+    const profileData = (await profileResponse.json()) as ApiSuccessResponse<Profile>;
+    profile = profileData.data;
+  } else if (profileResponse.status === 404) {
+    // No profile - show empty state
+    showEmptyState = true;
+  } else if (profileResponse.status === 401) {
+    // Unauthorized - redirect to login
+    return Astro.redirect("/auth/login");
+  } else {
+    // Server error
+    errorMessage = "Wystąpił błąd podczas ładowania profilu.";
+    console.error("Failed to fetch profile:", profileResponse.status);
+  }
+
+  // Step 3: Fetch personal records (only if profile exists)
+  if (profile) {
+    const recordsResponse = await fetch(`${Astro.url.origin}/api/personal-records`, {
+      headers: {
+        Cookie: Astro.request.headers.get("Cookie") || "",
+      },
+    });
+
+    if (recordsResponse.ok) {
+      const recordsData = (await recordsResponse.json()) as ApiSuccessResponse<PersonalRecord[]>;
+      personalRecords = recordsData.data || [];
+    } else if (recordsResponse.status === 404) {
+      // No records - use empty array
+      personalRecords = [];
+    } else if (recordsResponse.status === 401) {
+      // Unauthorized - redirect to login
+      return Astro.redirect("/auth/login");
+    } else {
+      // Error fetching records - log but don't block profile rendering
+      console.error("Failed to fetch personal records:", recordsResponse.status);
+      personalRecords = [];
+    }
+  }
+} catch (error) {
+  // Network error
+  console.error("Network error fetching profile:", error);
+  errorMessage = "Sprawdź połączenie internetowe i spróbuj ponownie.";
+}
+---
+
+<DashboardLayout title="Profil użytkownika">
+  {
+    showEmptyState ? (
+      <EmptyState client:load variant="no-profile" />
+    ) : errorMessage ? (
+      <div class="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <p class="text-xl mb-4 text-center">{errorMessage}</p>
+        <button
+          onclick="window.location.reload()"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+        >
+          Odśwież stronę
+        </button>
+      </div>
+    ) : profile ? (
+      <ProfileView client:load profile={profile} personalRecords={personalRecords} />
+    ) : null
+  }
+</DashboardLayout>

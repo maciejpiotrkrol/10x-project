@@ -9,6 +9,7 @@ Landing Page jest pierwszym punktem kontaktu użytkownika z aplikacją Athletica
 **Ścieżka:** `/` (root)
 
 **Behavior:**
+
 - Dla niezalogowanych użytkowników: wyświetla landing page
 - Dla zalogowanych użytkowników: automatyczne przekierowanie do `/dashboard` (obsługiwane przez middleware)
 
@@ -31,6 +32,7 @@ src/pages/index.astro
 ```
 
 **Opcjonalnie:** Można wydzielić sekcje do osobnych komponentów Astro:
+
 - `HeroSection.astro` - hero z CTA
 - `FeaturesSection.astro` - lista trzech funkcjonalności
 
@@ -42,6 +44,7 @@ src/pages/index.astro
 Główny plik strony landing page. Odpowiada za wyświetlenie hero section z nazwą aplikacji, value proposition, przyciskiem CTA oraz sekcji z trzema kluczowymi funkcjonalnościami aplikacji. Komponent jest w pełni statyczny (Astro), bez JavaScript po stronie klienta.
 
 **Główne elementy HTML:**
+
 - `<main>` - główny kontener semantyczny
   - `<section>` (hero) - hero section z contentem głównym
     - `<div>` (container) - centrujący kontener
@@ -56,27 +59,32 @@ Główny plik strony landing page. Odpowiada za wyświetlenie hero section z naz
         - `<p>` - krótki opis
 
 **Obsługiwane zdarzenia:**
+
 - Brak zdarzeń JavaScript (strona statyczna)
 - Nawigacja przez standardowy `<a href="/auth/signup">`
 
 **Warunki walidacji:**
+
 - Brak walidacji po stronie komponentu
 - Middleware server-side sprawdza czy użytkownik jest zalogowany:
   - Jeśli `context.locals.supabase.auth.getUser()` zwraca użytkownika → redirect do `/dashboard`
   - Jeśli nie → renderuj landing page
 
 **Typy:**
+
 - Brak specjalnych typów (content hardcoded w komponencie)
 - Opcjonalnie można stworzyć typ dla feature items:
+
 ```typescript
 interface Feature {
-  icon: string;      // Emoji
-  title: string;     // Tytuł funkcjonalności
+  icon: string; // Emoji
+  title: string; // Tytuł funkcjonalności
   description: string; // Opis funkcjonalności
 }
 ```
 
 **Propsy:**
+
 - Brak (komponent nie przyjmuje propsów - wszystko statyczne)
 
 ### HeroSection.astro (Opcjonalny wydzielony komponent)
@@ -85,6 +93,7 @@ interface Feature {
 Wydzielony komponent odpowiedzialny za hero section z głównym przekazem i CTA. Zawiera nazwę aplikacji, value proposition oraz przycisk "Zacznij za darmo".
 
 **Główne elementy HTML:**
+
 - `<section>` - semantyczny kontener hero
   - `<div>` (container) - kontener centrujący
     - `<h1>` - "Athletica"
@@ -92,15 +101,19 @@ Wydzielony komponent odpowiedzialny za hero section z głównym przekazem i CTA.
     - `<a>` lub `<Button>` - CTA link/button
 
 **Obsługiwane zdarzenia:**
+
 - Brak (standardowa nawigacja przez href)
 
 **Warunki walidacji:**
+
 - Brak
 
 **Typy:**
+
 - Brak
 
 **Propsy:**
+
 - Brak (lub opcjonalnie: `title: string`, `subtitle: string`, `ctaText: string`, `ctaHref: string`)
 
 ### FeaturesSection.astro (Opcjonalny wydzielony komponent)
@@ -109,6 +122,7 @@ Wydzielony komponent odpowiedzialny za hero section z głównym przekazem i CTA.
 Sekcja wyświetlająca 3 kluczowe funkcjonalności aplikacji w formie grid/flex layout. Każda funkcjonalność przedstawiona jako karta z emoji ikoną, tytułem i opisem.
 
 **Główne elementy HTML:**
+
 - `<section>` - semantyczny kontener
   - `<div>` (grid-container) - grid/flex layout
     - 3x `<div>` (feature-card):
@@ -117,12 +131,15 @@ Sekcja wyświetlająca 3 kluczowe funkcjonalności aplikacji w formie grid/flex 
       - `<p>` - opis
 
 **Obsługiwane zdarzenia:**
+
 - Brak (czysto prezentacyjny)
 
 **Warunki walidacji:**
+
 - Brak
 
 **Typy:**
+
 ```typescript
 interface Feature {
   icon: string;
@@ -132,11 +149,13 @@ interface Feature {
 ```
 
 **Propsy:**
+
 ```typescript
 interface Props {
   features: Feature[];
 }
 ```
+
 lub brak propsów (features hardcoded)
 
 ### Button (Shadcn/ui)
@@ -145,19 +164,24 @@ lub brak propsów (features hardcoded)
 Standardowy button komponent z biblioteki Shadcn/ui. Użyty jako link `<a>` stylizowany jako button dla CTA.
 
 **Główne elementy:**
+
 - Komponent Button z Shadcn z wariantem "default" lub "primary"
 - Renderowany jako `<a>` element (asChild pattern w Radix)
 
 **Obsługiwane zdarzenia:**
+
 - Standardowa nawigacja przez href (brak JavaScript)
 
 **Warunki walidacji:**
+
 - Brak
 
 **Typy:**
+
 - Standardowe typy z `@/components/ui/button`
 
 **Propsy:**
+
 ```typescript
 {
   asChild?: boolean;
@@ -187,23 +211,24 @@ interface Feature {
 ```
 
 **Przykładowe dane:**
+
 ```typescript
 const features: Feature[] = [
   {
     icon: "🎯",
     title: "Spersonalizowane cele",
-    description: "Plany treningowe dostosowane do Twoich celów i poziomu zaawansowania"
+    description: "Plany treningowe dostosowane do Twoich celów i poziomu zaawansowania",
   },
   {
     icon: "🤖",
     title: "AI-powered generation",
-    description: "Inteligentne algorytmy tworzą optymalny plan treningowy"
+    description: "Inteligentne algorytmy tworzą optymalny plan treningowy",
   },
   {
     icon: "📊",
     title: "Śledzenie postępów",
-    description: "Monitoruj swoje treningi i realizuj cele krok po kroku"
-  }
+    description: "Monitoruj swoje treningi i realizuj cele krok po kroku",
+  },
 ];
 ```
 
@@ -215,10 +240,12 @@ Jedyne "zarządzanie stanem" to sprawdzenie przez middleware server-side, czy u�
 
 ```typescript
 // W src/middleware/index.ts (już istniejący middleware)
-const { data: { user } } = await context.locals.supabase.auth.getUser();
+const {
+  data: { user },
+} = await context.locals.supabase.auth.getUser();
 
-if (user && context.url.pathname === '/') {
-  return context.redirect('/dashboard');
+if (user && context.url.pathname === "/") {
+  return context.redirect("/dashboard");
 }
 ```
 
@@ -229,6 +256,7 @@ if (user && context.url.pathname === '/') {
 Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacji odbywa się server-side w middleware przed renderowaniem strony:
 
 **Middleware sprawdza:**
+
 - `context.locals.supabase.auth.getUser()` → zwraca `{ data: { user }, error }`
 - Jeśli `user` istnieje → redirect do `/dashboard`
 - Jeśli `user === null` → renderuj landing page
@@ -243,11 +271,13 @@ Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacj
 **Akcja:** Użytkownik wpisuje URL aplikacji lub klika link prowadzący do `/`
 
 **Obsługa:**
+
 1. Middleware sprawdza sesję Supabase
 2. Jeśli użytkownik zalogowany → automatyczne przekierowanie do `/dashboard`
 3. Jeśli użytkownik niezalogowany → wyświetlenie landing page
 
 **Oczekiwany wynik:**
+
 - Niezalogowani: widzą landing page z hero i features
 - Zalogowani: przekierowanie do dashboard (nie widzą landing page)
 
@@ -256,10 +286,12 @@ Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacj
 **Akcja:** Kliknięcie przycisku CTA "Zacznij za darmo"
 
 **Obsługa:**
+
 - Standardowa nawigacja przez `<a href="/auth/signup">`
 - Brak JavaScript (natywna nawigacja przeglądarki)
 
 **Oczekiwany wynik:**
+
 - Przekierowanie do strony rejestracji `/auth/signup`
 
 ### 8.3. Nawigacja klawiaturą
@@ -267,10 +299,12 @@ Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacj
 **Akcja:** Użytkownik nawiguje używając klawisza Tab
 
 **Obsługa:**
+
 - Focus-visible states na przycisku CTA (Tailwind: `focus-visible:ring-2`)
 - Dostępność klawiatury dla linku/buttona
 
 **Oczekiwany wynik:**
+
 - Widoczne zaznaczenie focus na interaktywnych elementach
 - Możliwość aktywacji CTA przez Enter/Space
 
@@ -279,11 +313,13 @@ Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacj
 **Akcja:** Użytkownik z niepełnosprawnością używa screen readera
 
 **Obsługa:**
+
 - Semantyczny HTML (header, main, section, h1, h2, h3)
 - Alt text dla ikon (jeśli używane img zamiast emoji)
 - ARIA landmarks jeśli potrzebne
 
 **Oczekiwany wynik:**
+
 - Prawidłowa nawigacja przez landmarks
 - Zrozumiała struktura treści
 - Czytelne opisy elementów
@@ -295,14 +331,18 @@ Landing Page nie wykonuje żadnych wywołań API. Jedyne sprawdzenie autentykacj
 **Komponent:** Middleware (nie komponent UI)
 
 **Warunek:**
+
 ```typescript
-const { data: { user } } = await context.locals.supabase.auth.getUser();
-if (user && context.url.pathname === '/') {
+const {
+  data: { user },
+} = await context.locals.supabase.auth.getUser();
+if (user && context.url.pathname === "/") {
   // Użytkownik zalogowany i próbuje wejść na landing page
 }
 ```
 
 **Wpływ na UI:**
+
 - Jeśli warunek spełniony: redirect do `/dashboard` (użytkownik nie widzi landing page)
 - Jeśli warunek niespełniony: renderowanie landing page
 
@@ -313,11 +353,13 @@ if (user && context.url.pathname === '/') {
 **Komponent:** Layout / Head section
 
 **Warunek:**
+
 - Obecność `<title>` tag
 - Obecność `<meta name="description">`
 - Poprawna struktura Open Graph tags (opcjonalnie)
 
 **Wpływ na UI:**
+
 - Brak bezpośredniego wpływu na UI
 - Wpływ na SEO i wyświetlanie w wynikach wyszukiwania
 
@@ -326,12 +368,14 @@ if (user && context.url.pathname === '/') {
 **Komponent:** Wszystkie elementy landing page
 
 **Warunki:**
+
 - Semantyczny HTML (header, main, section, h1-h6)
 - Kontrast kolorów minimum 4.5:1 (WCAG AA)
 - Focus-visible states na interaktywnych elementach
 - Alt text dla obrazów (jeśli używane)
 
 **Wpływ na UI:**
+
 - Lepsze doświadczenie dla użytkowników z niepełnosprawnościami
 - Zgodność z WCAG 2.1 guidelines
 
@@ -342,11 +386,15 @@ if (user && context.url.pathname === '/') {
 **Scenariusz:** Supabase auth zwraca błąd podczas sprawdzania sesji
 
 **Obsługa:**
+
 ```typescript
-const { data: { user }, error } = await context.locals.supabase.auth.getUser();
+const {
+  data: { user },
+  error,
+} = await context.locals.supabase.auth.getUser();
 if (error) {
   // Log error server-side
-  console.error('Auth check error:', error);
+  console.error("Auth check error:", error);
   // Fail-safe: wyświetl landing page
   return next();
 }
@@ -361,6 +409,7 @@ if (error) {
 **Scenariusz:** Użytkownik nie ma połączenia z internetem
 
 **Obsługa:**
+
 - Przeglądarki wyświetlają standardowy komunikat "No internet connection"
 - Landing page nie wymaga JavaScript, więc po załadowaniu działa offline
 
@@ -373,6 +422,7 @@ if (error) {
 **Scenariusz:** Brakuje title lub description meta tags
 
 **Obsługa:**
+
 - Zawsze definiować domyślne wartości w Layout
 - Fallback title: "Athletica"
 - Fallback description: "Aplikacja do tworzenia planów treningowych"
@@ -384,6 +434,7 @@ if (error) {
 **Scenariusz:** Niski kontrast utrudnia czytanie
 
 **Obsługa:**
+
 - Testowanie kontrastów podczas developmentu (narzędzie: WebAIM Contrast Checker)
 - Użycie zmiennych Tailwind z wysokim kontrastem
 - Minimum 4.5:1 dla normalnego tekstu, 3:1 dla dużego tekstu (WCAG AA)
@@ -397,22 +448,26 @@ if (error) {
 **Zadanie:** Zaimplementować sprawdzanie autentykacji i przekierowanie zalogowanych użytkowników
 
 **Akcje:**
+
 1. Otworzyć `src/middleware/index.ts`
 2. Dodać logikę sprawdzającą `context.url.pathname === '/'`
 3. Jeśli użytkownik zalogowany i ścieżka to `/`, wykonać `return context.redirect('/dashboard')`
 4. Przetestować z zalogowanym i niezalogowanym użytkownikiem
 
 **Przykładowy kod:**
+
 ```typescript
 // src/middleware/index.ts
 export const onRequest = defineMiddleware(async (context, next) => {
   // ... istniejący kod Supabase setup ...
 
-  const { data: { user } } = await context.locals.supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await context.locals.supabase.auth.getUser();
 
   // Przekieruj zalogowanych użytkowników z landing page do dashboard
-  if (user && context.url.pathname === '/') {
-    return context.redirect('/dashboard');
+  if (user && context.url.pathname === "/") {
+    return context.redirect("/dashboard");
   }
 
   return next();
@@ -424,6 +479,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 **Zadanie:** Stworzyć layout z odpowiednimi meta tags dla SEO
 
 **Akcje:**
+
 1. Stworzyć (lub zmodyfikować) `src/layouts/BaseLayout.astro`
 2. Dodać `<title>` tag: "Athletica - Twój osobisty trener biegowy"
 3. Dodać `<meta name="description">` z value proposition
@@ -432,6 +488,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 6. Dodać lang="pl" do `<html>`
 
 **Przykładowy kod:**
+
 ```astro
 ---
 // src/layouts/BaseLayout.astro
@@ -442,22 +499,22 @@ interface Props {
 
 const {
   title = "Athletica - Twój osobisty trener biegowy",
-  description = "Stwórz spersonalizowany plan treningowy biegowy w 10 tygodni. AI tworzy plan idealnie dopasowany do Twoich celów."
+  description = "Stwórz spersonalizowany plan treningowy biegowy w 10 tygodni. AI tworzy plan idealnie dopasowany do Twoich celów.",
 } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{title}</title>
-  <meta name="description" content={description}>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-</head>
-<body>
-  <slot />
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <slot />
+  </body>
 </html>
 ```
 
@@ -466,16 +523,18 @@ const {
 **Zadanie:** Stworzyć `src/pages/index.astro` z podstawową strukturą
 
 **Akcje:**
+
 1. Stworzyć plik `src/pages/index.astro`
 2. Zaimportować Layout
 3. Dodać `export const prerender = false` (dla SSR z middleware)
 4. Stworzyć podstawową strukturę HTML: `<main>` z dwoma `<section>`
 
 **Przykładowy kod:**
+
 ```astro
 ---
 // src/pages/index.astro
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import BaseLayout from "@/layouts/BaseLayout.astro";
 
 export const prerender = false; // SSR dla middleware redirect
 ---
@@ -500,6 +559,7 @@ export const prerender = false; // SSR dla middleware redirect
 **Zadanie:** Dodać hero section z nazwą aplikacji, value proposition i CTA
 
 **Akcje:**
+
 1. W pierwszym `<section>` dodać kontener centrujący
 2. Dodać `<h1>` z nazwą "Athletica"
 3. Dodać `<p>` z value proposition
@@ -507,14 +567,12 @@ export const prerender = false; // SSR dla middleware redirect
 5. Zastosować Tailwind classes dla stylowania i układu
 
 **Przykładowy kod:**
+
 ```astro
 <section class="text-center px-4 mb-16">
-  <h1 class="text-5xl md:text-6xl font-bold mb-6 text-gray-900">
-    Athletica
-  </h1>
+  <h1 class="text-5xl md:text-6xl font-bold mb-6 text-gray-900">Athletica</h1>
   <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
-    Twój osobisty trener biegowy napędzany AI.
-    Stwórz spersonalizowany plan treningowy w 10 tygodni.
+    Twój osobisty trener biegowy napędzany AI. Stwórz spersonalizowany plan treningowy w 10 tygodni.
   </p>
   <a
     href="/auth/signup"
@@ -530,6 +588,7 @@ export const prerender = false; // SSR dla middleware redirect
 **Zadanie:** Dodać sekcję z 3 kluczowymi funkcjonalnościami
 
 **Akcje:**
+
 1. W drugim `<section>` stworzyć grid/flex container
 2. Dodać 3 karty feature (div) z:
    - Emoji jako ikona
@@ -539,40 +598,29 @@ export const prerender = false; // SSR dla middleware redirect
 4. Dodać Tailwind classes dla stylowania
 
 **Przykładowy kod:**
+
 ```astro
 <section class="px-4 max-w-6xl mx-auto">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
     <!-- Feature 1 -->
     <div class="text-center">
       <div class="text-5xl mb-4" role="img" aria-label="Ikona celów">🎯</div>
-      <h3 class="text-xl font-semibold mb-2 text-gray-900">
-        Spersonalizowane cele
-      </h3>
-      <p class="text-gray-600">
-        Plany treningowe dostosowane do Twoich celów i poziomu zaawansowania
-      </p>
+      <h3 class="text-xl font-semibold mb-2 text-gray-900">Spersonalizowane cele</h3>
+      <p class="text-gray-600">Plany treningowe dostosowane do Twoich celów i poziomu zaawansowania</p>
     </div>
 
     <!-- Feature 2 -->
     <div class="text-center">
       <div class="text-5xl mb-4" role="img" aria-label="Ikona AI">🤖</div>
-      <h3 class="text-xl font-semibold mb-2 text-gray-900">
-        AI-powered generation
-      </h3>
-      <p class="text-gray-600">
-        Inteligentne algorytmy tworzą optymalny plan treningowy
-      </p>
+      <h3 class="text-xl font-semibold mb-2 text-gray-900">AI-powered generation</h3>
+      <p class="text-gray-600">Inteligentne algorytmy tworzą optymalny plan treningowy</p>
     </div>
 
     <!-- Feature 3 -->
     <div class="text-center">
       <div class="text-5xl mb-4" role="img" aria-label="Ikona postępów">📊</div>
-      <h3 class="text-xl font-semibold mb-2 text-gray-900">
-        Śledzenie postępów
-      </h3>
-      <p class="text-gray-600">
-        Monitoruj swoje treningi i realizuj cele krok po kroku
-      </p>
+      <h3 class="text-xl font-semibold mb-2 text-gray-900">Śledzenie postępów</h3>
+      <p class="text-gray-600">Monitoruj swoje treningi i realizuj cele krok po kroku</p>
     </div>
   </div>
 </section>
@@ -583,21 +631,21 @@ export const prerender = false; // SSR dla middleware redirect
 **Zadanie:** Zastąpić `<a>` linki komponentem Button z Shadcn/ui
 
 **Akcje:**
+
 1. Sprawdzić czy istnieje `src/components/ui/button.tsx`
 2. Jeśli nie, dodać przez Shadcn CLI: `npx shadcn-ui@latest add button`
 3. Zaimportować Button w pliku .astro
 4. Użyć Button z `asChild` prop i `<a>` jako child
 
 **Przykładowy kod:**
+
 ```astro
 ---
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 ---
 
 <Button asChild size="lg">
-  <a href="/auth/signup">
-    Zacznij za darmo
-  </a>
+  <a href="/auth/signup"> Zacznij za darmo </a>
 </Button>
 ```
 
@@ -606,6 +654,7 @@ import { Button } from '@/components/ui/button';
 **Zadanie:** Dopracować stylowanie i zapewnić responsywność
 
 **Akcje:**
+
 1. Sprawdzić layout na różnych rozmiarach ekranów (mobile, tablet, desktop)
 2. Użyć Tailwind responsive breakpoints (sm, md, lg, xl)
 3. Upewnić się, że zawartość mieści się bez scrollowania na większości ekranów
@@ -613,6 +662,7 @@ import { Button } from '@/components/ui/button';
 5. Przetestować na urządzeniach mobilnych
 
 **Przykładowe Tailwind classes:**
+
 - Container: `px-4 md:px-6 lg:px-8`
 - Heading: `text-4xl md:text-5xl lg:text-6xl`
 - Grid: `grid-cols-1 md:grid-cols-3`
@@ -623,6 +673,7 @@ import { Button } from '@/components/ui/button';
 **Zadanie:** Przetestować dostępność (a11y) landing page
 
 **Akcje:**
+
 1. Użyć Lighthouse w Chrome DevTools (kategoria Accessibility)
 2. Przetestować nawigację klawiaturą (Tab, Enter)
 3. Sprawdzić focus-visible states
@@ -631,6 +682,7 @@ import { Button } from '@/components/ui/button';
 6. Upewnić się, że semantyczny HTML jest poprawny
 
 **Checklist:**
+
 - [ ] Wynik Lighthouse Accessibility > 90
 - [ ] Wszystkie interaktywne elementy dostępne klawiaturą
 - [ ] Focus states widoczne
@@ -643,6 +695,7 @@ import { Button } from '@/components/ui/button';
 **Zadanie:** Przetestować middleware i przekierowanie zalogowanych użytkowników
 
 **Akcje:**
+
 1. Uruchomić aplikację: `npm run dev`
 2. Otworzyć `/` jako niezalogowany użytkownik → powinien zobaczyć landing page
 3. Zalogować się (lub zarejestrować)
@@ -651,6 +704,7 @@ import { Button } from '@/components/ui/button';
 6. Wejść na `/` ponownie → powinien zobaczyć landing page
 
 **Oczekiwane rezultaty:**
+
 - Niezalogowani: widzą landing page
 - Zalogowani: automatyczne przekierowanie do /dashboard
 
@@ -659,6 +713,7 @@ import { Button } from '@/components/ui/button';
 **Zadanie:** Zoptymalizować SEO i dodać dodatkowe meta tags
 
 **Akcje:**
+
 1. Sprawdzić obecność wszystkich podstawowych meta tags
 2. Dodać Open Graph tags (opcjonalnie):
    - `og:title`
@@ -670,12 +725,13 @@ import { Button } from '@/components/ui/button';
 5. Dodać canonical URL jeśli potrzebne
 
 **Przykładowy kod (w Layout):**
+
 ```astro
-<meta property="og:title" content={title}>
-<meta property="og:description" content={description}>
-<meta property="og:type" content="website">
-<meta property="og:url" content={Astro.url}>
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content="website" />
+<meta property="og:url" content={Astro.url} />
+<meta name="twitter:card" content="summary_large_image" />
 ```
 
 ### Krok 11: Testy finalne i deploy
@@ -683,6 +739,7 @@ import { Button } from '@/components/ui/button';
 **Zadanie:** Przeprowadzić finalne testy i wdrożyć na production
 
 **Akcje:**
+
 1. Build aplikacji: `npm run build`
 2. Przetestować production build lokalnie: `npm run preview`
 3. Sprawdzić czy wszystko działa poprawnie w trybie production
@@ -692,6 +749,7 @@ import { Button } from '@/components/ui/button';
 7. Deploy przez CI/CD (GitHub Actions → DigitalOcean)
 
 **Checklist finalny:**
+
 - [ ] Build przechodzi bez błędów
 - [ ] Middleware przekierowanie działa
 - [ ] Landing page wyświetla się poprawnie

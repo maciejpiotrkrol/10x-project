@@ -1,99 +1,101 @@
-# Plan implementacji widoku Dashboard (Przeglądanie aktywnego planu treningowego)
+# Plan implementacji widoku Dashboard - Wyświetlanie planu treningowego z dniami odpoczynku
 
 ## 1. Przegląd
 
-Widok Dashboard to główny ekran aplikacji, który wyświetla aktywny 10-tygodniowy plan treningowy użytkownika. Umożliwia przeglądanie wszystkich 70 dni treningowych, oznaczanie treningów jako wykonane, śledzenie postępów oraz nawigację do dzisiejszego dnia. Widok wykorzystuje progresywne ujawnianie treści poprzez accordion tygodni oraz optymistyczne aktualizacje UI dla lepszego doświadczenia użytkownika.
+Widok Dashboard to główna strona aplikacji Athletica, która wyświetla aktywny 10-tygodniowy plan treningowy użytkownika. Kluczowym elementem tego widoku jest prawidłowe wyświetlanie dni treningowych oraz dni odpoczynku. User Story US-010 skupia się na wyraźnym oznaczeniu dni odpoczynku, które nie posiadają opcji oznaczenia jako "wykonane". Widok prezentuje 70 dni podzielonych na 10 tygodni w formie kafelków, z możliwością śledzenia postępów poprzez oznaczanie treningów jako ukończone.
 
 ## 2. Routing widoku
 
-- **Ścieżka:** `/dashboard`
-- **Dostępność:** Chroniona (wymaga autentykacji)
-- **Middleware:** Sprawdza sesję Supabase, w przypadku braku autoryzacji przekierowuje do `/auth/login`
-- **Domyślny widok:** Po zalogowaniu użytkownik jest automatycznie przekierowywany na `/dashboard`
-- **Layout:** `DashboardLayout.astro` (z górnym navbar i dolnym mobile navigation)
+**Ścieżka:** `/dashboard`
+
+**Typ renderowania:** Server-Side Rendering (SSR) z Astro
+
+**Ochrona:** Chroniona trasa - wymaga uwierzytelnienia. Middleware sprawdza sesję Supabase i przekierowuje niezalogowanych użytkowników do `/auth/login`.
+
+**Plik:** `src/pages/dashboard.astro`
 
 ## 3. Struktura komponentów
 
 ```
-DashboardPage.astro (SSR)
-├── DashboardLayout.astro
-│   ├── Navbar.astro
-│   └── BottomNav.tsx (mobile only)
-│
-└── TrainingPlanView.tsx (client:load)
-    │   Props: trainingPlan: TrainingPlanWithWorkoutsDTO | null
-    │
-    ├── Conditional Rendering:
-    │   ├── IF trainingPlan === null:
-    │   │   └── EmptyState.tsx
-    │   │
-    │   └── IF trainingPlan !== null:
-    │       ├── PlanHeader.tsx
-    │       ├── WeeksContainer (div)
-    │       │   └── WeekAccordion.tsx (×10)
-    │       │       └── WorkoutDayCard.tsx (×7 per week)
-    │       ├── FloatingActionButton.tsx
-    │       └── CompletionModal.tsx (conditional)
+dashboard.astro (Astro SSR)
+└── DashboardLayout.astro
+    └── TrainingPlanView.tsx (React, client:load)
+        ├── PlanHeader.tsx (statystyki planu)
+        ├── Accordion (Shadcn/ui, x10 tygodni)
+        │   └── WeekAccordion.tsx (React, x10)
+        │       └── WorkoutDayCard.tsx (React, x7 dni)
+        │           ├── Card (Shadcn/ui)
+        │           ├── [Conditional] Rest Day Content
+        │           │   ├── Icon: 🛌
+        │           │   └── Text: "Odpoczynek"
+        │           └── [Conditional] Workout Day Content
+        │               ├── Workout Description
+        │               └── Checkbox (Shadcn/ui)
+        └── ScrollToTodayFAB.tsx (floating action button)
+
+Osobno (dla przypadku braku danych):
+└── EmptyState.tsx (gdy brak aktywnego planu)
 ```
 
 ## 4. Szczegóły komponentów
 
-### 4.1. DashboardPage.astro
+### 4.1. dashboard.astro
 
-**Opis komponentu:**
-Główna strona dashboard renderowana po stronie serwera (SSR). Odpowiada za fetching aktywnego planu treningowego z API i przekazanie danych do komponentu React `TrainingPlanView`.
+**Opis:** Główna strona Astro odpowiedzialna za server-side rendering i fetch danych z API. Pobiera aktywny plan treningowy z backendu i przekazuje go jako props do komponentu React.
 
 **Główne elementy:**
-- `DashboardLayout.astro` (wrapper layout)
-- Astro fetch: `GET /api/training-plans/active` (server-side)
-- Error handling dla 401, 404, 500
-- `TrainingPlanView` component (React) z dyrektywą `client:load`
 
-**Obsługiwane zdarzenia:**
-Brak - komponent statyczny (SSR)
+- Import DashboardLayout.astro
+- Server-side fetch: GET /api/training-plans/active
+- Conditional rendering: TrainingPlanView lub EmptyState
+- Error handling dla 404 i 500
 
-**Warunki walidacji:**
-- Sprawdzenie czy `response.ok` (status 200)
-- Obsługa status 401: Redirect do `/auth/login`
-- Obsługa status 404: Przekazanie `null` do TrainingPlanView (empty state)
-- Obsługa status 500: Wyświetlenie error toast + retry
+**Obsługiwane interakcje:** Brak (statyczny Astro component)
+
+**Obsługiwana walidacja:**
+
+- Sprawdzenie czy użytkownik jest zalogowany (middleware)
+- Sprawdzenie czy aktywny plan istnieje (404 → EmptyState)
+- Sprawdzenie czy plan ma 70 dni (validation error → ErrorState)
 
 **Typy:**
-- Response: `ApiSuccessResponse<TrainingPlanWithWorkoutsDTO>` lub `ApiErrorResponse`
-- Props przekazywane do TrainingPlanView: `{ trainingPlan: TrainingPlanWithWorkoutsDTO | null }`
 
-**Propsy:**
-Brak (top-level page)
+- `TrainingPlanWithWorkoutsDTO` - response z API
+- `WorkoutDay[]` - tablica 70 dni treningowych
 
-**Kod szkieletowy:**
+**Propsy:** N/A (top-level page)
+
+**Przykładowa implementacja:**
+
 ```astro
 ---
-import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import TrainingPlanView from '@/components/TrainingPlanView';
+import DashboardLayout from "@/layouts/DashboardLayout.astro";
+import TrainingPlanView from "@/components/dashboard/TrainingPlanView";
+import EmptyState from "@/components/dashboard/EmptyState";
 
-// Fetch active plan server-side
 const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
   headers: {
-    Cookie: Astro.request.headers.get('Cookie') || '',
+    Cookie: Astro.request.headers.get("Cookie") || "",
   },
 });
 
 let trainingPlan = null;
+let hasError = false;
 
 if (response.ok) {
   const data = await response.json();
   trainingPlan = data.data;
 } else if (response.status === 404) {
-  // No active plan - will show EmptyState
-  trainingPlan = null;
-} else if (response.status === 401) {
-  // Unauthorized - redirect to login
-  return Astro.redirect('/auth/login');
+  // No active plan - show empty state
+} else {
+  hasError = true;
 }
 ---
 
-<DashboardLayout title="Dashboard - Twój plan treningowy">
-  <TrainingPlanView client:load trainingPlan={trainingPlan} />
+<DashboardLayout title="Twój plan treningowy">
+  {hasError && <ErrorState message="Nie udało się załadować planu" />}
+  {!hasError && !trainingPlan && <EmptyState />}
+  {!hasError && trainingPlan && <TrainingPlanView client:load trainingPlan={trainingPlan} />}
 </DashboardLayout>
 ```
 
@@ -101,432 +103,295 @@ if (response.ok) {
 
 ### 4.2. TrainingPlanView.tsx
 
-**Opis komponentu:**
-Główny kontener React dla całego widoku planu treningowego. Zarządza stanem lokalnym dla optimistic updates, obsługuje auto-scroll do dzisiejszego dnia oraz renderuje wszystkie pod-komponenty (header, accordions, FAB, modals).
+**Opis:** Główny kontener React dla całego widoku planu treningowego. Odpowiedzialny za zarządzanie stanem workout days, optimistic updates, groupowanie dni po tygodniach i auto-scroll do dzisiejszego dnia.
 
 **Główne elementy:**
-- Conditional rendering: EmptyState (jeśli `trainingPlan === null`)
-- `PlanHeader` component
-- Container `div` z 10x `WeekAccordion` components
-- `FloatingActionButton` (FAB)
-- `CompletionModal` (conditional based on `is_plan_completed`)
 
-**Obsługiwane zdarzenia:**
-- `onWorkoutToggle(workoutId: string)` - delegowane z WorkoutDayCard, obsługuje marking completed
-- `onScrollToToday()` - scroll do dzisiejszego dnia (triggered by FAB)
-- `onCloseCompletionModal()` - zamknięcie modal z gratulacjami
-- `onGenerateNewPlan()` - redirect do `/survey`
+- PlanHeader - statystyki ukończenia planu
+- 10x WeekAccordion - accordion dla każdego tygodnia
+- ScrollToTodayFAB - floating button do scrollowania
+- useRef dla today's card
+- useState dla local state (optimistic updates)
+- useEffect dla auto-scroll on mount
 
-**Warunki walidacji:**
-- Sprawdzenie `trainingPlan !== null` (jeśli null → EmptyState)
-- Sprawdzenie `completion_stats.is_plan_completed` (jeśli true → show CompletionModal)
-- Walidacja przed toggle: `!workout.is_rest_day` (rest days nie mogą być marked)
+**Obsługiwane interakcje:**
+
+- onToggleCompleted - callback przekazywany do WorkoutDayCard
+- Optimistic update stanu workout days
+- API call PATCH /api/workout-days/:id
+- Rollback on error + toast notification
+
+**Obsługiwana walidacja:**
+
+- Walidacja że workout_days.length === 70
+- Walidacja że workout_days są posortowane po day_number
+- Zabezpieczenie przed marking rest days as completed (checkbox nie renderowany)
 
 **Typy:**
-- Props: `TrainingPlanViewProps`
-- State: `workoutDays: WorkoutDayDTO[]`, `showCompletionModal: boolean`
-- Computed: `weeks: WeekViewModel[]` (grouped workout days)
+
+- `TrainingPlanViewProps` - props interface
+- `TrainingPlanWithWorkoutsDTO` - input data
+- `WorkoutDay[]` - local state
 
 **Propsy:**
+
 ```typescript
 interface TrainingPlanViewProps {
-  trainingPlan: TrainingPlanWithWorkoutsDTO | null;
+  trainingPlan: TrainingPlanWithWorkoutsDTO;
 }
 ```
 
-**Custom hooks używane:**
-- `useWorkoutToggle` - zarządzanie optimistic updates
-- `useScrollToToday` - auto-scroll on mount
-- `useFABVisibility` - kontrola widoczności FAB
+**Logika groupowania tygodni:**
 
-**Kod szkieletowy:**
-```tsx
-import React, { useState, useEffect, useRef } from 'react';
-import type { TrainingPlanWithWorkoutsDTO, WorkoutDayDTO } from '@/types';
-import PlanHeader from './PlanHeader';
-import WeekAccordion from './WeekAccordion';
-import FloatingActionButton from './FloatingActionButton';
-import EmptyState from './EmptyState';
-import CompletionModal from './CompletionModal';
-import { groupWorkoutsByWeeks } from '@/lib/utils/workout-helpers';
-
-interface TrainingPlanViewProps {
-  trainingPlan: TrainingPlanWithWorkoutsDTO | null;
-}
-
-export default function TrainingPlanView({ trainingPlan }: TrainingPlanViewProps) {
-  if (!trainingPlan) {
-    return <EmptyState variant="no-plan" />;
+```typescript
+const groupByWeeks = (days: WorkoutDay[]): WorkoutDay[][] => {
+  const weeks: WorkoutDay[][] = [];
+  for (let i = 0; i < 10; i++) {
+    weeks.push(days.slice(i * 7, (i + 1) * 7));
   }
+  return weeks;
+};
+```
 
-  const [workoutDays, setWorkoutDays] = useState(trainingPlan.workout_days);
-  const [showCompletionModal, setShowCompletionModal] = useState(
-    trainingPlan.completion_stats.is_plan_completed
-  );
-  const todayCardRef = useRef<HTMLDivElement>(null);
+---
 
-  const weeks = groupWorkoutsByWeeks(workoutDays);
-  const todayDate = new Date().toISOString().split('T')[0];
+### 4.3. WeekAccordion.tsx
 
-  // Auto-scroll to today on mount
-  useEffect(() => {
-    setTimeout(() => {
-      todayCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
-  }, []);
+**Opis:** Komponent accordion dla jednego tygodnia, zawierający 7 WorkoutDayCard. Wyświetla nagłówek z numerem tygodnia i statystykami ukończenia treningów w tym tygodniu. Auto-expand jeśli tydzień zawiera dzisiejszą datę.
 
-  const handleWorkoutToggle = async (workoutId: string) => {
-    // Optimistic update logic + API call
-  };
+**Główne elementy:**
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <PlanHeader
-        startDate={trainingPlan.start_date}
-        endDate={trainingPlan.end_date}
-        completionStats={trainingPlan.completion_stats}
-      />
+- AccordionItem (Shadcn/ui)
+- AccordionTrigger - header z tekstem "Tydzień X: Y/Z wykonanych"
+- AccordionContent - 7x WorkoutDayCard
+- Badge - status indicator (opcjonalnie)
 
-      <div className="mt-8 space-y-4">
-        {weeks.map((week) => (
-          <WeekAccordion
-            key={week.weekNumber}
-            week={week}
-            todayDate={todayDate}
-            todayCardRef={todayCardRef}
-            onWorkoutToggle={handleWorkoutToggle}
-          />
-        ))}
+**Obsługiwane interakcje:**
+
+- Click na trigger → expand/collapse
+- Keyboard navigation (Enter, Space)
+- Przekazanie onToggleCompleted do children
+
+**Obsługiwana walidacja:**
+
+- Walidacja że workoutDays.length === 7
+- Obliczenie liczby ukończonych treningów w tygodniu (excluding rest days)
+
+**Typy:**
+
+- `WeekAccordionProps` - props interface
+- `WorkoutDay[]` - 7 dni dla tego tygodnia
+
+**Propsy:**
+
+```typescript
+interface WeekAccordionProps {
+  weekNumber: number; // 1-10
+  workoutDays: WorkoutDay[]; // Exactly 7 days
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  isCurrentWeek?: boolean; // For auto-expand
+}
+```
+
+**Obliczanie statystyk tygodnia:**
+
+```typescript
+const weekStats = {
+  total: workoutDays.filter((d) => !d.is_rest_day).length,
+  completed: workoutDays.filter((d) => !d.is_rest_day && d.is_completed).length,
+};
+```
+
+---
+
+### 4.4. WorkoutDayCard.tsx ⭐ (Główny komponent dla US-010)
+
+**Opis:** Kafelek reprezentujący pojedynczy dzień w planie treningowym. Kluczowy komponent dla User Story US-010. Wyświetla dwa różne warianty w zależności od wartości `is_rest_day`:
+
+1. **Rest Day Variant** (is_rest_day === true):
+   - Muted background (bg-muted)
+   - Ikona 🛌
+   - Tekst "Odpoczynek"
+   - BRAK checkbox (zgodnie z US-010, kryterium 3)
+   - Disabled state (brak interakcji z completion)
+
+2. **Workout Day Variant** (is_rest_day === false):
+   - Workout description (truncated/expanded)
+   - Checkbox do marking completed
+   - Conditional styling: pending (neutral) / completed (green border)
+   - Click na card → expand/collapse description
+
+**Główne elementy HTML i komponenty:**
+
+```tsx
+<Card ref={isToday ? todayCardRef : null}>
+  <CardHeader>
+    <div className="flex justify-between">
+      <div>
+        <p className="text-sm text-muted-foreground">Dzień {workoutDay.day_number}/70</p>
+        <p className="text-base font-medium">{formatDate(workoutDay.date)}</p>
       </div>
-
-      <FloatingActionButton onScrollToToday={() => {
-        todayCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }} />
-
-      <CompletionModal
-        isOpen={showCompletionModal}
-        onClose={() => setShowCompletionModal(false)}
-        onGenerateNewPlan={() => window.location.href = '/survey'}
-      />
+      {/* Conditional badge dla "Dzisiaj" */}
+      {isToday && <Badge variant="secondary">Dzisiaj</Badge>}
     </div>
-  );
-}
+  </CardHeader>
+
+  <CardContent>
+    {/* CONDITIONAL RENDERING - Kluczowe dla US-010 */}
+    {workoutDay.is_rest_day ? (
+      // REST DAY VARIANT
+      <div className="flex items-center gap-3 py-4">
+        <span className="text-3xl" role="img" aria-label="Odpoczynek">
+          🛌
+        </span>
+        <p className="text-lg text-muted-foreground">Odpoczynek</p>
+      </div>
+    ) : (
+      // WORKOUT DAY VARIANT
+      <>
+        <p className={cn("text-sm", isExpanded ? "" : "line-clamp-2")}>{workoutDay.workout_description}</p>
+        {!isExpanded && (
+          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(true)}>
+            Rozwiń
+          </Button>
+        )}
+      </>
+    )}
+  </CardContent>
+
+  {/* FOOTER z checkbox - TYLKO dla workout days */}
+  {!workoutDay.is_rest_day && (
+    <CardFooter className="border-t pt-4">
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={`workout-${workoutDay.id}`}
+          checked={workoutDay.is_completed}
+          onCheckedChange={() => onToggleCompleted(workoutDay.id, workoutDay.is_completed)}
+          aria-label="Oznacz jako wykonany"
+        />
+        <label htmlFor={`workout-${workoutDay.id}`} className="text-sm cursor-pointer">
+          Oznacz jako wykonany
+        </label>
+      </div>
+    </CardFooter>
+  )}
+</Card>
 ```
 
----
+**Obsługiwane interakcje:**
 
-### 4.3. PlanHeader.tsx
+1. **Click na checkbox** (tylko workout days):
+   - Wywołanie `onToggleCompleted(id, currentStatus)`
+   - Optimistic update w parent component (TrainingPlanView)
+   - Toast notification
 
-**Opis komponentu:**
-Wyświetla nagłówek planu treningowego z tytułem, datami rozpoczęcia i zakończenia oraz statystykami ukończenia (liczba wykonanych treningów, procent, progress bar).
+2. **Click na card body** (opcjonalnie):
+   - Toggle expand/collapse workout description
 
-**Główne elementy:**
-- `Card` (Shadcn/ui)
-- Tytuł: "Twój plan treningowy"
-- Daty: start_date - end_date (formatted DD.MM.YYYY)
-- Statystyki:
-  - "Wykonane treningi: X/Y"
-  - "Procent ukończenia: Z%"
-  - `Progress` component (Shadcn/ui) - visual bar
+3. **Brak interakcji dla rest days:**
+   - Checkbox nie jest renderowany
+   - Nie można oznaczyć jako completed
 
-**Obsługiwane zdarzenia:**
-Brak (display only)
+**Obsługiwana walidacja:**
 
-**Warunki walidacji:**
-Brak
+- **Krytyczne dla US-010:** Walidacja że `is_rest_day === true` → NIE renderować checkbox
+- Walidacja formatu daty (YYYY-MM-DD)
+- Type guard dla workout_description (string, non-empty)
 
 **Typy:**
-- Props: `PlanHeaderProps`
+
+- `WorkoutDayCardProps` - props interface (zdefiniowany w types.ts)
+- `WorkoutDay` - entity type
 
 **Propsy:**
-```typescript
-interface PlanHeaderProps {
-  startDate: string; // ISO date string
-  endDate: string;   // ISO date string
-  completionStats: CompletionStatsDTO;
-}
-```
 
-**Kod szkieletowy:**
-```tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { formatDate } from '@/lib/utils/date-helpers';
-import type { CompletionStatsDTO } from '@/types';
-
-interface PlanHeaderProps {
-  startDate: string;
-  endDate: string;
-  completionStats: CompletionStatsDTO;
-}
-
-export default function PlanHeader({ startDate, endDate, completionStats }: PlanHeaderProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Twój plan treningowy</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {formatDate(startDate)} - {formatDate(endDate)}
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium">
-              Wykonane treningi: {completionStats.completed_workouts}/{completionStats.total_workouts}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Procent ukończenia: {completionStats.completion_percentage}%
-            </p>
-          </div>
-          <Progress value={completionStats.completion_percentage} />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
----
-
-### 4.4. WeekAccordion.tsx
-
-**Opis komponentu:**
-Accordion item reprezentujący jeden tydzień treningu (7 dni). Wyświetla nagłówek z numerem tygodnia i liczbą wykonanych treningów, a po rozwinięciu pokazuje 7 kart WorkoutDayCard.
-
-**Główne elementy:**
-- `AccordionItem` (Shadcn/ui Accordion)
-- `AccordionTrigger`: "Tydzień X: Y/Z wykonanych"
-- `AccordionContent`: 7x `WorkoutDayCard` components
-
-**Obsługiwane zdarzenia:**
-- Expand/collapse (obsługiwane przez Shadcn Accordion)
-- Delegowanie `onWorkoutToggle` do WorkoutDayCard
-
-**Warunki walidacji:**
-Brak
-
-**Typy:**
-- Props: `WeekAccordionProps`
-- Używa: `WeekViewModel` (computed w TrainingPlanView)
-
-**Propsy:**
-```typescript
-interface WeekAccordionProps {
-  week: WeekViewModel;
-  todayDate: string;
-  todayCardRef: React.RefObject<HTMLDivElement>;
-  onWorkoutToggle: (workoutId: string) => void;
-}
-```
-
-**Kod szkieletowy:**
-```tsx
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import WorkoutDayCard from './WorkoutDayCard';
-import type { WeekViewModel } from '@/types/view-models';
-
-interface WeekAccordionProps {
-  week: WeekViewModel;
-  todayDate: string;
-  todayCardRef: React.RefObject<HTMLDivElement>;
-  onWorkoutToggle: (workoutId: string) => void;
-}
-
-export default function WeekAccordion({
-  week,
-  todayDate,
-  todayCardRef,
-  onWorkoutToggle
-}: WeekAccordionProps) {
-  return (
-    <AccordionItem value={`week-${week.weekNumber}`}>
-      <AccordionTrigger>
-        Tydzień {week.weekNumber}: {week.completedCount}/{week.totalWorkouts} wykonanych
-      </AccordionTrigger>
-      <AccordionContent>
-        <div className="space-y-3 mt-3">
-          {week.workoutDays.map((workout) => {
-            const isToday = workout.date === todayDate;
-            return (
-              <WorkoutDayCard
-                key={workout.id}
-                workout={workout}
-                isToday={isToday}
-                ref={isToday ? todayCardRef : null}
-                onToggle={() => onWorkoutToggle(workout.id)}
-              />
-            );
-          })}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  );
-}
-```
-
----
-
-### 4.5. WorkoutDayCard.tsx
-
-**Opis komponentu:**
-Karta pojedynczego dnia treningowego. Wyświetla datę, numer dnia, opis treningu oraz checkbox do oznaczania jako wykonane. Obsługuje trzy stany wizualne: rest day (szary, disabled), pending (neutralny), completed (zielony border, checked).
-
-**Główne elementy:**
-- `Card` (Shadcn/ui)
-- Header: Data (DD.MM.YYYY) + day_number
-- Body: workout_description (z możliwością expand/collapse dla długich opisów)
-- Footer: `Checkbox` (Shadcn/ui) - tylko dla non-rest days
-- Visual indicators:
-  - Rest day: 🛌 icon + "Odpoczynek" + muted background
-  - Pending: neutral border + unchecked checkbox
-  - Completed: green border + ✓ icon + checked checkbox
-
-**Obsługiwane zdarzenia:**
-- `onClick` (card) - expand/collapse description (optional feature)
-- `onCheckedChange` (checkbox) - toggle completed status
-- Event propagation: call parent's `onToggle` callback
-
-**Warunki walidacji:**
-- Checkbox `disabled={workout.is_rest_day === true}` (rest days nie mogą być marked)
-- Checkbox nie renderowany dla rest days (alternatywne podejście)
-
-**Typy:**
-- Props: `WorkoutDayCardProps`
-
-**Propsy:**
 ```typescript
 interface WorkoutDayCardProps {
-  workout: WorkoutDayDTO;
-  isToday: boolean;
-  onToggle: () => void;
+  workoutDay: WorkoutDay;
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  isToday?: boolean; // For badge and auto-scroll ref
 }
 ```
 
-**Kod szkieletowy:**
-```tsx
-import React, { forwardRef } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate } from '@/lib/utils/date-helpers';
-import { cn } from '@/lib/utils';
-import type { WorkoutDayDTO } from '@/types';
+**Conditional styling (Tailwind classes):**
 
-interface WorkoutDayCardProps {
-  workout: WorkoutDayDTO;
-  isToday: boolean;
-  onToggle: () => void;
-}
-
-const WorkoutDayCard = forwardRef<HTMLDivElement, WorkoutDayCardProps>(
-  ({ workout, isToday, onToggle }, ref) => {
-    const cardClasses = cn(
-      'transition-colors',
-      workout.is_rest_day && 'bg-muted',
-      workout.is_completed && 'border-green-500 border-2',
-      isToday && 'ring-2 ring-blue-500'
-    );
-
-    return (
-      <Card ref={ref} className={cardClasses}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">{formatDate(workout.date)}</p>
-              <p className="text-xs text-muted-foreground">Dzień {workout.day_number}/70</p>
-            </div>
-            {workout.is_rest_day ? (
-              <span className="text-2xl">🛌</span>
-            ) : workout.is_completed ? (
-              <span className="text-2xl text-green-500">✓</span>
-            ) : null}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {workout.is_rest_day ? (
-            <p className="text-muted-foreground">Odpoczynek</p>
-          ) : (
-            <>
-              <p className="text-sm">{workout.workout_description}</p>
-              <div className="mt-4 flex items-center space-x-2">
-                <Checkbox
-                  id={`workout-${workout.id}`}
-                  checked={workout.is_completed}
-                  onCheckedChange={onToggle}
-                />
-                <label
-                  htmlFor={`workout-${workout.id}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Oznacz jako wykonany
-                </label>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
+```typescript
+const cardClassName = cn(
+  "transition-all duration-200",
+  // Rest day styling
+  workoutDay.is_rest_day && "bg-muted border-muted",
+  // Workout day - completed
+  !workoutDay.is_rest_day && workoutDay.is_completed && "border-green-500 bg-green-50/50",
+  // Workout day - pending
+  !workoutDay.is_rest_day && !workoutDay.is_completed && "border-border",
+  // Today highlight
+  isToday && "ring-2 ring-primary ring-offset-2"
 );
-
-WorkoutDayCard.displayName = 'WorkoutDayCard';
-
-export default WorkoutDayCard;
 ```
 
 ---
 
-### 4.6. FloatingActionButton.tsx
+### 4.5. PlanHeader.tsx
 
-**Opis komponentu:**
-Floating Action Button (FAB) wyświetlany w prawym dolnym rogu ekranu. Widoczny tylko wtedy, gdy dzisiejsza karta nie jest w viewport. Po kliknięciu scrolluje do dzisiejszego dnia.
+**Opis:** Nagłówek planu z datami i statystykami ukończenia. Wyświetla progress bar i kluczowe metryki.
 
 **Główne elementy:**
-- `Button` (Shadcn/ui) z fixed positioning
-- Icon: ↓ lub similar (arrow down)
-- Text: "Dzisiaj"
 
-**Obsługiwane zdarzenia:**
-- `onClick` - scroll to today's card
+- Card z informacjami o planie
+- Daty: start_date, end_date
+- Statystyki: wykonane treningi, procent ukończenia
+- Progress bar (Shadcn/ui Progress component)
 
-**Warunki walidacji:**
-- Widoczność kontrolowana przez IntersectionObserver (w TrainingPlanView)
-- Render only gdy `isFABVisible === true`
+**Obsługiwane interakcje:** Brak (read-only display)
+
+**Obsługiwana walidacja:**
+
+- Walidacja dat (format YYYY-MM-DD)
+- Walidacja completion_percentage (0-100)
 
 **Typy:**
-- Props: `FloatingActionButtonProps`
+
+- `PlanHeaderProps` - props interface
+- `CompletionStatsDTO` - statystyki
 
 **Propsy:**
+
 ```typescript
-interface FloatingActionButtonProps {
-  onScrollToToday: () => void;
+interface PlanHeaderProps {
+  trainingPlan: TrainingPlan;
+  completionStats: CompletionStatsDTO;
 }
 ```
 
-**Kod szkieletowy:**
-```tsx
-import { Button } from '@/components/ui/button';
-import { ArrowDown } from 'lucide-react';
+---
 
-interface FloatingActionButtonProps {
-  onScrollToToday: () => void;
-}
+### 4.6. ScrollToTodayFAB.tsx
 
-export default function FloatingActionButton({ onScrollToToday }: FloatingActionButtonProps) {
-  return (
-    <Button
-      onClick={onScrollToToday}
-      className="fixed bottom-20 right-6 rounded-full shadow-lg md:bottom-6"
-      size="lg"
-    >
-      <ArrowDown className="mr-2 h-4 w-4" />
-      Dzisiaj
-    </Button>
-  );
+**Opis:** Floating Action Button w prawym dolnym rogu, który scrolluje do dzisiejszego dnia. Widoczny tylko gdy today's card nie jest w viewport.
+
+**Główne elementy:**
+
+- Button (Shadcn/ui) z fixed position
+- Ikona: ArrowDown (lucide-react)
+- IntersectionObserver dla visibility logic
+
+**Obsługiwane interakcje:**
+
+- Click → scroll to today's card (smooth behavior)
+
+**Obsługiwana walidacja:**
+
+- Sprawdzenie czy todayCardRef.current istnieje
+
+**Typy:**
+
+- `ScrollToTodayFABProps` - props interface
+
+**Propsy:**
+
+```typescript
+interface ScrollToTodayFABProps {
+  todayCardRef: React.RefObject<HTMLDivElement>;
 }
 ```
 
@@ -534,457 +399,282 @@ export default function FloatingActionButton({ onScrollToToday }: FloatingAction
 
 ### 4.7. EmptyState.tsx
 
-**Opis komponentu:**
-Wyświetlany gdy użytkownik nie ma aktywnego planu treningowego. Pokazuje komunikat i przycisk CTA do wygenerowania nowego planu.
+**Opis:** Placeholder wyświetlany gdy użytkownik nie ma aktywnego planu treningowego.
 
 **Główne elementy:**
-- `Card` (Shadcn/ui)
-- Icon (optional): 📋 lub similar
-- Message: "Nie masz aktywnego planu treningowego"
-- `Button` CTA: "Wygeneruj plan" → `/survey`
 
-**Obsługiwane zdarzenia:**
-- `onClick` (button) - redirect do `/survey`
+- Card z centered content
+- Ikona (Calendar lub FileQuestion)
+- Tekst: "Nie masz aktywnego planu treningowego"
+- Button: "Wygeneruj plan" → link do /survey
 
-**Warunki walidacji:**
-Brak
+**Obsługiwane interakcje:**
 
-**Typy:**
-- Props: `EmptyStateProps`
+- Click na button → redirect /survey
 
-**Propsy:**
-```typescript
-interface EmptyStateProps {
-  variant: 'no-plan';
-}
-```
-
-**Kod szkieletowy:**
-```tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-
-interface EmptyStateProps {
-  variant: 'no-plan';
-}
-
-export default function EmptyState({ variant }: EmptyStateProps) {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <Card className="max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Nie masz aktywnego planu treningowego</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-muted-foreground mb-6">
-            Wygeneruj swój pierwszy plan treningowy, aby rozpocząć.
-          </p>
-          <Button asChild>
-            <a href="/survey">Wygeneruj plan</a>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-```
-
----
-
-### 4.8. CompletionModal.tsx
-
-**Opis komponentu:**
-Modal wyświetlany automatycznie po ukończeniu planu treningowego (wszystkie treningi wykonane lub end_date passed). Pokazuje gratulacje i zachęca do wygenerowania nowego planu.
-
-**Główne elementy:**
-- `Dialog` (Shadcn/ui)
-- Icon: 🎉
-- Title: "Gratulacje!"
-- Message: "Ukończyłeś swój 10-tygodniowy plan treningowy!"
-- Buttons:
-  - "Zamknij" (secondary)
-  - "Wygeneruj nowy plan" (primary) → `/survey`
-
-**Obsługiwane zdarzenia:**
-- `onOpenChange` - zamknięcie modal
-- `onClick` (CTA button) - redirect do `/survey`
-
-**Warunki walidacji:**
-Brak
+**Obsługiwana walidacja:** Brak
 
 **Typy:**
-- Props: `CompletionModalProps`
 
-**Propsy:**
 ```typescript
-interface CompletionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onGenerateNewPlan: () => void;
+interface EmptyStateProps {
+  variant?: "no-plan" | "error";
+  message?: string;
+  ctaText?: string;
+  ctaLink?: string;
 }
 ```
 
-**Kod szkieletowy:**
-```tsx
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-
-interface CompletionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onGenerateNewPlan: () => void;
-}
-
-export default function CompletionModal({
-  isOpen,
-  onClose,
-  onGenerateNewPlan
-}: CompletionModalProps) {
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
-            🎉 Gratulacje!
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Ukończyłeś swój 10-tygodniowy plan treningowy!
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex gap-2 sm:justify-center">
-          <Button variant="outline" onClick={onClose}>
-            Zamknij
-          </Button>
-          <Button onClick={onGenerateNewPlan}>
-            Wygeneruj nowy plan
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-```
+**Propsy:** Opcjonalne customization props
 
 ---
 
 ## 5. Typy
 
-### 5.1. Typy z API (już zdefiniowane w src/types.ts)
+Wszystkie wymagane typy są już zdefiniowane w `src/types.ts`. Poniżej szczegółowy breakdown:
 
-#### TrainingPlanWithWorkoutsDTO
+### 5.1. Entity Types (z bazy danych)
+
 ```typescript
-type TrainingPlanWithWorkoutsDTO = TrainingPlan & {
-  workout_days: WorkoutDayDTO[];
-  completion_stats: CompletionStatsDTO;
+/**
+ * WorkoutDay - Pojedynczy dzień w planie treningowym
+ * Używany jako podstawowy typ dla WorkoutDayCard
+ */
+export type WorkoutDay = {
+  id: string; // UUID, primary key
+  training_plan_id: string; // UUID, foreign key do training_plans
+  day_number: number; // 1-70, kolejny numer dnia w planie
+  date: string; // YYYY-MM-DD, data tego dnia
+  workout_description: string; // Opis treningu LUB "Odpoczynek" dla rest days
+  is_rest_day: boolean; // ⭐ Kluczowe pole dla US-010
+  is_completed: boolean; // Czy trening został ukończony
+  completed_at: string | null; // ISO timestamp, kiedy oznaczono jako completed
 };
 ```
-**Pola:**
-- `id`: string - UUID planu
-- `user_id`: string - UUID użytkownika
-- `start_date`: string - data rozpoczęcia (ISO format)
-- `end_date`: string - data zakończenia (ISO format)
-- `generated_at`: string - timestamp generowania (ISO format)
-- `is_active`: boolean - czy plan jest aktywny
-- `metadata`: unknown | null - dodatkowe metadane
-- `workout_days`: WorkoutDayDTO[] - tablica 70 dni treningowych
-- `completion_stats`: CompletionStatsDTO - statystyki ukończenia
 
-#### WorkoutDayDTO
-```typescript
-type WorkoutDayDTO = WorkoutDay;
-```
-**Pola:**
-- `id`: string - UUID dnia
-- `training_plan_id`: string - UUID planu
-- `day_number`: number - numer dnia (1-70)
-- `date`: string - data dnia (ISO format YYYY-MM-DD)
-- `workout_description`: string - pełny opis treningu
-- `is_rest_day`: boolean - czy to dzień odpoczynku
-- `is_completed`: boolean - czy trening wykonany
-- `completed_at`: string | null - timestamp wykonania (ISO format)
-
-#### CompletionStatsDTO
-```typescript
-interface CompletionStatsDTO {
-  total_workouts: number;
-  completed_workouts: number;
-  total_rest_days: number;
-  completion_percentage: number;
-  is_plan_completed: boolean;
-}
-```
-**Pola:**
-- `total_workouts`: number - całkowita liczba treningów (bez dni odpoczynku)
-- `completed_workouts`: number - liczba wykonanych treningów
-- `total_rest_days`: number - liczba dni odpoczynku
-- `completion_percentage`: number - procent ukończenia (0-100)
-- `is_plan_completed`: boolean - czy plan jest całkowicie ukończony
-
-### 5.2. Nowe typy ViewModel (do utworzenia w src/types/view-models.ts)
-
-#### WeekViewModel
-```typescript
-interface WeekViewModel {
-  weekNumber: number;
-  workoutDays: WorkoutDayDTO[];
-  completedCount: number;
-  totalWorkouts: number;
-}
-```
-**Opis:** Reprezentuje jeden tydzień treningu z obliczonymi statystykami.
-
-**Pola:**
-- `weekNumber`: number - numer tygodnia (1-10)
-- `workoutDays`: WorkoutDayDTO[] - tablica 7 dni dla tego tygodnia
-- `completedCount`: number - liczba wykonanych treningów w tym tygodniu
-- `totalWorkouts`: number - liczba treningów (bez dni odpoczynku) w tym tygodniu
-
-#### WorkoutDayViewModel
-```typescript
-interface WorkoutDayViewModel extends WorkoutDayDTO {
-  isToday: boolean;
-  weekNumber: number;
-  displayDate: string;
-  isPast: boolean;
-  isFuture: boolean;
-}
-```
-**Opis:** Rozszerza WorkoutDayDTO o dodatkowe pola pomocnicze dla UI.
-
-**Pola:**
-- Wszystkie pola z `WorkoutDayDTO`
-- `isToday`: boolean - czy to dzisiejszy dzień
-- `weekNumber`: number - numer tygodnia (1-10)
-- `displayDate`: string - sformatowana data (DD.MM.YYYY)
-- `isPast`: boolean - czy data jest w przeszłości
-- `isFuture`: boolean - czy data jest w przyszłości
-
-### 5.3. Typy Props komponentów
+### 5.2. DTOs (Data Transfer Objects)
 
 ```typescript
-// src/types/component-props.ts
+/**
+ * WorkoutDayDTO - Alias dla WorkoutDay
+ * Używany w API responses
+ */
+export type WorkoutDayDTO = WorkoutDay;
 
-interface TrainingPlanViewProps {
-  trainingPlan: TrainingPlanWithWorkoutsDTO | null;
+/**
+ * CompletionStatsDTO - Statystyki ukończenia planu
+ * Obliczane na backendzie, wyświetlane w PlanHeader
+ */
+export interface CompletionStatsDTO {
+  total_workouts: number; // Liczba workout days (excluding rest days)
+  completed_workouts: number; // Liczba ukończonych workouts
+  total_rest_days: number; // Liczba rest days
+  completion_percentage: number; // 0-100, procent ukończenia
+  is_plan_completed: boolean; // Czy plan jest w pełni ukończony
 }
 
-interface PlanHeaderProps {
-  startDate: string;
-  endDate: string;
+/**
+ * TrainingPlanWithWorkoutsDTO - Pełny plan z workout days
+ * Response z GET /api/training-plans/active
+ */
+export type TrainingPlanWithWorkoutsDTO = TrainingPlan & {
+  workout_days: WorkoutDayDTO[]; // 70 dni, sorted by day_number
+  completion_stats: CompletionStatsDTO; // Obliczone statystyki
+};
+```
+
+### 5.3. ViewModel Types (Props interfaces)
+
+```typescript
+/**
+ * Props dla TrainingPlanView
+ */
+export interface TrainingPlanViewProps {
+  trainingPlan: TrainingPlanWithWorkoutsDTO;
+}
+
+/**
+ * Props dla WeekAccordion
+ */
+export interface WeekAccordionProps {
+  weekNumber: number; // 1-10
+  workoutDays: WorkoutDay[]; // Exactly 7 days
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  isCurrentWeek?: boolean; // For auto-expand today's week
+}
+
+/**
+ * Props dla WorkoutDayCard ⭐ (Kluczowy dla US-010)
+ */
+export interface WorkoutDayCardProps {
+  workoutDay: WorkoutDay; // Zawiera is_rest_day field
+  onToggleCompleted: (id: string, currentStatus: boolean) => Promise<void>;
+  isToday?: boolean; // For badge + auto-scroll ref
+}
+
+/**
+ * Props dla PlanHeader
+ */
+export interface PlanHeaderProps {
+  trainingPlan: TrainingPlan;
   completionStats: CompletionStatsDTO;
 }
 
-interface WeekAccordionProps {
-  week: WeekViewModel;
-  todayDate: string;
+/**
+ * Props dla ScrollToTodayFAB
+ */
+export interface ScrollToTodayFABProps {
   todayCardRef: React.RefObject<HTMLDivElement>;
-  onWorkoutToggle: (workoutId: string) => void;
-}
-
-interface WorkoutDayCardProps {
-  workout: WorkoutDayDTO;
-  isToday: boolean;
-  onToggle: () => void;
-}
-
-interface FloatingActionButtonProps {
-  onScrollToToday: () => void;
-}
-
-interface EmptyStateProps {
-  variant: 'no-plan';
-}
-
-interface CompletionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onGenerateNewPlan: () => void;
 }
 ```
+
+### 5.4. Nie są potrzebne nowe typy
+
+Wszystkie typy wymagane do implementacji widoku Dashboard z wyświetlaniem dni odpoczynku (US-010) są już zdefiniowane w `src/types.ts`. Implementacja powinna wykorzystać istniejące typy bez tworzenia nowych.
 
 ---
 
 ## 6. Zarządzanie stanem
 
-### 6.1. Server-side state (Astro SSR)
+### 6.1. Server State (SSR w Astro)
+
+**Lokalizacja:** `src/pages/dashboard.astro`
 
 **Źródło danych:** GET /api/training-plans/active
 
-**Flow:**
-1. DashboardPage.astro wykonuje fetch server-side
-2. Response deserializowany do `TrainingPlanWithWorkoutsDTO | null`
-3. Dane przekazywane jako props do `TrainingPlanView` (client:load)
+**Przekazywanie:** Props do TrainingPlanView component
 
-### 6.2. Client-side state (React)
-
-#### Stan w TrainingPlanView:
-
-**1. workoutDays**
-- **Typ:** `WorkoutDayDTO[]`
-- **Inicjalizacja:** `useState(trainingPlan.workout_days)`
-- **Cel:** Local state dla optimistic updates
-- **Mutacje:** Update przy marking workout as completed/uncompleted
-
-**2. showCompletionModal**
-- **Typ:** `boolean`
-- **Inicjalizacja:** `useState(trainingPlan.completion_stats.is_plan_completed)`
-- **Cel:** Kontrola widoczności completion modal
-- **Mutacje:** `setShowCompletionModal(false)` po zamknięciu modal
-
-**3. todayCardRef**
-- **Typ:** `React.RefObject<HTMLDivElement>`
-- **Inicjalizacja:** `useRef<HTMLDivElement>(null)`
-- **Cel:** Referencja do dzisiejszej karty dla scroll functionality
-
-### 6.3. Custom Hooks
-
-#### useWorkoutToggle
 ```typescript
-function useWorkoutToggle(
-  initialWorkouts: WorkoutDayDTO[],
-  onError: (message: string) => void
-) {
-  const [workouts, setWorkouts] = useState(initialWorkouts);
-  const [isUpdating, setIsUpdating] = useState(false);
+// W dashboard.astro
+const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
+  headers: { Cookie: Astro.request.headers.get('Cookie') || '' },
+});
 
-  const toggleWorkout = async (workoutId: string) => {
-    const workoutIndex = workouts.findIndex(w => w.id === workoutId);
-    if (workoutIndex === -1) return;
+const trainingPlan = response.ok ? (await response.json()).data : null;
 
-    const workout = workouts[workoutIndex];
-    const newCompletedStatus = !workout.is_completed;
+// Pass as props
+<TrainingPlanView client:load trainingPlan={trainingPlan} />
+```
 
-    // Optimistic update
-    const updatedWorkouts = [...workouts];
-    updatedWorkouts[workoutIndex] = {
-      ...workout,
-      is_completed: newCompletedStatus,
-      completed_at: newCompletedStatus ? new Date().toISOString() : null,
-    };
-    setWorkouts(updatedWorkouts);
+### 6.2. Client State (React w TrainingPlanView)
 
-    // API call
-    setIsUpdating(true);
+**Stan lokalny dla optimistic updates:**
+
+```typescript
+const TrainingPlanView: React.FC<TrainingPlanViewProps> = ({ trainingPlan }) => {
+  // Local copy of workout days for optimistic updates
+  const [workoutDays, setWorkoutDays] = useState<WorkoutDay[]>(trainingPlan.workout_days);
+
+  // Track which workout is currently being updated (for loading state)
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // Ref for today's card (auto-scroll)
+  const todayCardRef = useRef<HTMLDivElement>(null);
+
+  // ... rest of component
+};
+```
+
+### 6.3. Custom Hook: useWorkoutToggle (Rekomendowany)
+
+Dla lepszej organizacji kodu i reusability, zaleca się wydzielenie logiki optimistic updates do custom hook:
+
+```typescript
+/**
+ * Custom hook dla zarządzania stanem workout days z optimistic updates
+ * Lokalizacja: src/components/hooks/useWorkoutToggle.ts
+ */
+const useWorkoutToggle = (initialDays: WorkoutDay[]) => {
+  const [days, setDays] = useState<WorkoutDay[]>(initialDays);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const toggleCompleted = async (id: string, currentStatus: boolean) => {
+    // Zabezpieczenie: Nie pozwól na marking rest days
+    const day = days.find((d) => d.id === id);
+    if (day?.is_rest_day) {
+      console.error("Cannot mark rest day as completed");
+      return;
+    }
+
+    setUpdatingId(id);
+
+    // 1. Optimistic update
+    setDays((prevDays) =>
+      prevDays.map((d) =>
+        d.id === id
+          ? { ...d, is_completed: !currentStatus, completed_at: !currentStatus ? new Date().toISOString() : null }
+          : d
+      )
+    );
+
     try {
-      const response = await fetch(`/api/workout-days/${workoutId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_completed: newCompletedStatus }),
+      // 2. API call
+      const response = await fetch(`/api/workout-days/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_completed: !currentStatus }),
       });
 
-      if (!response.ok) throw new Error('Update failed');
+      if (!response.ok) {
+        throw new Error("Failed to update workout");
+      }
 
-      // Optionally update with server response
-      const data = await response.json();
-      updatedWorkouts[workoutIndex] = data.data;
-      setWorkouts(updatedWorkouts);
+      // 3. Success toast
+      toast({
+        title: !currentStatus ? "Trening oznaczony jako wykonany" : "Oznaczenie cofnięte",
+        variant: "default",
+      });
     } catch (error) {
-      // Rollback on error
-      setWorkouts(initialWorkouts);
-      onError('Nie udało się zaktualizować. Spróbuj ponownie.');
+      // 4. Rollback on error
+      setDays((prevDays) =>
+        prevDays.map((d) =>
+          d.id === id
+            ? { ...d, is_completed: currentStatus, completed_at: currentStatus ? new Date().toISOString() : null }
+            : d
+        )
+      );
+
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zaktualizować treningu. Spróbuj ponownie.",
+        variant: "destructive",
+      });
     } finally {
-      setIsUpdating(false);
+      setUpdatingId(null);
     }
   };
 
-  return { workouts, toggleWorkout, isUpdating };
-}
+  return { days, updatingId, toggleCompleted };
+};
 ```
 
-**Użycie:** W TrainingPlanView dla optimistic updates przy marking completed.
+**Użycie w TrainingPlanView:**
 
-#### useScrollToToday
 ```typescript
-function useScrollToToday(
-  todayCardRef: React.RefObject<HTMLDivElement>,
-  delay = 100
-) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (todayCardRef.current) {
-        todayCardRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
-      }
-    }, delay);
+const TrainingPlanView: React.FC<TrainingPlanViewProps> = ({ trainingPlan }) => {
+  const { days: workoutDays, toggleCompleted } = useWorkoutToggle(trainingPlan.workout_days);
 
-    return () => clearTimeout(timer);
-  }, [todayCardRef, delay]);
-}
+  // ... rest of component uses workoutDays and toggleCompleted
+};
 ```
 
-**Użycie:** W TrainingPlanView dla auto-scroll do dzisiejszego dnia po mount.
+### 6.4. Auto-scroll Logic
 
-#### useFABVisibility
 ```typescript
-function useFABVisibility(
-  todayCardRef: React.RefObject<HTMLDivElement>
-): boolean {
-  const [isVisible, setIsVisible] = useState(false);
+// W TrainingPlanView
+const todayCardRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!todayCardRef.current) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // FAB visible gdy today card NOT in viewport
-        setIsVisible(!entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(todayCardRef.current);
-
-    return () => observer.disconnect();
-  }, [todayCardRef]);
-
-  return isVisible;
-}
-```
-
-**Użycie:** W TrainingPlanView dla kontroli widoczności FAB button.
-
-### 6.4. Computed values
-
-#### groupWorkoutsByWeeks
-```typescript
-function groupWorkoutsByWeeks(workoutDays: WorkoutDayDTO[]): WeekViewModel[] {
-  const weeks: WeekViewModel[] = [];
-
-  for (let weekNum = 1; weekNum <= 10; weekNum++) {
-    const startDay = (weekNum - 1) * 7 + 1;
-    const endDay = weekNum * 7;
-
-    const weekDays = workoutDays.filter(
-      (day) => day.day_number >= startDay && day.day_number <= endDay
-    );
-
-    const totalWorkouts = weekDays.filter((day) => !day.is_rest_day).length;
-    const completedCount = weekDays.filter(
-      (day) => !day.is_rest_day && day.is_completed
-    ).length;
-
-    weeks.push({
-      weekNumber: weekNum,
-      workoutDays: weekDays,
-      completedCount,
-      totalWorkouts,
+useEffect(() => {
+  // Auto-scroll to today's card on mount
+  if (todayCardRef.current) {
+    todayCardRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
     });
   }
-
-  return weeks;
-}
+}, []);
 ```
-
-**Lokalizacja:** `src/lib/utils/workout-helpers.ts`
 
 ---
 
@@ -992,178 +682,180 @@ function groupWorkoutsByWeeks(workoutDays: WorkoutDayDTO[]): WeekViewModel[] {
 
 ### 7.1. Endpoint: GET /api/training-plans/active
 
-**Kiedy:** Server-side fetch w DashboardPage.astro
+**Lokalizacja:** `src/pages/api/training-plans/active.ts`
+
+**Status implementacji:** ✅ Już zaimplementowany
+
+**Opis:** Endpoint zwraca aktywny plan treningowy użytkownika z wszystkimi 70 workout days i obliczonymi statystykami ukończenia.
 
 **Request:**
-- Method: GET
-- Headers: Cookie (JWT token) - automatycznie przekazywany przez Astro
+
+- Metoda: GET
+- Authentication: Required (JWT token w cookies)
+- Query params: Brak
 - Body: Brak
 
-**Response Success (200):**
+**Response Type (Success 200):**
+
 ```typescript
-ApiSuccessResponse<TrainingPlanWithWorkoutsDTO> = {
+ApiSuccessResponse<TrainingPlanWithWorkoutsDTO>
+
+// Struktura:
+{
   data: {
+    // TrainingPlan fields
     id: string;
     user_id: string;
-    start_date: string;
-    end_date: string;
-    generated_at: string;
-    is_active: true;
-    metadata: null;
-    completion_stats: {
-      total_workouts: number;
-      completed_workouts: number;
-      total_rest_days: number;
-      completion_percentage: number;
-      is_plan_completed: boolean;
-    };
+    start_date: string;        // "2025-01-08"
+    end_date: string;          // "2025-03-18"
+    generated_at: string;      // ISO timestamp
+    is_active: boolean;        // true
+    metadata: any | null;
+
+    // Nested workout_days array (70 elements)
     workout_days: [
-      // 70 items
       {
         id: string;
         training_plan_id: string;
-        day_number: number; // 1-70
-        date: string; // YYYY-MM-DD
-        workout_description: string;
-        is_rest_day: boolean;
+        day_number: number;          // 1-70
+        date: string;                // "2025-01-08"
+        workout_description: string; // "Rozgrzewka..." LUB "Odpoczynek"
+        is_rest_day: boolean;        // ⭐ Kluczowe dla US-010
         is_completed: boolean;
         completed_at: string | null;
-      }
-    ];
+      },
+      // ... 69 more days
+    ],
+
+    // Calculated stats
+    completion_stats: {
+      total_workouts: number;        // 50 (example)
+      completed_workouts: number;    // 12 (example)
+      total_rest_days: number;       // 20 (example)
+      completion_percentage: number; // 24 (example)
+      is_plan_completed: boolean;    // false
+    }
   }
 }
 ```
 
-**Response Error (404):**
-```typescript
-ApiErrorResponse = {
-  error: {
-    message: "No active training plan found";
-    code: "NO_ACTIVE_PLAN";
-  }
-}
-```
+**Error Responses:**
 
-**Response Error (401):**
-```typescript
-ApiErrorResponse = {
-  error: {
-    message: "Unauthorized";
-  }
-}
-```
+1. **401 Unauthorized** - Missing/invalid JWT token
 
-**Response Error (500):**
-```typescript
-ApiErrorResponse = {
-  error: {
-    message: "Failed to fetch active training plan";
-  }
-}
-```
+   ```typescript
+   {
+     error: {
+       message: "Unauthorized",
+       code: "UNAUTHORIZED"
+     }
+   }
+   ```
 
-**Frontend handling:**
+2. **404 Not Found** - No active plan
+
+   ```typescript
+   {
+     error: {
+       message: "No active training plan found",
+       code: "NO_ACTIVE_PLAN"
+     }
+   }
+   ```
+
+   **Frontend handling:** Wyświetl EmptyState component
+
+3. **500 Internal Server Error** - Database error lub incomplete data
+   ```typescript
+   {
+     error: {
+       message: "Training plan data is incomplete",
+       code: "INCOMPLETE_DATA"
+     }
+   }
+   ```
+   **Frontend handling:** ErrorState z retry button
+
+### 7.2. Frontend Integration
+
+**W dashboard.astro (SSR):**
+
 ```typescript
-// W DashboardPage.astro
+---
+// Server-side fetch during SSR
 const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
   headers: {
+    // Pass cookies for auth
     Cookie: Astro.request.headers.get('Cookie') || '',
   },
 });
 
+let trainingPlan: TrainingPlanWithWorkoutsDTO | null = null;
+let error: string | null = null;
+
 if (response.ok) {
-  const { data } = await response.json();
-  // Pass data to TrainingPlanView
+  const data: ApiSuccessResponse<TrainingPlanWithWorkoutsDTO> = await response.json();
+  trainingPlan = data.data;
+
+  // Validation: Ensure 70 days
+  if (trainingPlan.workout_days.length !== 70) {
+    error = 'Dane planu są niekompletne';
+    trainingPlan = null;
+  }
 } else if (response.status === 404) {
-  // Pass null to TrainingPlanView → EmptyState
-  trainingPlan = null;
-} else if (response.status === 401) {
-  // Redirect to login
-  return Astro.redirect('/auth/login');
+  // No active plan - will show EmptyState
 } else {
-  // 500 error → show error page or toast
-  throw new Error('Failed to load training plan');
+  error = 'Nie udało się załadować planu';
 }
+---
+
+<DashboardLayout title="Twój plan treningowy">
+  {error && <ErrorState message={error} />}
+  {!error && !trainingPlan && <EmptyState />}
+  {!error && trainingPlan && (
+    <TrainingPlanView
+      client:load
+      trainingPlan={trainingPlan}
+    />
+  )}
+</DashboardLayout>
 ```
 
-### 7.2. Endpoint: PATCH /api/workout-days/:id
+### 7.3. Kluczowe punkty dla US-010
 
-**Kiedy:** Client-side w TrainingPlanView (useWorkoutToggle hook)
+**Pole `is_rest_day` w response:**
 
-**Request:**
-- Method: PATCH
-- Headers:
-  - Content-Type: application/json
-  - Cookie: JWT token (automatycznie przez browser)
-- Body:
-```typescript
+- Backend ustawia `is_rest_day: true` dla dni odpoczynku
+- Dla rest days: `workout_description` zawiera "Odpoczynek"
+- Frontend używa `is_rest_day` do conditional rendering checkbox
+
+**Przykład workout_day (rest day):**
+
+```json
 {
-  is_completed: boolean
+  "id": "uuid-123",
+  "training_plan_id": "uuid-456",
+  "day_number": 2,
+  "date": "2025-01-09",
+  "workout_description": "Odpoczynek",
+  "is_rest_day": true, // ⭐ Kluczowe
+  "is_completed": false, // Always false for rest days
+  "completed_at": null
 }
 ```
 
-**Response Success (200):**
-```typescript
-ApiSuccessResponse<WorkoutDayDTO> = {
-  data: {
-    id: string;
-    training_plan_id: string;
-    day_number: number;
-    date: string;
-    workout_description: string;
-    is_rest_day: boolean;
-    is_completed: boolean; // updated value
-    completed_at: string | null; // updated timestamp
-  }
-}
-```
+**Przykład workout_day (workout day):**
 
-**Response Error (400):**
-```typescript
-ApiErrorResponse = {
-  error: {
-    message: "Cannot mark rest day as completed";
-    code: "INVALID_OPERATION";
-  }
-}
-```
-
-**Response Error (404):**
-```typescript
-ApiErrorResponse = {
-  error: {
-    message: "Workout day not found";
-    code: "NOT_FOUND";
-  }
-}
-```
-
-**Frontend handling:**
-```typescript
-// W useWorkoutToggle hook
-try {
-  const response = await fetch(`/api/workout-days/${workoutId}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_completed: newCompletedStatus }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Update failed');
-  }
-
-  const { data } = await response.json();
-  // Update local state z server response (confirmation)
-  updateWorkout(data);
-
-  // Show success toast
-  showToast('Trening oznaczony jako wykonany', 'success');
-} catch (error) {
-  // Rollback optimistic update
-  revertWorkout(workoutId);
-
-  // Show error toast
-  showToast('Nie udało się zaktualizować. Spróbuj ponownie.', 'error');
+```json
+{
+  "id": "uuid-789",
+  "training_plan_id": "uuid-456",
+  "day_number": 1,
+  "date": "2025-01-08",
+  "workout_description": "Rozgrzewka 10 min, 5x1000m tempo 10K (odpoczynek 2 min), wychłodzenie 10 min",
+  "is_rest_day": false, // ⭐ Workout day
+  "is_completed": true,
+  "completed_at": "2025-01-08T18:30:00Z"
 }
 ```
 
@@ -1171,663 +863,877 @@ try {
 
 ## 8. Interakcje użytkownika
 
-### 8.1. Page Load (Initial Render)
+### 8.1. Oznaczanie treningu jako wykonanego (Workout Days)
 
-**Akcja użytkownika:** User naviguje do `/dashboard` (po zalogowaniu)
+**User Story:** US-007, US-008
 
-**Flow:**
-1. Middleware sprawdza auth → jeśli OK, pozwala na dostęp
-2. DashboardPage.astro wykonuje SSR fetch: GET /api/training-plans/active
-3. Jeśli 200 OK:
-   - Deserializacja response do TrainingPlanWithWorkoutsDTO
-   - Render TrainingPlanView z danymi
-   - React hydration (client:load)
-   - Auto-scroll do dzisiejszego dnia (useEffect po mount)
-   - Accordion dla dzisiejszego tygodnia auto-expanded
-4. Jeśli 404 Not Found:
-   - Render EmptyState component
-5. Jeśli 401 Unauthorized:
-   - Redirect do /auth/login
+**Scenariusz:**
 
-**Oczekiwany wynik:**
-- User widzi swój plan treningowy z wszystkimi 70 dniami
-- Smooth scroll do dzisiejszego dnia (centered w viewport)
-- Dzisiejsza karta ma blue ring (highlight)
-- Statystyki ukończenia wyświetlone w header
+1. Użytkownik widzi WorkoutDayCard z checkboxem (is_rest_day === false)
+2. User klika na checkbox
+3. **Natychmiastowy feedback (Optimistic UI):**
+   - Checkbox zmienia stan na checked
+   - Border karty zmienia kolor na zielony
+   - Pojawia się ikona ✓
+4. **W tle (asynchronicznie):**
+   - API call: PATCH /api/workout-days/:id { is_completed: true }
+5. **Success:**
+   - Toast notification: "Trening oznaczony jako wykonany"
+6. **Error:**
+   - Rollback visual changes (checkbox unchecked, border neutral)
+   - Toast notification: "Nie udało się zaktualizować. Spróbuj ponownie."
 
-### 8.2. Expand/Collapse Week Accordion
+**Kod (w WorkoutDayCard):**
 
-**Akcja użytkownika:** User klika na WeekAccordion trigger (tytuł tygodnia)
+```tsx
+{
+  !workoutDay.is_rest_day && (
+    <div className="flex items-center gap-2">
+      <Checkbox
+        checked={workoutDay.is_completed}
+        onCheckedChange={() => onToggleCompleted(workoutDay.id, workoutDay.is_completed)}
+        disabled={updatingId === workoutDay.id}
+      />
+      <label>Oznacz jako wykonany</label>
+    </div>
+  );
+}
+```
 
-**Flow:**
-1. User klika na "Tydzień X: Y/Z wykonanych"
-2. Shadcn Accordion obsługuje expand/collapse (built-in behavior)
-3. AccordionContent smoothly expands/collapses
-4. 7 WorkoutDayCards staje się visible/hidden
-5. ARIA attributes automatycznie updated (aria-expanded)
+### 8.2. Cofanie oznaczenia treningu (Workout Days)
 
-**Oczekiwany wynik:**
-- Smooth animation expand/collapse
-- WorkoutDayCards wyświetlone w kolejności (dzień 1-7 tygodnia)
-- Accessible keyboard navigation (Tab, Enter, Space)
+**User Story:** US-008
 
-### 8.3. Mark Workout as Completed
+**Scenariusz:**
 
-**Akcja użytkownika:** User klika checkbox "Oznacz jako wykonany" w WorkoutDayCard
+1. Użytkownik widzi WorkoutDayCard z checked checkbox
+2. User klika na checkbox ponownie
+3. **Optimistic UI:**
+   - Checkbox zmienia stan na unchecked
+   - Border wraca do neutral
+   - Ikona ✓ znika
+4. **W tle:**
+   - API call: PATCH /api/workout-days/:id { is_completed: false }
+5. **Success/Error:** Analogicznie jak powyżej
 
-**Flow:**
-1. User klika checkbox (unchecked → checked)
-2. Event handler w WorkoutDayCard wywołuje `onToggle()`
-3. TrainingPlanView.useWorkoutToggle hook:
-   - **Optimistic update:** Local state natychmiast updated
-   - Card zmienia visual state: green border, ✓ icon, checkbox checked
-   - Header stats re-computed (X+1/Y, procent update)
-   - Week accordion header re-computed (Y+1/Z)
-4. **Background API call:** PATCH /api/workout-days/:id { is_completed: true }
-5. **Success response (200):**
-   - Confirmation z server data
-   - Toast notification: "Trening oznaczony jako wykonany" (success)
-6. **Error response:**
-   - Rollback optimistic update (card wraca do unchecked)
-   - Toast notification: "Nie udało się zaktualizować. Spróbuj ponownie." (error)
+### 8.3. Przeglądanie dni odpoczynku (Rest Days) ⭐ US-010
 
-**Oczekiwany wynik:**
-- Instant visual feedback (optimistic UI)
-- Green border na card
-- ✓ icon wyświetlony
-- Statystyki zaktualizowane
-- Toast confirmation po success
+**User Story:** US-010
 
-### 8.4. Unmark Workout as Completed
+**Scenariusz:**
 
-**Akcja użytkownika:** User klika checkbox ponownie (checked → unchecked)
+1. Użytkownik scrolluje przez plan treningowy
+2. Widzi WorkoutDayCard z `is_rest_day === true`
+3. **Wyświetlany content:**
+   - Muted background (bg-muted)
+   - Ikona 🛌
+   - Tekst "Odpoczynek"
+   - **BRAK checkbox** (zgodnie z US-010 kryterium 3)
+4. **Brak interakcji z marking completed:**
+   - User nie może kliknąć checkbox (go nie ma)
+   - Nie można oznaczyć rest day jako executed
 
-**Flow:**
-1. User klika checkbox (checked → unchecked)
-2. Event handler wywołuje `onToggle()`
-3. Optimistic update: is_completed = false
-4. Card zmienia visual state: neutral border, no icon, checkbox unchecked
-5. Background API call: PATCH /api/workout-days/:id { is_completed: false }
-6. Success: Toast "Oznaczenie cofnięte"
-7. Error: Rollback + toast error
+**Kod (w WorkoutDayCard):**
 
-**Oczekiwany wynik:**
-- Instant unchecking
-- Card wraca do pending state (neutral)
-- Statystyki zaktualizowane (X-1/Y)
+```tsx
+<CardContent>
+  {workoutDay.is_rest_day ? (
+    // REST DAY - US-010
+    <div className="flex items-center gap-3 py-4">
+      <span className="text-3xl" role="img" aria-label="Odpoczynek">🛌</span>
+      <p className="text-lg text-muted-foreground">Odpoczynek</p>
+    </div>
+  ) : (
+    // WORKOUT DAY
+    <p className="text-sm">{workoutDay.workout_description}</p>
+  )}
+</CardContent>
 
-### 8.5. Scroll to Today (FAB Click)
+{/* Footer z checkbox TYLKO dla workout days */}
+{!workoutDay.is_rest_day && (
+  <CardFooter>
+    <Checkbox ... />
+  </CardFooter>
+)}
+```
 
-**Akcja użytkownika:** User klika FloatingActionButton "Dzisiaj"
+### 8.4. Expand/Collapse opisu treningu
 
-**Flow:**
-1. User klika FAB (fixed bottom-right)
-2. Event handler wywołuje `onScrollToToday()`
-3. `todayCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })`
-4. Browser smoothly scrolls do dzisiejszej karty
-5. Today card centered w viewport
-6. IntersectionObserver detects today card in viewport
-7. FAB disappears (fade out animation)
+**Scenariusz:**
 
-**Oczekiwany wynik:**
-- Smooth scroll animation
-- Today card centered
-- FAB znika (bo today card w viewport)
+1. User widzi truncated workout description (line-clamp-2)
+2. User klika "Rozwiń" button
+3. Full description wyświetla się
+4. User może kliknąć "Zwiń" aby ukryć
 
-### 8.6. Plan Completion (Auto-open Modal)
+**Implementacja:**
 
-**Akcja użytkownika:** User kończy ostatni trening LUB end_date passed
+```tsx
+const [isExpanded, setIsExpanded] = useState(false);
 
-**Flow:**
-1. User marks last workout as completed
-2. completion_stats.is_plan_completed = true (computed by backend)
-3. TrainingPlanView re-renders
-4. CompletionModal auto-opens (isOpen={true})
-5. User widzi gratulacje: "🎉 Gratulacje! Ukończyłeś swój plan!"
-6. User może:
-   - Kliknąć "Zamknij" → modal closes
-   - Kliknąć "Wygeneruj nowy plan" → redirect do /survey
+<p className={cn("text-sm", !isExpanded && "line-clamp-2")}>{workoutDay.workout_description}</p>;
+{
+  !isExpanded && (
+    <Button variant="ghost" size="sm" onClick={() => setIsExpanded(true)}>
+      Rozwiń
+    </Button>
+  );
+}
+```
 
-**Oczekiwany wynik:**
-- Modal wyświetlony automatycznie
-- User może zamknąć i dalej przeglądać ukończony plan
-- Lub wygenerować nowy plan (redirect /survey)
+### 8.5. Scrollowanie do dzisiejszego dnia
+
+**Scenariusz:**
+
+1. User wchodzi na stronę Dashboard
+2. **Auto-scroll on mount:**
+   - Strona automatycznie scrolluje do dzisiejszego WorkoutDayCard
+   - Smooth behavior, centered w viewport
+3. **Manual scroll (FAB):**
+   - Jeśli user scrolluje daleko od today's card
+   - FAB button staje się widoczny w prawym dolnym rogu
+   - User klika FAB
+   - Strona scrolluje do today's card
+
+**Implementacja (auto-scroll):**
+
+```tsx
+// W TrainingPlanView
+const todayCardRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  todayCardRef.current?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  });
+}, []);
+
+// Pass ref to WorkoutDayCard
+<WorkoutDayCard
+  ref={isToday ? todayCardRef : null}
+  isToday={isToday}
+  ...
+/>
+```
+
+### 8.6. Accordion - Expand/Collapse tygodni
+
+**Scenariusz:**
+
+1. User widzi 10 WeekAccordion components
+2. Current week jest auto-expanded (zawiera dzisiejszą datę)
+3. Pozostałe tygodnie są collapsed
+4. User klika na header tygodnia
+5. Tydzień się expand/collapse (toggle)
+6. **Keyboard:** Enter/Space również toggluje
 
 ---
 
 ## 9. Warunki i walidacja
 
-### 9.1. Auth validation (Middleware)
+### 9.1. Walidacja `is_rest_day` (Kluczowa dla US-010)
 
-**Warunek:** User musi być authenticated (JWT token)
+**Komponent:** WorkoutDayCard.tsx
 
-**Weryfikacja:**
-- Astro middleware sprawdza `context.locals.supabase.auth.getUser()`
-- Jeśli user === null → redirect /auth/login
+**Warunek:** Jeśli `workoutDay.is_rest_day === true`, NIE renderować checkbox
 
-**Komponenty dotknięte:** DashboardPage.astro (cała strona chroniona)
+**Implementacja:**
 
-**Wpływ na UI:** Jeśli brak auth, user nie widzi dashboard tylko login page
-
-### 9.2. Active plan existence
-
-**Warunek:** User musi mieć aktywny plan treningowy
-
-**Weryfikacja:**
-- API endpoint GET /api/training-plans/active zwraca 404 jeśli brak planu
-- Frontend sprawdza `trainingPlan === null`
-
-**Komponenty dotknięte:** TrainingPlanView
-
-**Wpływ na UI:**
-- Jeśli `trainingPlan === null` → render EmptyState component
-- EmptyState pokazuje CTA "Wygeneruj plan" → /survey
-
-### 9.3. Workout days count validation
-
-**Warunek:** Plan musi mieć dokładnie 70 workout_days
-
-**Weryfikacja:** Backend (API endpoint)
-- `if (!activePlan.workout_days || activePlan.workout_days.length !== 70)`
-- Zwraca 500 Internal Server Error
-
-**Komponenty dotknięte:** DashboardPage.astro
-
-**Wpływ na UI:** Jeśli 500 error, show error toast lub error page
-
-### 9.4. Rest day marking prevention
-
-**Warunek:** Nie można oznaczać rest days jako completed
-
-**Weryfikacja (dwa poziomy):**
-1. **Frontend:** Checkbox disabled dla `is_rest_day === true`
-   ```tsx
-   <Checkbox
-     disabled={workout.is_rest_day}
-     checked={workout.is_completed}
-   />
-   ```
-2. **Backend:** Database constraint CHECK
-   ```sql
-   CHECK (is_rest_day = false OR is_completed = false)
-   ```
-   - Jeśli user próbuje ominąć frontend validation, backend zwróci 400 error
-
-**Komponenty dotknięte:** WorkoutDayCard
-
-**Wpływ na UI:**
-- Rest day cards nie mają checkboxa (alternatywnie: disabled checkbox)
-- Jeśli jakoś API call zostanie wysłany, rollback + toast error
-
-### 9.5. Today's date calculation
-
-**Warunek:** Today's date musi być w lokalnej timezone użytkownika
-
-**Weryfikacja:** Frontend (JavaScript Date API)
-```typescript
-const todayDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+```tsx
+// Type guard i conditional rendering
+{!workoutDay.is_rest_day && (
+  <CardFooter>
+    <Checkbox ... />
+  </CardFooter>
+)}
 ```
 
-**Komponenty dotknięte:** TrainingPlanView, WeekAccordion, WorkoutDayCard
+**Zabezpieczenie dodatkowe (w useWorkoutToggle hook):**
 
-**Wpływ na UI:**
-- Today's card ma `isToday={true}` prop
-- Wyświetla blue ring (highlight)
-- Today's week accordion auto-expanded
-- FAB scrolls to today
+```typescript
+const toggleCompleted = async (id: string, currentStatus: boolean) => {
+  const day = days.find((d) => d.id === id);
 
-### 9.6. Optimistic update validation
+  // Zabezpieczenie: nie pozwól na marking rest days
+  if (day?.is_rest_day) {
+    console.error("Attempted to mark rest day as completed");
+    toast({
+      title: "Błąd",
+      description: "Dni odpoczynku nie można oznaczyć jako wykonane",
+      variant: "destructive",
+    });
+    return;
+  }
 
-**Warunek:** Optimistic update musi być rollback-able w przypadku error
+  // ... rest of logic
+};
+```
 
-**Weryfikacja:** useWorkoutToggle hook
-- Przed API call: save previous state
-- Po error response: revert to previous state
+### 9.2. Walidacja 70 dni
 
-**Komponenty dotknięte:** TrainingPlanView (hook), WorkoutDayCard (visual)
+**Komponent:** TrainingPlanView.tsx
 
-**Wpływ na UI:**
-- Jeśli API error: card animates back to previous state
-- Toast error displayed
-- User może retry
+**Warunek:** `workout_days.length === 70`
+
+**Implementacja:**
+
+```tsx
+const TrainingPlanView: React.FC<TrainingPlanViewProps> = ({ trainingPlan }) => {
+  // Validation na początku
+  if (!trainingPlan.workout_days || trainingPlan.workout_days.length !== 70) {
+    return (
+      <ErrorState
+        message="Plan treningowy jest niekompletny"
+        description="Oczekiwano 70 dni, otrzymano: " + (trainingPlan.workout_days?.length || 0)
+      />
+    );
+  }
+
+  // ... rest of component
+};
+```
+
+### 9.3. Walidacja groupowania tygodni
+
+**Komponent:** TrainingPlanView.tsx
+
+**Warunek:** Każdy tydzień musi mieć dokładnie 7 dni
+
+**Implementacja:**
+
+```typescript
+const groupByWeeks = (days: WorkoutDay[]): WorkoutDay[][] => {
+  if (days.length !== 70) {
+    throw new Error(`Expected 70 days, got ${days.length}`);
+  }
+
+  const weeks: WorkoutDay[][] = [];
+  for (let i = 0; i < 10; i++) {
+    const week = days.slice(i * 7, (i + 1) * 7);
+    if (week.length !== 7) {
+      throw new Error(`Week ${i + 1} has ${week.length} days, expected 7`);
+    }
+    weeks.push(week);
+  }
+
+  return weeks;
+};
+```
+
+### 9.4. Walidacja dat
+
+**Komponent:** WorkoutDayCard.tsx, WeekAccordion.tsx
+
+**Warunek:**
+
+- Daty w formacie YYYY-MM-DD
+- date field jest string, non-empty
+- Dzisiejsza data obliczona poprawnie dla badge "Dzisiaj"
+
+**Implementacja:**
+
+```typescript
+// Helper function
+const isToday = (dateString: string): boolean => {
+  const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+  return dateString === today;
+};
+
+// Użycie
+const todayDay = workoutDays.find((d) => isToday(d.date));
+```
+
+### 9.5. Walidacja stanu checkbox (tylko dla workout days)
+
+**Komponent:** WorkoutDayCard.tsx
+
+**Warunek:**
+
+- Checkbox renderowany TYLKO gdy `is_rest_day === false`
+- Checkbox checked gdy `is_completed === true`
+
+**Implementacja:**
+
+```tsx
+{
+  !workoutDay.is_rest_day && (
+    <Checkbox
+      checked={workoutDay.is_completed}
+      onCheckedChange={() => onToggleCompleted(workoutDay.id, workoutDay.is_completed)}
+    />
+  );
+}
+```
 
 ---
 
 ## 10. Obsługa błędów
 
-### 10.1. No Active Plan (404)
+### 10.1. Brak aktywnego planu (404)
 
-**Scenariusz:** User nie ma aktywnego planu treningowego
+**Scenariusz:** User nie ma wygenerowanego planu treningowego
 
-**Handling:**
-- DashboardPage.astro: `trainingPlan = null`
-- TrainingPlanView: conditional render `<EmptyState variant="no-plan" />`
-- EmptyState message: "Nie masz aktywnego planu treningowego"
-- CTA button: "Wygeneruj plan" → `/survey`
+**Obsługa:**
 
-**User experience:**
-- Clear message o braku planu
-- Łatwy dostęp do generowania nowego planu
-- Nie blokuje nawigacji (navbar nadal dostępna)
+- **Lokalizacja:** dashboard.astro (SSR)
+- **Wykrycie:** response.status === 404
+- **Action:** Renderuj EmptyState component
+- **UI:**
+  - Message: "Nie masz aktywnego planu treningowego"
+  - Button: "Wygeneruj plan" → redirect /survey
 
-### 10.2. Unauthorized (401)
+**Kod:**
 
-**Scenariusz:** JWT token expired lub invalid
+```astro
+{
+  !trainingPlan && (
+    <EmptyState message="Nie masz aktywnego planu treningowego" ctaText="Wygeneruj plan" ctaLink="/survey" />
+  )
+}
+```
 
-**Handling (SSR):**
-- DashboardPage.astro: `return Astro.redirect('/auth/login')`
-- Optional: Set flash message "Sesja wygasła. Zaloguj się ponownie."
+### 10.2. Niepełne dane planu (< 70 dni)
 
-**Handling (Client-side API calls):**
-- useWorkoutToggle hook: catch 401 response
-- Redirect: `window.location.href = '/auth/login'`
-- Toast: "Sesja wygasła. Zaloguj się ponownie."
+**Scenariusz:** Backend zwrócił plan z niepełną liczbą dni
 
-**User experience:**
-- Seamless redirect do login page
-- Clear message o wygaśnięciu sesji
-- Po re-login: redirect back do dashboard (optional feature)
+**Obsługa:**
 
-### 10.3. API Timeout / Network Error
+- **Lokalizacja:** TrainingPlanView.tsx
+- **Wykrycie:** `workout_days.length !== 70`
+- **Action:** Renderuj ErrorState
+- **Logging:** console.error + Sentry (opcjonalnie)
 
-**Scenariusz:** API call takes too long lub brak połączenia
+**Kod:**
 
-**Handling:**
-- useWorkoutToggle hook: catch network error w try/catch
-- Rollback optimistic update
-- Toast: "Sprawdź połączenie internetowe. Spróbuj ponownie."
-- Optional: Retry button w toast
+```tsx
+if (trainingPlan.workout_days.length !== 70) {
+  console.error("Incomplete training plan data", {
+    expected: 70,
+    received: trainingPlan.workout_days.length,
+    planId: trainingPlan.id,
+  });
 
-**User experience:**
-- Visual feedback o problemie z siecią
-- Możliwość retry bez refresh strony
-- Local state preserved (nie tracić postępu)
+  return <ErrorState message="Dane planu są niekompletne" description="Skontaktuj się z pomocą techniczną" />;
+}
+```
 
-### 10.4. Incomplete Plan Data (500)
+### 10.3. Błąd API podczas marking completed
 
-**Scenariusz:** Plan nie ma 70 workout_days (data corruption)
+**Scenariusz:** PATCH /api/workout-days/:id fails (network error, 500, etc.)
 
-**Handling:**
-- API returns 500 Internal Server Error
-- DashboardPage.astro: catch error
-- Option 1: Show error page z retry button
-- Option 2: Toast error + EmptyState (graceful degradation)
+**Obsługa:**
 
-**User experience:**
-- Clear error message: "Błąd ładowania planu. Spróbuj ponownie."
-- Retry button
-- Contact support link (optional)
+- **Lokalizacja:** useWorkoutToggle hook
+- **Wykrycie:** try-catch w toggleCompleted function
+- **Action:**
+  1. Rollback optimistic update (revert to previous state)
+  2. Toast notification z error message
+  3. Log error
 
-### 10.5. Optimistic Update Rollback
+**Kod:**
 
-**Scenariusz:** Marking workout fails (400, 500, network error)
+```typescript
+try {
+  const response = await fetch(`/api/workout-days/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ is_completed: !currentStatus }),
+  });
 
-**Handling:**
-- useWorkoutToggle hook: detect error response
-- Revert `workoutDays` state do previous value
-- Card animates back do poprzedniego stanu (smooth transition)
-- Toast: "Nie udało się zaktualizować. Spróbuj ponownie."
+  if (!response.ok) throw new Error("API error");
 
-**User experience:**
-- Smooth rollback animation (nie jarring)
-- Clear feedback o błędzie
-- Możliwość retry (user może kliknąć checkbox ponownie)
+  toast({ title: "Zaktualizowano" });
+} catch (error) {
+  // Rollback
+  setDays((prevDays) => prevDays.map((d) => (d.id === id ? { ...d, is_completed: currentStatus } : d)));
 
-### 10.6. Plan Completed Edge Cases
+  // Error toast
+  toast({
+    title: "Błąd",
+    description: "Nie udało się zaktualizować. Spróbuj ponownie.",
+    variant: "destructive",
+  });
 
-**Scenariusz A:** User marks last workout → is_plan_completed = true
+  // Log
+  console.error("Failed to toggle workout completion", error);
+}
+```
 
-**Handling:**
-- CompletionModal auto-opens
-- User może zamknąć modal (closable)
-- Plan nadal visible (user może przeglądać completed plan)
+### 10.4. Network error podczas initial load
 
-**Scenariusz B:** end_date passed (SSR)
+**Scenariusz:** Brak połączenia z internetem / timeout podczas SSR fetch
 
-**Handling:**
-- API zwraca `is_plan_completed: true`
-- CompletionModal auto-opens on page load
-- Same behavior jak Scenariusz A
+**Obsługa:**
 
-**User experience:**
-- Gratulacje wyświetlone automatycznie
-- User nie jest zablokowany (może zamknąć modal)
-- Może wygenerować nowy plan lub dalej przeglądać stary
+- **Lokalizacja:** dashboard.astro
+- **Wykrycie:** response.status === 500 lub fetch throws
+- **Action:** Renderuj ErrorState z retry option
 
-### 10.7. Concurrent Updates (Multiple Tabs)
+**Kod:**
 
-**Scenariusz:** User ma otwarte 2 tabs, oznacza workout w obu
+```astro
+{
+  error && (
+    <ErrorState message="Nie udało się załadować planu" description="Sprawdź połączenie internetowe">
+      <Button onClick={() => window.location.reload()}>Spróbuj ponownie</Button>
+    </ErrorState>
+  )
+}
+```
 
-**Handling:**
-- Każdy tab ma niezależny local state
-- Optimistic update w obu tabs
-- API calls z obu tabs (race condition)
-- Ostatni request wins (eventual consistency)
-- Brak synchronizacji real-time w MVP
+### 10.5. Próba oznaczenia rest day jako completed (Edge case)
 
-**User experience:**
-- W MVP: brak synchronizacji między tabs (acceptable tradeoff)
-- Post-MVP: Consider WebSocket lub polling dla real-time sync
-- User może refresh strony aby zobaczyć latest state
+**Scenariusz:** User próbuje (przez inspektowanie HTML) dodać checkbox do rest day
 
-### 10.8. Browser Refresh During API Call
+**Obsługa:**
 
-**Scenariusz:** User refreshuje stronę podczas pending API call (mark completed)
+- **Lokalizacja:** useWorkoutToggle hook (backend zabezpieczenie też istnieje)
+- **Wykrycie:** `day.is_rest_day === true` w toggleCompleted
+- **Action:** Early return + toast warning
 
-**Handling:**
-- Pending API call jest cancelled (browser behavior)
-- Po refresh: SSR fetch zwraca latest state z database
-- Jeśli API call zdążył się wykonać: workout marked
-- Jeśli nie zdążył: workout nie marked (no phantom updates)
+**Kod:**
 
-**User experience:**
-- Refresh zawsze pokazuje prawdziwy stan z database
-- Brak phantom updates
-- User może retry marking jeśli nie poszło
+```typescript
+const toggleCompleted = async (id: string, currentStatus: boolean) => {
+  const day = days.find((d) => d.id === id);
+
+  if (day?.is_rest_day) {
+    console.error("Attempted to mark rest day");
+    toast({
+      title: "Błąd",
+      description: "Dni odpoczynku nie można oznaczyć jako wykonane",
+      variant: "destructive",
+    });
+    return; // Early exit
+  }
+
+  // ... proceed with normal logic
+};
+```
+
+### 10.6. Invalid date format
+
+**Scenariusz:** Backend zwraca date w niepoprawnym formacie
+
+**Obsługa:**
+
+- **Lokalizacja:** WorkoutDayCard.tsx
+- **Wykrycie:** Date parsing fails
+- **Action:** Fallback display lub skip date display
+
+**Kod:**
+
+```typescript
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) throw new Error("Invalid date");
+
+    return date.toLocaleDateString("pl-PL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } catch (error) {
+    console.error("Invalid date format", dateString);
+    return "Data nieznana";
+  }
+};
+```
 
 ---
 
 ## 11. Kroki implementacji
 
-### Krok 1: Setup typów i helpers
+### Krok 1: Przygotowanie struktury plików
 
-**Zadania:**
-1. Dodaj nowe typy do `src/types/view-models.ts`:
-   - `WeekViewModel`
-   - `WorkoutDayViewModel`
-2. Dodaj typy props do `src/types/component-props.ts` (wszystkie interfejsy z sekcji 5.3)
-3. Stwórz utility functions w `src/lib/utils/workout-helpers.ts`:
-   - `groupWorkoutsByWeeks(workouts: WorkoutDayDTO[]): WeekViewModel[]`
-   - `calculateWeekStats(workouts: WorkoutDayDTO[]): { completed: number, total: number }`
-4. Stwórz date helpers w `src/lib/utils/date-helpers.ts`:
-   - `formatDate(isoDate: string): string` (DD.MM.YYYY format)
-   - `isToday(isoDate: string): boolean`
-   - `getTodayDateString(): string` (YYYY-MM-DD format)
+Utwórz następujące pliki i katalogi:
 
-**Acceptance criteria:**
-- Wszystkie typy TypeScript poprawnie zdefiniowane
-- Utility functions przetestowane (manual testing w console)
-- Brak błędów kompilacji TypeScript
+```
+src/
+├── pages/
+│   └── dashboard.astro                          # SSR page
+├── components/
+│   ├── dashboard/
+│   │   ├── TrainingPlanView.tsx                 # Main container
+│   │   ├── PlanHeader.tsx                       # Stats header
+│   │   ├── WeekAccordion.tsx                    # Week accordion
+│   │   ├── WorkoutDayCard.tsx                   # ⭐ Day card (US-010)
+│   │   ├── ScrollToTodayFAB.tsx                 # Floating button
+│   │   └── EmptyState.tsx                       # No plan state
+│   └── hooks/
+│       └── useWorkoutToggle.ts                  # Custom hook
+└── lib/
+    └── utils/
+        └── date.ts                              # Date helpers
+```
 
----
+### Krok 2: Dodanie Shadcn/ui components
 
-### Krok 2: Stworzenie custom hooks
+Zainstaluj wymagane komponenty Shadcn/ui (jeśli jeszcze nie są dodane):
 
-**Zadania:**
-1. Stwórz `src/components/hooks/useWorkoutToggle.ts`:
-   - Implementuj optimistic updates logic
-   - API call PATCH /api/workout-days/:id
-   - Rollback on error
-   - Return: `{ workouts, toggleWorkout, isUpdating }`
+```bash
+npx shadcn-ui@latest add accordion
+npx shadcn-ui@latest add checkbox
+npx shadcn-ui@latest add progress
+npx shadcn-ui@latest add badge
+npx shadcn-ui@latest add toast
+```
 
-2. Stwórz `src/components/hooks/useScrollToToday.ts`:
-   - useEffect z setTimeout delay (100ms)
-   - scrollIntoView({ behavior: 'smooth', block: 'center' })
+### Krok 3: Implementacja helper functions
 
-3. Stwórz `src/components/hooks/useFABVisibility.ts`:
-   - IntersectionObserver dla today card ref
-   - Return boolean: isVisible (true gdy today NOT in viewport)
+**Plik:** `src/lib/utils/date.ts`
 
-**Acceptance criteria:**
-- Hooki poprawnie exportowane i typowane
-- Można używać w komponentach React
-- Logic testowana (manual testing)
+```typescript
+/**
+ * Sprawdza czy data jest dzisiaj
+ */
+export const isToday = (dateString: string): boolean => {
+  const today = new Date().toISOString().split("T")[0];
+  return dateString === today;
+};
 
----
+/**
+ * Formatuje datę do polskiego formatu DD.MM.YYYY
+ */
+export const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) throw new Error("Invalid date");
 
-### Krok 3: Implementacja podstawowych UI komponentów
+    return date.toLocaleDateString("pl-PL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } catch (error) {
+    console.error("Invalid date format", dateString);
+    return "Data nieznana";
+  }
+};
 
-**Zadania:**
-1. Stwórz `src/components/EmptyState.tsx`:
-   - Używa Shadcn Card, Button
-   - Prop: `variant: 'no-plan'`
-   - Message + CTA button → /survey
+/**
+ * Grupuje workout days po tygodniach (7 dni każdy)
+ */
+export const groupByWeeks = (days: WorkoutDay[]): WorkoutDay[][] => {
+  if (days.length !== 70) {
+    throw new Error(`Expected 70 days, got ${days.length}`);
+  }
 
-2. Stwórz `src/components/CompletionModal.tsx`:
-   - Używa Shadcn Dialog
-   - Props: isOpen, onClose, onGenerateNewPlan
-   - 🎉 icon + gratulacje message
-   - 2 buttons: Zamknij, Wygeneruj nowy plan
+  const weeks: WorkoutDay[][] = [];
+  for (let i = 0; i < 10; i++) {
+    weeks.push(days.slice(i * 7, (i + 1) * 7));
+  }
+  return weeks;
+};
+```
 
-3. Stwórz `src/components/FloatingActionButton.tsx`:
-   - Używa Shadcn Button
-   - Fixed positioning (bottom-right)
-   - Icon (ArrowDown z lucide-react)
-   - Prop: onScrollToToday callback
+### Krok 4: Implementacja custom hook (useWorkoutToggle)
 
-**Acceptance criteria:**
-- Komponenty renderują się poprawnie w isolation (Storybook optional)
-- Styling zgodny z Tailwind + Shadcn
-- Responsive (mobile/desktop)
+**Plik:** `src/components/hooks/useWorkoutToggle.ts`
 
----
+Zaimplementuj zgodnie z sekcją 6.3 (Zarządzanie stanem). Hook powinien:
 
-### Krok 4: Implementacja PlanHeader komponenta
+- Zarządzać local state workout days
+- Implementować optimistic updates
+- Obsługiwać API call PATCH /api/workout-days/:id
+- Rollback on error
+- Toast notifications
+- **Zabezpieczenie:** Blokować marking rest days as completed
 
-**Zadania:**
-1. Stwórz `src/components/PlanHeader.tsx`:
-   - Props: startDate, endDate, completionStats
-   - Layout: Card z header i content
-   - Header: Tytuł + daty (formatted)
-   - Content: Statystyki + Progress bar (Shadcn Progress)
-   - Format dates używając `formatDate()` helper
+### Krok 5: Implementacja WorkoutDayCard ⭐ (Kluczowy dla US-010)
 
-**Acceptance criteria:**
-- Header renderuje się z mock data
-- Progress bar shows correct percentage
-- Responsive layout (stack na mobile)
+**Plik:** `src/components/dashboard/WorkoutDayCard.tsx`
 
----
+**Implementacja zgodnie z sekcją 4.4:**
 
-### Krok 5: Implementacja WorkoutDayCard
+1. **Importy:**
 
-**Zadania:**
-1. Stwórz `src/components/WorkoutDayCard.tsx`:
-   - Props: workout, isToday, onToggle
-   - forwardRef dla ref forwarding
-   - Conditional styling:
-     - Rest day: muted background + 🛌 icon
-     - Completed: green border + ✓ icon + checked checkbox
-     - Today: blue ring (ring-2 ring-blue-500)
-   - Checkbox z label "Oznacz jako wykonany"
-   - Checkbox disabled dla rest days
+   ```tsx
+   import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+   import { Checkbox } from "@/components/ui/checkbox";
+   import { Badge } from "@/components/ui/badge";
+   import { Button } from "@/components/ui/button";
+   import { cn } from "@/lib/utils";
+   import { formatDate } from "@/lib/utils/date";
+   import type { WorkoutDayCardProps } from "@/types";
+   ```
 
-**Acceptance criteria:**
-- 3 stany wizualne poprawnie wyświetlone (rest/pending/completed)
-- Checkbox działa (controlled component)
-- Today highlight visible (blue ring)
-- Accessible (ARIA labels, keyboard navigation)
+2. **Component structure:**
 
----
+   ```tsx
+   export const WorkoutDayCard = React.forwardRef<HTMLDivElement, WorkoutDayCardProps>(
+     ({ workoutDay, onToggleCompleted, isToday }, ref) => {
+       const [isExpanded, setIsExpanded] = useState(false);
+
+       // Conditional styling
+       const cardClassName = cn(
+         "transition-all duration-200",
+         workoutDay.is_rest_day && "bg-muted border-muted",
+         !workoutDay.is_rest_day && workoutDay.is_completed && "border-green-500",
+         !workoutDay.is_rest_day && !workoutDay.is_completed && "border-border",
+         isToday && "ring-2 ring-primary"
+       );
+
+       return (
+         <Card ref={ref} className={cardClassName}>
+           {/* ... implementacja zgodnie z sekcją 4.4 ... */}
+         </Card>
+       );
+     }
+   );
+   ```
+
+3. **Kluczowa conditional logic (US-010):**
+
+   ```tsx
+   {
+     /* CardContent - CONDITIONAL */
+   }
+   <CardContent>
+     {workoutDay.is_rest_day ? (
+       // REST DAY VARIANT
+       <div className="flex items-center gap-3 py-4">
+         <span className="text-3xl" role="img" aria-label="Odpoczynek">
+           🛌
+         </span>
+         <p className="text-lg text-muted-foreground">Odpoczynek</p>
+       </div>
+     ) : (
+       // WORKOUT DAY VARIANT
+       <p className={cn("text-sm", !isExpanded && "line-clamp-2")}>{workoutDay.workout_description}</p>
+     )}
+   </CardContent>;
+
+   {
+     /* CardFooter - ONLY dla workout days */
+   }
+   {
+     !workoutDay.is_rest_day && (
+       <CardFooter>
+         <Checkbox
+           checked={workoutDay.is_completed}
+           onCheckedChange={() => onToggleCompleted(workoutDay.id, workoutDay.is_completed)}
+         />
+         <label>Oznacz jako wykonany</label>
+       </CardFooter>
+     );
+   }
+   ```
 
 ### Krok 6: Implementacja WeekAccordion
 
-**Zadania:**
-1. Stwórz `src/components/WeekAccordion.tsx`:
-   - Props: week (WeekViewModel), todayDate, todayCardRef, onWorkoutToggle
-   - Używa Shadcn Accordion (AccordionItem, Trigger, Content)
-   - AccordionTrigger: "Tydzień X: Y/Z wykonanych"
-   - AccordionContent: map przez week.workoutDays
-   - Render WorkoutDayCard dla każdego dnia
-   - Pass todayCardRef do today's card (conditional ref forwarding)
+**Plik:** `src/components/dashboard/WeekAccordion.tsx`
 
-**Acceptance criteria:**
-- Accordion expand/collapse działa smoothly
-- 7 WorkoutDayCards renderuje się w content
-- Today's card ma ref assigned
-- Week stats (Y/Z) poprawnie obliczone
+Zaimplementuj zgodnie z sekcją 4.3. Komponent powinien:
+
+- Renderować AccordionItem (Shadcn/ui)
+- Header z numerem tygodnia i statystykami
+- Content z 7x WorkoutDayCard
+- Auto-expand jeśli isCurrentWeek === true
+- Pass onToggleCompleted do children
+
+### Krok 7: Implementacja PlanHeader
+
+**Plik:** `src/components/dashboard/PlanHeader.tsx`
+
+Zaimplementuj zgodnie z sekcją 4.5. Komponent powinien:
+
+- Wyświetlać daty start/end planu
+- Wyświetlać statystyki completion_stats
+- Progress bar (Shadcn/ui Progress)
+- Card layout dla czytelności
+
+### Krok 8: Implementacja ScrollToTodayFAB
+
+**Plik:** `src/components/dashboard/ScrollToTodayFAB.tsx`
+
+Zaimplementuj zgodnie z sekcją 4.6. Komponent powinien:
+
+- Fixed position (bottom-right)
+- IntersectionObserver dla visibility
+- onClick → scroll to todayCardRef
+- Ikona ArrowDown (lucide-react)
+
+### Krok 9: Implementacja EmptyState
+
+**Plik:** `src/components/dashboard/EmptyState.tsx`
+
+Zaimplementuj zgodnie z sekcją 4.7. Komponent powinien:
+
+- Card z centered content
+- Ikona Calendar
+- Message + CTA button
+- Link do /survey
+
+### Krok 10: Implementacja TrainingPlanView
+
+**Plik:** `src/components/dashboard/TrainingPlanView.tsx`
+
+Zaimplementuj zgodnie z sekcją 4.2. Komponent powinien:
+
+1. Użyć useWorkoutToggle hook
+2. Zaimplementować groupByWeeks
+3. Renderować PlanHeader
+4. Renderować 10x WeekAccordion
+5. Renderować ScrollToTodayFAB
+6. useEffect dla auto-scroll
+7. Walidacja 70 dni
+
+**Kluczowe fragmenty:**
+
+```tsx
+export const TrainingPlanView: React.FC<TrainingPlanViewProps> = ({ trainingPlan }) => {
+  // Validation
+  if (trainingPlan.workout_days.length !== 70) {
+    return <ErrorState message="Dane planu niekompletne" />;
+  }
+
+  // Custom hook
+  const { days: workoutDays, toggleCompleted } = useWorkoutToggle(trainingPlan.workout_days);
+
+  // Group by weeks
+  const weeks = useMemo(() => groupByWeeks(workoutDays), [workoutDays]);
+
+  // Today's card ref
+  const todayCardRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll
+  useEffect(() => {
+    todayCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
+
+  // Find today
+  const todayIndex = workoutDays.findIndex((d) => isToday(d.date));
+
+  return (
+    <div className="container mx-auto py-6">
+      <PlanHeader trainingPlan={trainingPlan} completionStats={trainingPlan.completion_stats} />
+
+      <Accordion type="single" collapsible>
+        {weeks.map((weekDays, index) => {
+          const hasToday = weekDays.some((d) => isToday(d.date));
+          return (
+            <WeekAccordion
+              key={index}
+              weekNumber={index + 1}
+              workoutDays={weekDays}
+              onToggleCompleted={toggleCompleted}
+              isCurrentWeek={hasToday}
+            />
+          );
+        })}
+      </Accordion>
+
+      <ScrollToTodayFAB todayCardRef={todayCardRef} />
+    </div>
+  );
+};
+```
+
+### Krok 11: Implementacja dashboard.astro (SSR page)
+
+**Plik:** `src/pages/dashboard.astro`
+
+Zaimplementuj zgodnie z sekcją 4.1 i 7.2. Page powinna:
+
+1. SSR fetch GET /api/training-plans/active
+2. Handle 404 (no plan) → EmptyState
+3. Handle 500 (error) → ErrorState
+4. Pass data as props do TrainingPlanView
+5. client:load directive dla React component
+
+### Krok 12: Testowanie funkcjonalności
+
+**Testy manualne:**
+
+1. **Test US-010 - Rest Days:**
+   - [ ] Rest days mają muted background
+   - [ ] Rest days wyświetlają ikonę 🛌
+   - [ ] Rest days wyświetlają tekst "Odpoczynek"
+   - [ ] Rest days NIE MAJĄ checkbox
+   - [ ] Nie można oznaczyć rest day jako completed
+
+2. **Test workout days:**
+   - [ ] Workout days mają checkbox
+   - [ ] Kliknięcie checkbox oznacza jako completed
+   - [ ] Visual feedback (green border)
+   - [ ] Toast notification
+   - [ ] Rollback on error
+
+3. **Test groupowania:**
+   - [ ] Plan ma 10 accordion items (tygodni)
+   - [ ] Każdy tydzień ma 7 WorkoutDayCard
+   - [ ] Current week auto-expanded
+
+4. **Test auto-scroll:**
+   - [ ] Page ładuje się z scroll do today's card
+   - [ ] Today's card ma badge "Dzisiaj"
+   - [ ] FAB scrolluje do today's card
+
+5. **Test empty state:**
+   - [ ] Brak planu → EmptyState wyświetlony
+   - [ ] Button "Wygeneruj plan" działa
+
+### Krok 13: Obsługa accessibility
+
+Dodaj ARIA attributes i semantic HTML:
+
+1. **WorkoutDayCard:**
+   - [ ] `role="article"` dla Card
+   - [ ] `aria-label` dla checkbox
+   - [ ] `aria-describedby` dla workout description
+   - [ ] `aria-label="Odpoczynek"` dla rest day icon
+
+2. **WeekAccordion:**
+   - [ ] `aria-expanded` dla accordion trigger
+   - [ ] `aria-controls` dla accordion content
+
+3. **Keyboard navigation:**
+   - [ ] Tab order logiczny
+   - [ ] Enter/Space dla checkbox
+   - [ ] Enter/Space dla accordion toggle
+
+### Krok 14: Styling i responsive design
+
+1. **Tailwind classes:**
+   - [ ] Mobile: Full-width cards, stacked layout
+   - [ ] Tablet: Max-width container
+   - [ ] Desktop: Centered layout, max 1280px
+
+2. **Touch targets:**
+   - [ ] Checkbox min 44x44px
+   - [ ] Accordion trigger min 48px height
+
+3. **Visual states:**
+   - [ ] Rest: muted (bg-muted, text-muted-foreground)
+   - [ ] Pending: neutral (border-border)
+   - [ ] Completed: success (border-green-500, bg-green-50/50)
+   - [ ] Today: primary ring (ring-2 ring-primary)
+
+### Krok 15: Dokumentacja i finalizacja
+
+1. Dodaj JSDoc comments do wszystkich komponentów
+2. Update CLAUDE.md jeśli potrzebne
+3. Commit z opisem: "feat: implement dashboard view with rest days support (US-010)"
+4. Verify wszystkie acceptance criteria US-010 są spełnione
 
 ---
 
-### Krok 7: Implementacja TrainingPlanView
+## 12. Checklist akceptacji (US-010)
 
-**Zadania:**
-1. Stwórz `src/components/TrainingPlanView.tsx`:
-   - Props: trainingPlan (nullable)
-   - Conditional: jeśli null → EmptyState
-   - Setup state: workoutDays, showCompletionModal
-   - Setup ref: todayCardRef
-   - Use custom hooks: useWorkoutToggle, useScrollToToday, useFABVisibility
-   - Compute weeks: groupWorkoutsByWeeks(workoutDays)
-   - Render:
-     - PlanHeader
-     - 10x WeekAccordion
-     - FloatingActionButton (conditional visibility)
-     - CompletionModal (conditional isOpen)
+Po implementacji, zweryfikuj wszystkie kryteria akceptacji:
 
-**Acceptance criteria:**
-- TrainingPlanView renderuje wszystkie sub-components
-- Optimistic updates działają (marking completed)
-- Auto-scroll to today działa po mount
-- FAB pokazuje się tylko gdy today NOT in viewport
-- CompletionModal otwiera się gdy is_plan_completed
+- [ ] **US-010.1:** Dni bez treningu są reprezentowane przez dedykowany kafelek (WorkoutDayCard z conditional rendering)
+- [ ] **US-010.2:** Kafelek dnia wolnego zawiera informację "Odpoczynek" (tekst + ikona 🛌)
+- [ ] **US-010.3:** Kafelek dnia wolnego NIE POSIADA opcji oznaczenia jako "wykonany" (checkbox nie renderowany)
+
+**Dodatkowe verification:**
+
+- [ ] Conditional rendering działa poprawnie (is_rest_day === true)
+- [ ] Styling rest days jest wyraźnie różny (muted background)
+- [ ] Użytkownik nie może oznaczyć rest day (zabezpieczenie w hook + brak UI)
+- [ ] Backend constraint zabezpiecza przed marking rest days (już zaimplementowane)
 
 ---
 
-### Krok 8: Implementacja DashboardPage.astro
-
-**Zadania:**
-1. Stwórz/edytuj `src/pages/dashboard.astro`:
-   - Import DashboardLayout
-   - Server-side fetch: GET /api/training-plans/active
-   - Error handling:
-     - 401 → Astro.redirect('/auth/login')
-     - 404 → trainingPlan = null
-     - 500 → error handling (toast lub error page)
-   - Pass trainingPlan to TrainingPlanView (client:load)
-
-**Acceptance criteria:**
-- SSR fetch działa poprawnie
-- Dane przekazywane do React component
-- Error handling dla wszystkich cases (401, 404, 500)
-- React hydration działa (client:load)
-
----
-
-### Krok 9: Dodanie Toast notifications
-
-**Zadania:**
-1. Dodaj Shadcn Toast/Sonner component (jeśli jeszcze nie ma):
-   ```bash
-   npx shadcn@latest add sonner
-   ```
-2. Setup Toaster w Layout (DashboardLayout.astro):
-   - Import i render `<Toaster />` component
-3. Użyj toast w useWorkoutToggle hook:
-   - Success: `toast.success('Trening oznaczony jako wykonany')`
-   - Error: `toast.error('Nie udało się zaktualizować. Spróbuj ponownie.')`
-
-**Acceptance criteria:**
-- Toast notifications wyświetlają się poprawnie
-- Success toast (green) po successful update
-- Error toast (red) po failed update
-- Toasts auto-dismiss po 3-5 sekundach
-
----
-
-### Krok 10: Styling i responsiveness
-
-**Zadania:**
-1. Review wszystkich komponentów pod kątem responsiveness:
-   - Mobile (<768px): single column, bottom nav visible
-   - Tablet (768-1024px): full navbar, wider cards
-   - Desktop (>1024px): max-width container, hover states
-2. Dodaj touch-friendly targets (min 44x44px) dla mobile
-3. Test keyboard navigation (Tab, Enter, Space)
-4. Test screen reader accessibility (ARIA attributes)
-5. Adjust spacing, padding, margins dla all breakpoints
-
-**Acceptance criteria:**
-- Dashboard wygląda dobrze na mobile/tablet/desktop
-- Touch targets wystarczająco duże na mobile
-- Keyboard navigation działa smoothly
-- Screen reader może nawigować (test z VoiceOver/NVDA)
-
----
-
-### Krok 11: Testing i edge cases
-
-**Zadania:**
-1. Test happy path:
-   - User ma aktywny plan → widzi dashboard
-   - Marking workout as completed → optimistic update → success
-   - Scroll to today → działa
-   - FAB visibility → działa
-2. Test edge cases:
-   - No active plan → EmptyState
-   - Session expired → redirect to login
-   - API error podczas marking → rollback + toast
-   - Plan completed → CompletionModal
-3. Test error scenarios:
-   - Network offline → rollback + toast
-   - API timeout → error handling
-   - Multiple rapid clicks (debouncing)
-4. Test accessibility:
-   - Keyboard only navigation
-   - Screen reader (basic test)
-
-**Acceptance criteria:**
-- Wszystkie happy paths działają
-- Edge cases poprawnie obsłużone
-- Errors wyświetlają user-friendly messages
-- Accessibility baseline spełniony (keyboard + screen reader)
-
----
-
-### Krok 12: Performance optimization (optional)
-
-**Zadania:**
-1. Add React.memo dla często re-renderowanych komponentów:
-   - `React.memo(WorkoutDayCard)` (70 instances)
-   - `React.memo(WeekAccordion)` (10 instances)
-2. Use useMemo dla expensive calculations:
-   - `useMemo(() => groupWorkoutsByWeeks(workoutDays), [workoutDays])`
-3. Lazy load CompletionModal (React.lazy):
-   - Only load modal code gdy is_plan_completed
-4. Consider virtualization dla 70 cards (opcjonalne w MVP):
-   - Use react-window lub podobna biblioteka
-   - Render only visible cards (performance boost)
-
-**Acceptance criteria:**
-- Reduced unnecessary re-renders (React DevTools Profiler)
-- Smooth scrolling (60fps)
-- Initial load time < 2s (Lighthouse)
-
----
-
-### Krok 13: Final review i dokumentacja
-
-**Zadania:**
-1. Code review:
-   - Sprawdź TypeScript types (brak `any`)
-   - Sprawdź error handling (wszystkie cases covered)
-   - Sprawdź accessibility (ARIA, keyboard)
-2. Dokumentacja:
-   - Dodaj JSDoc comments do utility functions
-   - Dodaj README dla komponentów (jeśli Storybook)
-   - Update CLAUDE.md jeśli potrzeba
-3. Manual testing (final):
-   - Test wszystkich user stories (US-006 + related)
-   - Test na różnych devices (mobile/tablet/desktop)
-   - Test na różnych browsers (Chrome, Firefox, Safari)
-
-**Acceptance criteria:**
-- Brak błędów TypeScript
-- Wszystkie user stories fulfilled
-- Kod czytelny i dobrze udokumentowany
-- Ready for production deploy
-
----
-
-## Podsumowanie
-
-Ten plan implementacji pokrywa wszystkie aspekty widoku Dashboard, od struktury komponentów po obsługę błędów i accessibility. Kolejność kroków zapewnia stopniowe budowanie funkcjonalności, zaczynając od fundamentów (typy, hooki) poprzez UI komponenty, aż do finalnego połączenia wszystkiego w DashboardPage.
-
-Kluczowe elementy do zapamiętania:
-- **Optimistic UI** - natychmiastowy feedback dla użytkownika
-- **Progressive disclosure** - accordion dla tygodni (nie overwhelm)
-- **Accessibility** - keyboard navigation, screen readers, ARIA
-- **Error handling** - graceful degradation, rollback, user-friendly messages
-- **Performance** - React.memo, useMemo, lazy loading
-
-Implementation time estimate: 2-3 dni dla doświadczonego frontend developera (zakładając że API endpoint już działa i Shadcn/ui już setup).
+**Koniec planu implementacji**

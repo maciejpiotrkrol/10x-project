@@ -11,6 +11,7 @@ Otwórz: http://localhost:3000/dashboard
 ## ✅ Podstawowe Testy (5 min)
 
 ### 1. Oznaczanie treningu ⏱️ 30s
+
 - Kliknij checkbox przy dowolnym treningu
 - ✓ Border zmienia się na zielony natychmiast
 - ✓ Badge "Wykonano" się pojawia
@@ -18,6 +19,7 @@ Otwórz: http://localhost:3000/dashboard
 - ✓ Licznik w headerze: X+1/Y
 
 ### 2. Cofanie oznaczenia ⏱️ 20s
+
 - Kliknij ponownie ten sam checkbox
 - ✓ Border wraca do szarego
 - ✓ Badge znika
@@ -25,17 +27,20 @@ Otwórz: http://localhost:3000/dashboard
 - ✓ Licznik: X-1/Y
 
 ### 3. Rest Day ⏱️ 10s
+
 - Znajdź dzień z emoji 🛌
 - ✓ Brak checkboxa
 - ✓ Szare tło (muted)
 - ✓ Tekst: "Dzień wolny od treningów"
 
 ### 4. Auto-scroll ⏱️ 15s
+
 - Odśwież stronę (F5)
 - ✓ Po ~500ms smooth scroll do dzisiejszego dnia
 - ✓ Obecny tydzień auto-expanded
 
 ### 5. FAB Button ⏱️ 20s
+
 - Scroll w górę (poza dzisiejszy dzień)
 - ✓ FAB "Dzisiaj" pojawia się (prawy dolny róg)
 - Kliknij FAB
@@ -43,6 +48,7 @@ Otwórz: http://localhost:3000/dashboard
 - ✓ FAB znika
 
 ### 6. Expand/Collapse ⏱️ 15s
+
 - Kliknij na kartę treningu (nie na checkbox!)
 - ✓ Opis rozwija się
 - Kliknij ponownie
@@ -51,6 +57,7 @@ Otwórz: http://localhost:3000/dashboard
 ## 🔍 Testy Error Handling (3 min)
 
 ### 7. Network Error ⏱️ 30s
+
 1. DevTools (F12) → Network tab → Offline
 2. Spróbuj oznaczyć workout
 3. ✓ Optimistic update → rollback
@@ -58,12 +65,14 @@ Otwórz: http://localhost:3000/dashboard
 5. Wyłącz Offline mode
 
 ### 8. Wielokrotne kliknięcia ⏱️ 20s
+
 - Kliknij checkbox bardzo szybko 5x
 - ✓ Tylko 1 request do API
 - ✓ Checkbox disabled podczas update
 - ✓ Brak race conditions
 
 ### 9. Session Expiry ⏱️ 30s
+
 1. DevTools → Application → Cookies
 2. Usuń wszystkie cookies
 3. Spróbuj oznaczyć workout
@@ -73,6 +82,7 @@ Otwórz: http://localhost:3000/dashboard
 ## ♿ Testy Accessibility (2 min)
 
 ### 10. Keyboard Navigation ⏱️ 45s
+
 - Tab przez elementy
 - ✓ Focus visible indicators (ring)
 - Enter/Space na karcie → expand
@@ -80,6 +90,7 @@ Otwórz: http://localhost:3000/dashboard
 - ✓ Wszystko dostępne z klawiatury
 
 ### 11. Screen Reader ⏱️ 45s
+
 - Mac: Cmd+F5 (VoiceOver)
 - Windows: Ctrl+Alt+Enter (NVDA)
 - Nawiguj strzałkami
@@ -90,6 +101,7 @@ Otwórz: http://localhost:3000/dashboard
 ## 📱 Mobile Test (1 min)
 
 ### 12. Responsive ⏱️ 60s
+
 - DevTools → Toggle device toolbar (Cmd+Shift+M)
 - iPhone SE (375px) → iPad (768px) → Desktop (1920px)
 - ✓ Wszystko czytelne
@@ -102,18 +114,21 @@ Otwórz: http://localhost:3000/dashboard
 ### Expected Visual States:
 
 **Rest Day:**
+
 - 🛌 Emoji w badge
 - Gray muted background
 - Brak checkboxa
 - Tekst: "Dzień wolny od treningów"
 
 **Pending Workout:**
+
 - Gray border (border-gray-300)
 - Checkbox unchecked
 - White background
 - Pełny opis z możliwością expand
 
 **Completed Workout:**
+
 - Green border (border-green-500, 2px)
 - ✓ Icon + Badge "Wykonano" (green)
 - Checkbox checked

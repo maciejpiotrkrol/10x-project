@@ -13,10 +13,12 @@ Widok ankiety (Survey Page) umożliwia użytkownikowi wypełnienie formularza z 
 **Layout:** `DashboardLayout.astro`
 
 **Middleware:**
+
 - Sprawdzenie autoryzacji (JWT token)
 - Jeśli użytkownik nie jest zalogowany → przekierowanie do `/auth/login`
 
 **Pre-loading danych (SSR):**
+
 - Opcjonalne: GET `/api/profile` - pobranie danych profilu do pre-fill formularza
 - Opcjonalne: GET `/api/personal-records` - pobranie rekordów życiowych do pre-fill
 
@@ -75,32 +77,28 @@ SurveyPage.astro (SSR)
 Główna strona widoku ankiety. Wykorzystuje server-side rendering (SSR) do opcjonalnego pobrania danych profilu i rekordów życiowych użytkownika w celu pre-fill formularza. Przekazuje te dane do komponentu `SurveyForm` jako props.
 
 **Główne elementy:**
+
 - `DashboardLayout.astro` - layout z nawigacją
 - `SurveyForm` (React) - główny komponent formularza
 - Error boundary dla obsługi błędów SSR
 
 **Logika SSR:**
+
 ```typescript
 // Pobranie danych użytkownika (opcjonalne)
-const { data: profile } = await locals.supabase
-  .from('profiles')
-  .select('*')
-  .eq('user_id', user.id)
-  .single();
+const { data: profile } = await locals.supabase.from("profiles").select("*").eq("user_id", user.id).single();
 
-const { data: personalRecords } = await locals.supabase
-  .from('personal_records')
-  .select('*')
-  .eq('user_id', user.id);
+const { data: personalRecords } = await locals.supabase.from("personal_records").select("*").eq("user_id", user.id);
 
 // Przekazanie do komponentu React
 const initialData = {
   profile: profile || null,
-  personalRecords: personalRecords || []
+  personalRecords: personalRecords || [],
 };
 ```
 
 **Propsy:**
+
 - `initialProfile?: ProfileDTO | null` - opcjonalne dane profilu do pre-fill
 - `initialPersonalRecords?: PersonalRecordDTO[]` - opcjonalne rekordy życiowe
 
@@ -110,6 +108,7 @@ const initialData = {
 Główny kontener formularza ankiety. Zarządza całym stanem formularza za pomocą React Hook Form i Zod validation. Odpowiada za orkiestrację wszystkich sekcji, obsługę submitu, wywołania API, wyświetlanie dialogów (confirmation, loading) oraz obsługę błędów. Implementuje persistence danych w sessionStorage.
 
 **Główne elementy:**
+
 - Form wrapper (React Hook Form)
 - 4 sekcje w Cards (TrainingGoals, PersonalData, PersonalRecords, Disclaimer)
 - Submit button
@@ -118,11 +117,13 @@ Główny kontener formularza ankiety. Zarządza całym stanem formularza za pomo
 - Toast notifications dla błędów
 
 **Obsługiwane zdarzenia:**
+
 - `onSubmit` - walidacja formularza i wywołanie logiki generowania planu
 - Form persistence - automatyczny zapis do sessionStorage przy każdej zmianie
 - API calls - check aktywnego planu, generowanie nowego planu
 
 **Warunki walidacji:**
+
 - Wszystkie pola wymagane (zgodnie z Zod schema)
 - Real-time validation on blur
 - Submit validation (przed wysłaniem)
@@ -130,12 +131,14 @@ Główny kontener formularza ankiety. Zarządza całym stanem formularza za pomo
 - Scroll to first error on submit
 
 **Typy:**
+
 - `SurveyFormData` (ViewModel)
 - `GenerateTrainingPlanCommand` (DTO request)
 - `TrainingPlanWithWorkoutsDTO` (DTO response)
 - `ApiErrorResponse` (error handling)
 
 **Propsy:**
+
 ```typescript
 interface SurveyFormProps {
   initialProfile?: ProfileDTO | null;
@@ -144,6 +147,7 @@ interface SurveyFormProps {
 ```
 
 **State:**
+
 ```typescript
 // React Hook Form state
 const form = useForm<SurveyFormData>({
@@ -156,15 +160,16 @@ const form = useForm<SurveyFormData>({
     weight: initialProfile?.weight?.toString() || "",
     height: initialProfile?.height?.toString() || "",
     gender: initialProfile?.gender || "",
-    personal_records: initialPersonalRecords.length > 0
-      ? initialPersonalRecords.map(r => ({
-          id: crypto.randomUUID(),
-          distance: r.distance,
-          time_seconds: r.time_seconds.toString()
-        }))
-      : [{ id: crypto.randomUUID(), distance: "", time_seconds: "" }],
-    disclaimer_accepted: false
-  }
+    personal_records:
+      initialPersonalRecords.length > 0
+        ? initialPersonalRecords.map((r) => ({
+            id: crypto.randomUUID(),
+            distance: r.distance,
+            time_seconds: r.time_seconds.toString(),
+          }))
+        : [{ id: crypto.randomUUID(), distance: "", time_seconds: "" }],
+    disclaimer_accepted: false,
+  },
 });
 
 // Local state
@@ -180,6 +185,7 @@ const [apiError, setApiError] = useState<string | null>(null);
 Sekcja formularza odpowiedzialna za zbieranie informacji o celach treningowych użytkownika. Zawiera pola: cel-dystans (select), średni tygodniowy kilometraż (input number) oraz liczba dni treningowych w tygodniu (input number).
 
 **Główne elementy:**
+
 - Card container z tytułem "Cele treningowe"
 - FormField (goal_distance) - Shadcn Select z opcjami: 5K, 10K, Half Marathon, Marathon
 - FormField (weekly_km) - Input typu number z suffixem "km"
@@ -187,15 +193,18 @@ Sekcja formularza odpowiedzialna za zbieranie informacji o celach treningowych u
 - FormLabel, FormControl, FormDescription (optional), FormMessage (errors)
 
 **Obsługiwane zdarzenia:**
+
 - `onChange` - aktualizacja wartości w formularzu (React Hook Form)
 - `onBlur` - trigger validation dla pola
 
 **Warunki walidacji:**
+
 - **goal_distance**: Required, must be one of: "5K" | "10K" | "Half Marathon" | "Marathon"
 - **weekly_km**: Required, must be number > 0, decimal allowed
 - **training_days_per_week**: Required, must be integer 2-7 (inclusive)
 
 **Typy:**
+
 ```typescript
 interface TrainingGoalsData {
   goal_distance: DistanceType | "";
@@ -205,6 +214,7 @@ interface TrainingGoalsData {
 ```
 
 **Propsy:**
+
 ```typescript
 // Używa React Hook Form Controller, więc nie ma bezpośrednich propsów
 // Dostęp do form methods przez useFormContext()
@@ -216,6 +226,7 @@ interface TrainingGoalsData {
 Sekcja formularza zbierająca dane osobowe użytkownika: wiek, wagę, wzrost i płeć. Dane te są wykorzystywane przez AI do personalizacji planu treningowego.
 
 **Główne elementy:**
+
 - Card container z tytułem "Dane osobowe"
 - FormField (age) - Input typu number z suffixem "lat"
 - FormField (weight) - Input typu number z suffixem "kg" (decimal allowed)
@@ -224,16 +235,19 @@ Sekcja formularza zbierająca dane osobowe użytkownika: wiek, wagę, wzrost i p
 - FormLabel, FormControl, FormDescription (optional), FormMessage (errors)
 
 **Obsługiwane zdarzenia:**
+
 - `onChange` - aktualizacja wartości
 - `onBlur` - trigger validation
 
 **Warunki walidacji:**
+
 - **age**: Required, must be integer 1-119 (inclusive)
 - **weight**: Required, must be number 0-300 (inclusive), decimal allowed
 - **height**: Required, must be integer 0-300 (inclusive)
 - **gender**: Required, must be "M" or "F"
 
 **Typy:**
+
 ```typescript
 interface PersonalData {
   age: string; // parsed to number
@@ -244,6 +258,7 @@ interface PersonalData {
 ```
 
 **Propsy:**
+
 ```typescript
 // Używa useFormContext(), brak bezpośrednich propsów
 ```
@@ -254,28 +269,33 @@ interface PersonalData {
 Sekcja formularza umożliwiająca użytkownikowi dodanie jednego lub więcej rekordów życiowych (personal records). Każdy rekord składa się z dystansu (5K, 10K, Half Marathon, Marathon) i czasu w sekundach. Minimum 1 rekord jest wymagany. Wykorzystuje `useFieldArray` z React Hook Form do zarządzania dynamiczną listą.
 
 **Główne elementy:**
+
 - Card container z tytułem "Rekordy życiowe"
 - Array of PersonalRecordItem components (dynamiczna lista)
 - Button "Dodaj kolejny rekord" (z ikoną +)
 - Helper text: "Dodaj co najmniej jeden rekord życiowy"
 
 **PersonalRecordItem (sub-component):**
+
 - FormField (distance) - Select z opcjami: 5K, 10K, Half Marathon, Marathon
 - FormField (time_seconds) - Input typu number z suffixem "sekund"
 - Button "Usuń" (ikona trash) - disabled jeśli tylko 1 rekord
 
 **Obsługiwane zdarzenia:**
+
 - `onAddRecord` - dodanie nowego rekordu do tablicy
 - `onRemoveRecord(index)` - usunięcie rekordu z tablicy
 - `onChange` - aktualizacja wartości pola
 - `onBlur` - trigger validation
 
 **Warunki walidacji:**
+
 - **Array**: minimum 1 rekord required (PRD requirement)
 - **distance** (per record): Required, must be valid DistanceType enum
 - **time_seconds** (per record): Required, must be integer > 0
 
 **Typy:**
+
 ```typescript
 interface PersonalRecordFormData {
   id: string; // temporary ID for React key
@@ -289,23 +309,25 @@ interface PersonalRecordsData {
 ```
 
 **Propsy:**
+
 ```typescript
 // Używa useFormContext() + useFieldArray
 // Brak bezpośrednich propsów
 ```
 
 **Logika useFieldArray:**
+
 ```typescript
 const { fields, append, remove } = useFieldArray({
   control: form.control,
-  name: "personal_records"
+  name: "personal_records",
 });
 
 const handleAddRecord = () => {
   append({
     id: crypto.randomUUID(),
     distance: "",
-    time_seconds: ""
+    time_seconds: "",
   });
 };
 
@@ -322,12 +344,14 @@ const handleRemoveRecord = (index: number) => {
 Sekcja formularza zawierająca disclaimer prawny i checkbox akceptacji. Użytkownik musi zaakceptować disclaimer przed wygenerowaniem planu. Tekst disclaimer jest scrollowalny jeśli jest długi.
 
 **Główne elementy:**
+
 - Card container z tytułem "Informacje prawne"
 - ScrollArea (jeśli tekst długi) lub div z tekstem disclaimer
 - FormField (disclaimer_accepted) - Checkbox z label "Akceptuję powyższe warunki"
 - FormMessage (error jeśli nie zaakceptowane)
 
 **Tekst disclaimer:**
+
 ```
 "Przed rozpoczęciem jakiejkolwiek aktywności fizycznej zalecamy konsultację z lekarzem.
 Plany treningowe generowane przez aplikację Athletica mają charakter wyłącznie informacyjny
@@ -337,14 +361,17 @@ kontuzje, urazy lub inne problemy zdrowotne wynikające z użytkowania aplikacji
 ```
 
 **Obsługiwane zdarzenia:**
+
 - `onChange` - toggle checkbox
 - Validation on submit
 
 **Warunki walidacji:**
+
 - **disclaimer_accepted**: Required, must be `true`
 - Submit button disabled jeśli nie zaakceptowany
 
 **Typy:**
+
 ```typescript
 interface DisclaimerData {
   disclaimer_accepted: boolean;
@@ -352,6 +379,7 @@ interface DisclaimerData {
 ```
 
 **Propsy:**
+
 ```typescript
 // Używa useFormContext()
 ```
@@ -362,6 +390,7 @@ interface DisclaimerData {
 Dialog potwierdzenia wyświetlany gdy użytkownik ma już aktywny plan treningowy i próbuje wygenerować nowy. Informuje że nowy plan nadpisze obecny i wymaga potwierdzenia akcji.
 
 **Główne elementy:**
+
 - Shadcn Dialog (controlled)
 - DialogContent
   - DialogHeader z DialogTitle: "Nadpisanie planu"
@@ -371,13 +400,16 @@ Dialog potwierdzenia wyświetlany gdy użytkownik ma już aktywny plan treningow
   - Button "Tak, wygeneruj nowy plan" (variant: destructive, onClick: onConfirm)
 
 **Obsługiwane zdarzenia:**
+
 - `onConfirm` - potwierdzenie i kontynuacja generowania planu
 - `onCancel` - zamknięcie dialogu, pozostanie na stronie
 
 **Typy:**
+
 - Brak specyficznych typów, używa boolean dla `isOpen`
 
 **Propsy:**
+
 ```typescript
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -392,6 +424,7 @@ interface ConfirmDialogProps {
 Modal wyświetlany podczas generowania planu przez AI. Niedomykalny (użytkownik nie może go zamknąć), pokazuje spinner, progress messages i opcjonalnie progress bar. Timeout po 60 sekundach z obsługą błędu timeout.
 
 **Główne elementy:**
+
 - Shadcn Dialog (controlled, non-closable)
 - DialogContent (hideCloseButton)
   - Animated Spinner (Lucide Loader2 icon z rotate animation)
@@ -407,6 +440,7 @@ Modal wyświetlany podczas generowania planu przez AI. Niedomykalny (użytkownik
     - Button "Spróbuj ponownie" lub "Zamknij"
 
 **Obsługiwane zdarzenia:**
+
 - Automatyczne pokazywanie przy rozpoczęciu API call
 - Automatyczne zamykanie po sukcesie (redirect)
 - Zmiana na error state po błędzie lub timeout
@@ -414,6 +448,7 @@ Modal wyświetlany podczas generowania planu przez AI. Niedomykalny (użytkownik
 - `onClose` - zamknięcie modala (tylko w error state)
 
 **Typy:**
+
 ```typescript
 type LoadingModalState = "loading" | "error" | "timeout";
 
@@ -430,6 +465,7 @@ interface LoadingModalProps {
 Jak w interfejsie powyżej.
 
 **Logika timeout:**
+
 ```typescript
 // W SurveyForm
 useEffect(() => {
@@ -540,74 +576,61 @@ import { z } from "zod";
  */
 const surveyFormSchema = z.object({
   goal_distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
-    errorMap: () => ({ message: "Wybierz dystans docelowy" })
+    errorMap: () => ({ message: "Wybierz dystans docelowy" }),
   }),
-  weekly_km: z.string()
+  weekly_km: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => !isNaN(Number(val)) && Number(val) > 0,
-      "Kilometraż musi być większy od 0"
-    ),
-  training_days_per_week: z.string()
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Kilometraż musi być większy od 0"),
+  training_days_per_week: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num >= 2 && num <= 7;
-      },
-      "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7"
-    ),
-  age: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num >= 2 && num <= 7;
+    }, "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7"),
+  age: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 119;
-      },
-      "Wiek musi być liczbą całkowitą od 1 do 119"
-    ),
-  weight: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 119;
+    }, "Wiek musi być liczbą całkowitą od 1 do 119"),
+  weight: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && num > 0 && num <= 300;
-      },
-      "Waga musi być liczbą od 0 do 300 kg"
-    ),
-  height: z.string()
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && num > 0 && num <= 300;
+    }, "Waga musi być liczbą od 0 do 300 kg"),
+  height: z
+    .string()
     .min(1, "Pole wymagane")
-    .refine(
-      (val) => {
-        const num = Number(val);
-        return !isNaN(num) && Number.isInteger(num) && num > 0 && num <= 300;
-      },
-      "Wzrost musi być liczbą całkowitą od 0 do 300 cm"
-    ),
+    .refine((val) => {
+      const num = Number(val);
+      return !isNaN(num) && Number.isInteger(num) && num > 0 && num <= 300;
+    }, "Wzrost musi być liczbą całkowitą od 0 do 300 cm"),
   gender: z.enum(["M", "F"], {
-    errorMap: () => ({ message: "Wybierz płeć" })
+    errorMap: () => ({ message: "Wybierz płeć" }),
   }),
-  personal_records: z.array(
-    z.object({
-      id: z.string(),
-      distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
-        errorMap: () => ({ message: "Wybierz dystans" })
-      }),
-      time_seconds: z.string()
-        .min(1, "Pole wymagane")
-        .refine(
-          (val) => {
+  personal_records: z
+    .array(
+      z.object({
+        id: z.string(),
+        distance: z.enum(["5K", "10K", "Half Marathon", "Marathon"], {
+          errorMap: () => ({ message: "Wybierz dystans" }),
+        }),
+        time_seconds: z
+          .string()
+          .min(1, "Pole wymagane")
+          .refine((val) => {
             const num = Number(val);
             return !isNaN(num) && Number.isInteger(num) && num > 0;
-          },
-          "Czas musi być liczbą całkowitą większą od 0"
-        )
-    })
-  ).min(1, "Wymagany jest co najmniej jeden rekord życiowy"),
-  disclaimer_accepted: z.boolean().refine(
-    (val) => val === true,
-    "Musisz zaakceptować warunki aby kontynuować"
-  )
+          }, "Czas musi być liczbą całkowitą większą od 0"),
+      })
+    )
+    .min(1, "Wymagany jest co najmniej jeden rekord życiowy"),
+  disclaimer_accepted: z.boolean().refine((val) => val === true, "Musisz zaakceptować warunki aby kontynuować"),
 });
 
 type SurveyFormData = z.infer<typeof surveyFormSchema>;
@@ -631,13 +654,15 @@ const form = useForm<SurveyFormData>({
     weight: "",
     height: "",
     gender: "",
-    personal_records: [{
-      id: crypto.randomUUID(),
-      distance: "",
-      time_seconds: ""
-    }],
-    disclaimer_accepted: false
-  }
+    personal_records: [
+      {
+        id: crypto.randomUUID(),
+        distance: "",
+        time_seconds: "",
+      },
+    ],
+    disclaimer_accepted: false,
+  },
 });
 ```
 
@@ -651,11 +676,7 @@ Custom hook do automatycznego zapisywania i przywracania danych formularza w ses
 /**
  * Hook do persystencji danych formularza w sessionStorage
  */
-function useFormPersistence(
-  key: string,
-  formData: SurveyFormData,
-  setValue: UseFormSetValue<SurveyFormData>
-) {
+function useFormPersistence(key: string, formData: SurveyFormData, setValue: UseFormSetValue<SurveyFormData>) {
   // Load from sessionStorage on mount
   useEffect(() => {
     const saved = sessionStorage.getItem(key);
@@ -722,9 +743,7 @@ function useTrainingPlanGeneration() {
   /**
    * Generuje nowy plan treningowy
    */
-  const generatePlan = async (
-    data: SurveyFormData
-  ): Promise<{ success: boolean; error?: string }> => {
+  const generatePlan = async (data: SurveyFormData): Promise<{ success: boolean; error?: string }> => {
     setIsGenerating(true);
     setError(null);
 
@@ -738,19 +757,19 @@ function useTrainingPlanGeneration() {
           age: Number(data.age),
           weight: Number(data.weight),
           height: Number(data.height),
-          gender: data.gender as "M" | "F"
+          gender: data.gender as "M" | "F",
         },
         personal_records: data.personal_records.map((record) => ({
           distance: record.distance as DistanceType,
-          time_seconds: Number(record.time_seconds)
-        }))
+          time_seconds: Number(record.time_seconds),
+        })),
       };
 
       // Call API
       const response = await fetch("/api/training-plans/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -774,7 +793,7 @@ function useTrainingPlanGeneration() {
     error,
     hasActivePlan,
     checkActivePlan,
-    generatePlan
+    generatePlan,
   };
 }
 ```
@@ -797,15 +816,18 @@ const [loadingModalState, setLoadingModalState] = useState<LoadingModalState>("l
 **Kiedy wywołać:** Przed submitem formularza (po walidacji client-side)
 
 **Request:**
+
 - Method: GET
 - Headers: Authorization z JWT token (automatycznie przez Supabase client)
 - Body: brak
 
 **Response:**
+
 - **200 OK**: `{ data: TrainingPlanDTO }` - użytkownik ma aktywny plan
 - **404 Not Found**: `{ data: null }` - brak aktywnego planu
 
 **Obsługa w kodzie:**
+
 ```typescript
 const hasActivePlan = await checkActivePlan();
 if (hasActivePlan) {
@@ -822,6 +844,7 @@ if (hasActivePlan) {
 **Kiedy wywołać:** Po potwierdzeniu przez użytkownika (lub jeśli brak aktywnego planu)
 
 **Request:**
+
 - Method: POST
 - Headers:
   - `Content-Type: application/json`
@@ -829,6 +852,7 @@ if (hasActivePlan) {
 - Body: `GenerateTrainingPlanRequest`
 
 **Typ Request Body:**
+
 ```typescript
 {
   profile: {
@@ -856,6 +880,7 @@ if (hasActivePlan) {
 **Response:**
 
 **201 Created** (sukces):
+
 ```typescript
 {
   data: {
@@ -873,6 +898,7 @@ if (hasActivePlan) {
 ```
 
 **400 Bad Request** (validation error):
+
 ```typescript
 {
   error: {
@@ -894,6 +920,7 @@ if (hasActivePlan) {
 **500/503** - błąd serwera lub AI service
 
 **Obsługa w kodzie:**
+
 ```typescript
 const handleSubmit = async (data: SurveyFormData) => {
   // 1. Check active plan
@@ -934,6 +961,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User wpisuje dane w pola formularza
 
 **Oczekiwany wynik:**
+
 - Real-time update wartości w formularzu (React Hook Form)
 - onBlur → validation pojedynczego pola
 - Inline error message pod polem jeśli validation failed
@@ -944,6 +972,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User klika "Dodaj kolejny rekord"
 
 **Oczekiwany wynik:**
+
 - Nowy pusty rekord pojawia się na liście
 - Focus przenosi się na pierwszy input nowego rekordu
 - Button "Usuń" jest enabled dla wszystkich rekordów (jeśli więcej niż 1)
@@ -953,6 +982,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User klika "Usuń" przy rekordzie
 
 **Oczekiwany wynik:**
+
 - Rekord jest usuwany z listy (animacja fade-out opcjonalnie)
 - Jeśli pozostał tylko 1 rekord → button "Usuń" jest disabled
 - Walidacja ponownie sprawdzana (minimum 1 rekord)
@@ -962,6 +992,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User zaznacza checkbox disclaimer
 
 **Oczekiwany wynik:**
+
 - Checkbox status zmienia się na checked
 - Submit button staje się enabled (jeśli reszta formularza valid)
 
@@ -970,6 +1001,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User klika "Wygeneruj plan"
 
 **Oczekiwany wynik:**
+
 - Client-side validation całego formularza
 - Jeśli invalid → scroll to first error, show inline errors
 - Jeśli valid → wywołanie `checkActivePlan()`
@@ -981,6 +1013,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User klika "Anuluj" w dialogu potwierdzenia
 
 **Oczekiwany wynik:**
+
 - Dialog zamyka się
 - User pozostaje na stronie /survey
 - Dane formularza zachowane
@@ -990,6 +1023,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User klika "Tak, wygeneruj nowy plan"
 
 **Oczekiwany wynik:**
+
 - Dialog zamyka się
 - LoadingModal pokazuje się
 - API call POST /api/training-plans/generate
@@ -999,6 +1033,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** LoadingModal widoczny podczas API call
 
 **Oczekiwany wynik:**
+
 - Spinner animowany
 - Progress messages rotują co 5-10 sekund
 - Modal niedomykalny (brak close button, escape nie działa)
@@ -1009,6 +1044,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** API zwraca 201 Created
 
 **Oczekiwany wynik:**
+
 - sessionStorage cleared
 - Redirect do `/dashboard`
 - Toast notification "Plan został wygenerowany!"
@@ -1018,6 +1054,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** API zwraca error (400, 500, 503)
 
 **Oczekiwany wynik:**
+
 - LoadingModal zmienia się na error state
 - Pokazuje error message (user-friendly)
 - Button "Spróbuj ponownie" lub "Zamknij"
@@ -1029,6 +1066,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** API call > 60 sekund
 
 **Oczekiwany wynik:**
+
 - LoadingModal zmienia się na timeout state
 - Message: "Generowanie trwało zbyt długo. Spróbuj ponownie."
 - Button "Spróbuj ponownie" lub "Zamknij"
@@ -1038,6 +1076,7 @@ const handleGenerate = async (data: SurveyFormData) => {
 **Interakcja:** User refreshuje przeglądarkę
 
 **Oczekiwany wynik:**
+
 - Dane formularza przywracane z sessionStorage
 - User może kontynuować wypełnianie od miejsca gdzie przerwał
 
@@ -1049,35 +1088,35 @@ Wszystkie pola są walidowane na client-side przed submitem formularza. Walidacj
 
 #### Training Goals
 
-| Pole | Warunek | Komponent | Wpływ na UI |
-|------|---------|-----------|-------------|
-| `goal_distance` | Required, must be one of: "5K", "10K", "Half Marathon", "Marathon" | TrainingGoalsSection | Inline error: "Wybierz dystans docelowy" |
-| `weekly_km` | Required, must be number > 0, decimal allowed | TrainingGoalsSection | Inline error: "Kilometraż musi być większy od 0" |
-| `training_days_per_week` | Required, must be integer 2-7 | TrainingGoalsSection | Inline error: "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7" |
+| Pole                     | Warunek                                                            | Komponent            | Wpływ na UI                                                                 |
+| ------------------------ | ------------------------------------------------------------------ | -------------------- | --------------------------------------------------------------------------- |
+| `goal_distance`          | Required, must be one of: "5K", "10K", "Half Marathon", "Marathon" | TrainingGoalsSection | Inline error: "Wybierz dystans docelowy"                                    |
+| `weekly_km`              | Required, must be number > 0, decimal allowed                      | TrainingGoalsSection | Inline error: "Kilometraż musi być większy od 0"                            |
+| `training_days_per_week` | Required, must be integer 2-7                                      | TrainingGoalsSection | Inline error: "Liczba dni treningowych musi być liczbą całkowitą od 2 do 7" |
 
 #### Personal Data
 
-| Pole | Warunek | Komponent | Wpływ na UI |
-|------|---------|-----------|-------------|
-| `age` | Required, must be integer 1-119 | PersonalDataSection | Inline error: "Wiek musi być liczbą całkowitą od 1 do 119" |
-| `weight` | Required, must be number 0-300, decimal allowed | PersonalDataSection | Inline error: "Waga musi być liczbą od 0 do 300 kg" |
-| `height` | Required, must be integer 0-300 | PersonalDataSection | Inline error: "Wzrost musi być liczbą całkowitą od 0 do 300 cm" |
-| `gender` | Required, must be "M" or "F" | PersonalDataSection | Inline error: "Wybierz płeć" |
+| Pole     | Warunek                                         | Komponent           | Wpływ na UI                                                     |
+| -------- | ----------------------------------------------- | ------------------- | --------------------------------------------------------------- |
+| `age`    | Required, must be integer 1-119                 | PersonalDataSection | Inline error: "Wiek musi być liczbą całkowitą od 1 do 119"      |
+| `weight` | Required, must be number 0-300, decimal allowed | PersonalDataSection | Inline error: "Waga musi być liczbą od 0 do 300 kg"             |
+| `height` | Required, must be integer 0-300                 | PersonalDataSection | Inline error: "Wzrost musi być liczbą całkowitą od 0 do 300 cm" |
+| `gender` | Required, must be "M" or "F"                    | PersonalDataSection | Inline error: "Wybierz płeć"                                    |
 
 #### Personal Records
 
-| Pole | Warunek | Komponent | Wpływ na UI |
-|------|---------|-----------|-------------|
-| `personal_records` (array) | Minimum 1 record required | PersonalRecordsSection | Inline error: "Wymagany jest co najmniej jeden rekord życiowy" |
-| `distance` (per record) | Required, must be valid DistanceType | PersonalRecordItem | Inline error: "Wybierz dystans" |
-| `time_seconds` (per record) | Required, must be integer > 0 | PersonalRecordItem | Inline error: "Czas musi być liczbą całkowitą większą od 0" |
+| Pole                        | Warunek                              | Komponent              | Wpływ na UI                                                    |
+| --------------------------- | ------------------------------------ | ---------------------- | -------------------------------------------------------------- |
+| `personal_records` (array)  | Minimum 1 record required            | PersonalRecordsSection | Inline error: "Wymagany jest co najmniej jeden rekord życiowy" |
+| `distance` (per record)     | Required, must be valid DistanceType | PersonalRecordItem     | Inline error: "Wybierz dystans"                                |
+| `time_seconds` (per record) | Required, must be integer > 0        | PersonalRecordItem     | Inline error: "Czas musi być liczbą całkowitą większą od 0"    |
 
 #### Disclaimer
 
-| Pole | Warunek | Komponent | Wpływ na UI |
-|------|---------|-----------|-------------|
-| `disclaimer_accepted` | Required, must be `true` | DisclaimerSection | Inline error: "Musisz zaakceptować warunki aby kontynuować" |
-| Submit button | Disabled if form invalid | SurveyForm | Button disabled + tooltip "Wypełnij wszystkie wymagane pola" |
+| Pole                  | Warunek                  | Komponent         | Wpływ na UI                                                  |
+| --------------------- | ------------------------ | ----------------- | ------------------------------------------------------------ |
+| `disclaimer_accepted` | Required, must be `true` | DisclaimerSection | Inline error: "Musisz zaakceptować warunki aby kontynuować"  |
+| Submit button         | Disabled if form invalid | SurveyForm        | Button disabled + tooltip "Wypełnij wszystkie wymagane pola" |
 
 ### Submit Validation Flow
 
@@ -1101,6 +1140,7 @@ Wszystkie pola są walidowane na client-side przed submitem formularza. Walidacj
 API endpoint `/api/training-plans/generate` ma własną walidację (Zod schema w `generate.ts`). Jest to backup jeśli client-side validation fail lub request został zmodyfikowany.
 
 **Obsługa błędów 400 Bad Request:**
+
 ```typescript
 if (response.status === 400) {
   const errorData: ApiErrorResponse = await response.json();
@@ -1110,7 +1150,7 @@ if (response.status === 400) {
     errorData.error.details.forEach((detail) => {
       form.setError(detail.field as any, {
         type: "server",
-        message: detail.message
+        message: detail.message,
       });
     });
 
@@ -1118,7 +1158,7 @@ if (response.status === 400) {
     const firstErrorField = errorData.error.details[0].field;
     document.querySelector(`[name="${firstErrorField}"]`)?.scrollIntoView({
       behavior: "smooth",
-      block: "center"
+      block: "center",
     });
   } else {
     // Generic error
@@ -1134,6 +1174,7 @@ if (response.status === 400) {
 **Scenario:** User submits invalid form data
 
 **Obsługa:**
+
 - Inline error messages pod każdym niepoprawnym polem (red text)
 - Scroll to first error field (smooth scroll, block: center)
 - Focus first error field dla keyboard accessibility
@@ -1145,12 +1186,14 @@ if (response.status === 400) {
 **Scenario:** Server-side validation fails
 
 **Obsługa:**
+
 - Map API validation errors to form fields używając `form.setError()`
 - Show inline errors pod odpowiednimi polami
 - Scroll to first error field
 - Toast notification z głównym error message
 
 **Przykład response:**
+
 ```json
 {
   "error": {
@@ -1170,6 +1213,7 @@ if (response.status === 400) {
 **Scenario:** JWT token expired lub invalid
 
 **Obsługa:**
+
 - Redirect do `/auth/login`
 - Toast notification: "Sesja wygasła. Zaloguj się ponownie."
 - Preserve intent: zapisać `/survey` w sessionStorage, redirect back after login
@@ -1179,6 +1223,7 @@ if (response.status === 400) {
 **Scenario:** User ma aktywny plan (nie powinno się zdarzyć bo sprawdzamy wcześniej)
 
 **Obsługa:**
+
 - Jeśli zdarzy się mimo pre-check → show ConfirmDialog
 - User może potwierdzić nadpisanie planu
 
@@ -1187,6 +1232,7 @@ if (response.status === 400) {
 **Scenario:** Backend error (database, unexpected error)
 
 **Obsługa:**
+
 - LoadingModal zmienia się na error state
 - Error icon (AlertCircle)
 - Message: "Wystąpił błąd podczas generowania planu. Spróbuj ponownie."
@@ -1199,6 +1245,7 @@ if (response.status === 400) {
 **Scenario:** OpenRouter API unavailable
 
 **Obsługa:**
+
 - LoadingModal → error state
 - Message: "Usługa AI jest tymczasowo niedostępna. Spróbuj za chwilę."
 - Button "Spróbuj ponownie"
@@ -1209,6 +1256,7 @@ if (response.status === 400) {
 **Scenario:** AI generation takes too long
 
 **Obsługa:**
+
 - LoadingModal → timeout state
 - Message: "Generowanie planu trwało zbyt długo. Spróbuj ponownie."
 - Button "Spróbuj ponownie" → new API call
@@ -1216,6 +1264,7 @@ if (response.status === 400) {
 - Note: Plan może być wciąż generowany w tle (async job)
 
 **Implementacja timeout:**
+
 ```typescript
 useEffect(() => {
   if (showLoadingModal && loadingModalState === "loading") {
@@ -1233,6 +1282,7 @@ useEffect(() => {
 **Scenario:** Brak połączenia internetowego
 
 **Obsługa:**
+
 - Catch network error w try-catch
 - Toast notification: "Sprawdź połączenie internetowe"
 - Button "Spróbuj ponownie" w toast
@@ -1256,6 +1306,7 @@ try {
 **Scenario:** User refreshes page podczas API call
 
 **Obsługa:**
+
 - LoadingModal state jest lost (nie persist)
 - Form data jest zachowana w sessionStorage
 - User wraca do /survey z wypełnionym formularzem
@@ -1267,6 +1318,7 @@ try {
 **Scenario:** User klika "Wygeneruj plan" multiple times
 
 **Obsługa:**
+
 - Submit button disabled podczas `isSubmitting`
 - Prevent multiple API calls
 - LoadingModal pokazuje się tylko raz
@@ -1286,6 +1338,7 @@ const handleSubmit = async (data: SurveyFormData) => {
 ### Faza 1: Setup i struktura
 
 1. **Utworzenie struktury plików**
+
    ```
    src/
    ├── pages/
@@ -1308,6 +1361,7 @@ const handleSubmit = async (data: SurveyFormData) => {
    ```
 
 2. **Dodanie Shadcn/ui components** (jeśli jeszcze nie dodane)
+
    ```bash
    npx shadcn@latest add form
    npx shadcn@latest add input
@@ -1502,6 +1556,7 @@ const handleSubmit = async (data: SurveyFormData) => {
 Plan implementacji widoku ankiety (Survey) obejmuje 28 kroków podzielonych na 10 faz, od setupu struktury plików przez implementację komponentów, custom hooks, integrację API, aż po accessibility, testing i finalne polish. Każdy krok jest szczegółowo opisany i mapuje się do konkretnych wymagań z PRD i User Story US-005.
 
 Kluczowe aspekty implementacji:
+
 - **React Hook Form + Zod** dla zarządzania stanem i walidacji
 - **Shadcn/ui components** dla spójnego UI
 - **sessionStorage persistence** dla ochrony przed utratą danych

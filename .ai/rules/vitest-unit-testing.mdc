@@ -1,0 +1,306 @@
+---
+description: Unit and integration testing with Vitest and React Testing Library
+globs: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', 'tests/**/*']
+alwaysApply: false
+---
+
+# Unit and Integration Testing Guidelines
+
+## Test Structure and Organization
+
+### File Naming and Location
+- Unit tests: `tests/unit/` directory
+- Integration tests: `tests/integration/` directory
+- Test files: `{filename}.test.ts` or `{filename}.test.tsx`
+- Match the file being tested: `Button.test.tsx` tests `Button.tsx`
+
+### Test Structure Pattern (AAA)
+Follow the Arrange-Act-Assert pattern for all tests:
+
+```typescript
+it('should describe expected behavior', () => {
+  // Arrange: Set up test data and conditions
+  const input = 'test data';
+
+  // Act: Execute the code being tested
+  const result = functionUnderTest(input);
+
+  // Assert: Verify the results
+  expect(result).toBe('expected output');
+});
+```
+
+## Vitest Best Practices
+
+### Mocking and Test Doubles
+- Use `vi.fn()` for function mocks
+- Use `vi.spyOn()` to monitor existing functions without changing behavior
+- Use `vi.stubGlobal()` for global mocks
+- Place `vi.mock()` factory functions at the top level of your test file
+- Prefer spies over mocks when you only need to verify interactions
+
+### Mock Factory Patterns
+```typescript
+// Top-level mock (runs before imports)
+vi.mock('@/db/supabase.client', () => ({
+  createClient: vi.fn(() => mockSupabaseClient),
+}));
+
+// In test: Dynamic mock control
+beforeEach(() => {
+  vi.mocked(mockFunction).mockReturnValue('new value');
+});
+```
+
+### Setup and Cleanup
+- Create `tests/setup.ts` for global configuration, mocks, and environment setup
+- Use `afterEach()` for cleanup (DOM, mocks, state)
+- Use `beforeEach()` for test-specific setup
+
+### Coverage Requirements
+Based on `.ai/athletica-test-plan.md`:
+- **Services & Utils**: Minimum 80% coverage
+- **Components**: Minimum 70% coverage
+- **Overall Project**: Minimum 80% coverage
+
+Run: `npm run test:coverage`
+
+### Development Workflow
+- Use watch mode during development: `npm test` or `vitest --watch`
+- Filter tests: `vitest --watch -t "login"`
+- Use UI mode for complex suites: `npm run test:ui`
+- Use inline snapshots: `expect(value).toMatchInlineSnapshot()`
+
+## React Testing Library
+
+### Query Priority
+Use queries in this priority order:
+1. `getByRole` - Most accessible (e.g., `getByRole('button', { name: /submit/i })`)
+2. `getByLabelText` - For form elements
+3. `getByPlaceholderText` - For inputs
+4. `getByText` - For non-interactive elements
+5. `getByTestId` - Last resort only
+
+### Component Testing Patterns
+
+#### Basic Component Test
+```typescript
+import { render, screen } from '@testing-library/react';
+import { Button } from '@/components/ui/button';
+
+it('should render button with text', () => {
+  render(<Button>Click me</Button>);
+
+  expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
+});
+```
+
+#### Testing User Interactions
+```typescript
+import userEvent from '@testing-library/user-event';
+
+it('should handle click events', async () => {
+  const handleClick = vi.fn();
+  const user = userEvent.setup();
+
+  render(<Button onClick={handleClick}>Click</Button>);
+
+  await user.click(screen.getByRole('button'));
+  expect(handleClick).toHaveBeenCalledTimes(1);
+});
+```
+
+#### Testing Forms
+```typescript
+it('should submit form with valid data', async () => {
+  const handleSubmit = vi.fn();
+  const user = userEvent.setup();
+
+  render(<LoginForm onSubmit={handleSubmit} />);
+
+  await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+  await user.type(screen.getByLabelText(/password/i), 'Test1234!');
+  await user.click(screen.getByRole('button', { name: /submit/i }));
+
+  expect(handleSubmit).toHaveBeenCalledWith({
+    email: 'test@example.com',
+    password: 'Test1234!',
+  });
+});
+```
+
+#### Testing Async Operations
+```typescript
+it('should load data on mount', async () => {
+  render(<UserProfile userId="123" />);
+
+  // Wait for loading to finish
+  expect(screen.getByText(/loading/i)).toBeInTheDocument();
+
+  // Wait for data to appear
+  const userName = await screen.findByText(/john doe/i);
+  expect(userName).toBeInTheDocument();
+});
+```
+
+### Testing Custom Hooks
+```typescript
+import { renderHook, act } from '@testing-library/react';
+
+it('should increment counter', () => {
+  const { result } = renderHook(() => useCounter(0));
+
+  act(() => {
+    result.current.increment();
+  });
+
+  expect(result.current.count).toBe(1);
+});
+```
+
+## Integration Testing
+
+### API Endpoint Testing
+Test complete workflows including database and external service integration:
+
+```typescript
+describe('POST /api/auth/login', () => {
+  beforeEach(() => {
+    // Mock Supabase client
+    vi.mock('@/db/supabase.client');
+  });
+
+  it('should return 400 for missing email', async () => {
+    // Test validation
+  });
+
+  it('should return 200 and session for valid credentials', async () => {
+    // Test happy path
+  });
+});
+```
+
+### Mocking External Services
+
+#### Mocking Supabase
+```typescript
+const mockSupabase = {
+  from: vi.fn(() => ({
+    select: vi.fn().mockResolvedValue({ data: [], error: null }),
+    insert: vi.fn().mockResolvedValue({ data: {}, error: null }),
+  })),
+  auth: {
+    signIn: vi.fn().mockResolvedValue({
+      data: { user: { id: '123' } },
+      error: null,
+    }),
+  },
+};
+
+vi.mock('@/db/supabase.client', () => ({
+  createClient: () => mockSupabase,
+}));
+```
+
+#### Mocking OpenRouter API with MSW
+```typescript
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+
+const server = setupServer(
+  http.post('https://openrouter.ai/api/v1/chat/completions', () => {
+    return HttpResponse.json({
+      choices: [{ message: { content: '{"workout_days": [...]}' } }],
+    });
+  })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+## Best Practices
+
+### Test Behavior, Not Implementation
+❌ Bad: `expect(component.state.loading).toBe(true)`
+✅ Good: `expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument()`
+
+### Use Descriptive Test Names
+Use "should" statements that describe expected behavior:
+- ✅ "should display error message when email is invalid"
+- ✅ "should redirect to dashboard after successful login"
+- ❌ "test login" or "it works"
+
+### Keep Tests Focused
+One logical assertion per test (when practical). Split complex scenarios into multiple tests.
+
+### Test Accessibility
+Include accessibility checks in component tests:
+```typescript
+it('should have accessible form elements', () => {
+  render(<LoginForm />);
+
+  const emailInput = screen.getByLabelText(/email/i);
+  expect(emailInput).toHaveAttribute('type', 'email');
+  expect(emailInput).toHaveAttribute('autocomplete', 'email');
+});
+```
+
+### Use TypeScript
+All test files must be TypeScript (`.ts` or `.tsx`) for type safety:
+```typescript
+import type { User } from '@/types';
+
+const mockUser: User = {
+  id: '123',
+  email: 'test@example.com',
+};
+```
+
+### Clean Up After Tests
+```typescript
+import { afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
+
+afterEach(() => {
+  cleanup(); // Cleanup DOM
+  vi.clearAllMocks(); // Clear mock calls
+});
+```
+
+## Debugging Tests
+
+### Run Single Test
+```typescript
+it.only('should test this specific case', () => {
+  // Only this test runs
+});
+```
+
+### Skip Test Temporarily
+```typescript
+it.skip('should test this later', () => {
+  // Test is skipped
+});
+```
+
+### Debug Output
+```typescript
+screen.debug(); // Print entire DOM
+screen.debug(screen.getByRole('button')); // Print specific element
+```
+
+## Reference Test Cases
+
+Refer to `.ai/athletica-test-plan.md` for:
+- Detailed test scenarios (TC-AUTH-001, TC-DASH-002, etc.)
+- Coverage requirements
+- Testing priorities (P0, P1, P2)
+- Integration test scenarios
+
+## Additional Resources
+- [Vitest Documentation](https://vitest.dev/)
+- [React Testing Library](https://testing-library.com/react)
+- [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
+- [Athletica Test Plan](.ai/athletica-test-plan.md)

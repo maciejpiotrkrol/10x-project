@@ -38,6 +38,13 @@ Athletica is a Minimum Viable Product (MVP) web application designed to simplify
 - **CI/CD**: [GitHub Actions](https://github.com/features/actions)
 - **Hosting**: [DigitalOcean](https://www.digitalocean.com/) (via Docker)
 
+### Testing
+
+- **Unit & Integration Tests**: [Vitest](https://vitest.dev/) with [React Testing Library](https://testing-library.com/react)
+- **E2E Tests**: [Playwright](https://playwright.dev/) (cross-browser testing)
+- **API Testing**: [Supertest](https://github.com/ladjs/supertest)
+- **Mocking**: [MSW (Mock Service Worker)](https://mswjs.io/)
+
 ## Getting Started Locally
 
 ### Prerequisites
@@ -96,6 +103,45 @@ In the project directory, you can run the following commands:
 
 - `npm run format`
   - Formats code using Prettier.
+
+- `npm test`
+  - Runs unit tests in watch mode.
+
+- `npm run test:coverage`
+  - Runs tests with coverage report.
+
+- `npm run test:e2e`
+  - Runs E2E tests with Playwright.
+
+## Testing
+
+The project uses a comprehensive testing setup with Vitest and Playwright:
+
+- **Unit Tests**: Testing individual functions and components (Vitest + React Testing Library)
+- **Integration Tests**: Testing API endpoints and service integration
+- **E2E Tests**: Testing complete user flows (Playwright)
+
+**Quick Start:**
+
+```bash
+# Run unit tests in watch mode
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+```
+
+**Documentation:**
+
+- [Testing Setup Guide](TESTING-SETUP.md) - Complete setup documentation
+- [Testing Guide](tests/README.md) - How to write and run tests
+- [Test Plan](.ai/athletica-test-plan.md) - Comprehensive test plan with scenarios
 
 ## Project Scope
 

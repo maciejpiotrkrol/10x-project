@@ -37,13 +37,30 @@ export function ForgotPasswordForm() {
     try {
       setGeneralError(null);
 
-      // TODO: Wywołanie API /api/auth/forgot-password
-      console.log("Forgot password data:", data);
+      // Call forgot password API endpoint
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
 
-      // Symulacja opóźnienia API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const responseData = await response.json();
 
-      // Po sukcesie - wyświetl komunikat
+      if (!response.ok) {
+        // Handle error responses
+        if (response.status === 400) {
+          setGeneralError(responseData.error?.message || "Błąd walidacji danych");
+        } else {
+          setGeneralError("Wystąpił błąd. Spróbuj ponownie.");
+        }
+        return;
+      }
+
+      // Success - always show success message (security best practice)
       setIsSuccess(true);
     } catch (error) {
       setGeneralError("Wystąpił błąd. Spróbuj ponownie.");

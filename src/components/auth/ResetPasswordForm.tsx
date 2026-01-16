@@ -83,13 +83,33 @@ export function ResetPasswordForm() {
     try {
       setGeneralError(null);
 
-      // TODO: Wywołanie API /api/auth/reset-password
-      console.log("Reset password data:", { token, password: data.password });
+      // Call reset password API endpoint
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: token,
+          password: data.password,
+        }),
+      });
 
-      // Symulacja opóźnienia API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const responseData = await response.json();
 
-      // Po sukcesie - wyświetl komunikat i rozpocznij countdown
+      if (!response.ok) {
+        // Handle error responses
+        if (response.status === 400) {
+          setGeneralError(
+            responseData.error?.message || "Link resetujący wygasł lub jest nieprawidłowy. Poproś o nowy."
+          );
+        } else {
+          setGeneralError("Wystąpił błąd podczas zmiany hasła. Spróbuj ponownie.");
+        }
+        return;
+      }
+
+      // Success - show message and start countdown
       setIsSuccess(true);
     } catch (error) {
       setGeneralError("Wystąpił błąd podczas zmiany hasła. Spróbuj ponownie.");

@@ -5,6 +5,12 @@ import EmptyState from "@/components/EmptyState";
 import type { TrainingPlanWithWorkoutsDTO } from "@/types";
 import type { ApiSuccessResponse } from "@/types";
 
+// Disable prerendering for SSR
+export const prerender = false;
+
+// User is guaranteed to be authenticated here (middleware redirects if not)
+const user = Astro.locals.user!;
+
 // Fetch active training plan server-side
 const response = await fetch(`${Astro.url.origin}/api/training-plans/active`, {
   headers: {
@@ -20,9 +26,6 @@ if (response.ok) {
 } else if (response.status === 404) {
   // No active plan - will show EmptyState
   trainingPlan = null;
-} else if (response.status === 401) {
-  // Unauthorized - redirect to login
-  return Astro.redirect("/auth/login");
 } else {
   // 500 or other error - for now pass null, later can add error page
   console.error("Failed to fetch training plan:", response.status);

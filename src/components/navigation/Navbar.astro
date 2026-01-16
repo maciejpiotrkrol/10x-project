@@ -56,15 +56,53 @@ const isActive = (path: string) => currentPath === path;
 
       <!-- Right side actions -->
       <div class="flex items-center gap-4">
-        <form action="/api/auth/signout" method="post">
-          <button
-            type="submit"
-            class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Wyloguj się
-          </button>
-        </form>
+        <button
+          id="logout-button"
+          type="button"
+          class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+        >
+          Wyloguj się
+        </button>
       </div>
     </div>
   </div>
 </nav>
+
+<script>
+  // Handle logout button click
+  const logoutButton = document.getElementById("logout-button");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        // Disable button during request
+        logoutButton.setAttribute("disabled", "true");
+        logoutButton.textContent = "Wylogowywanie...";
+
+        const response = await fetch("/api/auth/signout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          // Success - redirect to login page
+          window.location.href = "/auth/login";
+        } else {
+          // Error - show alert and re-enable button
+          console.error("Logout failed:", response.status);
+          alert("Wystąpił błąd podczas wylogowywania. Spróbuj ponownie.");
+          logoutButton.removeAttribute("disabled");
+          logoutButton.textContent = "Wyloguj się";
+        }
+      } catch (error) {
+        // Network error
+        console.error("Logout error:", error);
+        alert("Wystąpił błąd podczas wylogowywania. Sprawdź połączenie internetowe.");
+        logoutButton.removeAttribute("disabled");
+        logoutButton.textContent = "Wyloguj się";
+      }
+    });
+  }
+</script>

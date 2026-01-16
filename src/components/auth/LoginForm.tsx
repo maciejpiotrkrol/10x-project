@@ -19,7 +19,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 /**
  * Komponent formularza logowania użytkownika.
- * Obsługuje walidację client-side i przygotowany do integracji z API.
+ * Po pomyślnym logowaniu przekierowuje na /dashboard.
  */
 export function LoginForm() {
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -37,14 +37,34 @@ export function LoginForm() {
     try {
       setGeneralError(null);
 
-      // TODO: Wywołanie API /api/auth/login
-      console.log("Login data:", data);
+      // Call login API endpoint
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
 
-      // Symulacja opóźnienia API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const responseData = await response.json();
 
-      // TODO: Po sukcesie - redirect na /dashboard
-      // window.location.href = "/dashboard";
+      if (!response.ok) {
+        // Handle error responses
+        if (response.status === 401) {
+          setGeneralError(responseData.error?.message || "Nieprawidłowy email lub hasło");
+        } else if (response.status === 400) {
+          setGeneralError(responseData.error?.message || "Błąd walidacji danych");
+        } else {
+          setGeneralError("Wystąpił błąd podczas logowania. Spróbuj ponownie.");
+        }
+        return;
+      }
+
+      // Success - redirect to dashboard
+      window.location.href = "/dashboard";
     } catch (error) {
       setGeneralError("Wystąpił błąd podczas logowania. Spróbuj ponownie.");
       console.error("Login error:", error);

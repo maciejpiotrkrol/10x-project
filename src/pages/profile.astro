@@ -5,14 +5,13 @@ import EmptyState from "@/components/EmptyState";
 import type { Profile, PersonalRecord } from "@/types";
 import type { ApiSuccessResponse } from "@/types";
 
-// Step 1: Verify authentication
-const { data: session, error: authError } = await Astro.locals.supabase.auth.getUser();
+// Disable prerendering for SSR
+export const prerender = false;
 
-if (authError || !session?.user) {
-  return Astro.redirect("/auth/login");
-}
+// User is guaranteed to be authenticated here (middleware redirects if not)
+const user = Astro.locals.user!;
 
-// Step 2: Fetch user profile
+// Fetch user profile and personal records
 let profile: Profile | null = null;
 let personalRecords: PersonalRecord[] = [];
 let showEmptyState = false;
@@ -32,16 +31,13 @@ try {
   } else if (profileResponse.status === 404) {
     // No profile - show empty state
     showEmptyState = true;
-  } else if (profileResponse.status === 401) {
-    // Unauthorized - redirect to login
-    return Astro.redirect("/auth/login");
   } else {
     // Server error
     errorMessage = "Wystąpił błąd podczas ładowania profilu.";
     console.error("Failed to fetch profile:", profileResponse.status);
   }
 
-  // Step 3: Fetch personal records (only if profile exists)
+  // Fetch personal records (only if profile exists)
   if (profile) {
     const recordsResponse = await fetch(`${Astro.url.origin}/api/personal-records`, {
       headers: {
@@ -55,9 +51,6 @@ try {
     } else if (recordsResponse.status === 404) {
       // No records - use empty array
       personalRecords = [];
-    } else if (recordsResponse.status === 401) {
-      // Unauthorized - redirect to login
-      return Astro.redirect("/auth/login");
     } else {
       // Error fetching records - log but don't block profile rendering
       console.error("Failed to fetch personal records:", recordsResponse.status);

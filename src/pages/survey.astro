@@ -1,25 +1,25 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { SurveyForm } from "@/components/survey/SurveyForm";
+import { createSupabaseServerInstance } from "@/db/supabase.client.ts";
 import type { ProfileDTO, PersonalRecordDTO } from "@/types";
 
 // Disable prerendering for SSR
 export const prerender = false;
 
-// Get authenticated user
-const {
-  data: { user },
-} = await Astro.locals.supabase.auth.getUser();
+// User is guaranteed to be authenticated here (middleware redirects if not)
+const user = Astro.locals.user!;
 
-// Redirect to login if not authenticated
-if (!user) {
-  return Astro.redirect("/auth/login");
-}
+// Create Supabase client for data fetching
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
 
 // Fetch user profile (optional for pre-fill)
 let initialProfile: ProfileDTO | null = null;
 try {
-  const { data: profile, error: profileError } = await Astro.locals.supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", user.id)
@@ -40,7 +40,7 @@ try {
 // Fetch personal records (optional for pre-fill)
 let initialPersonalRecords: PersonalRecordDTO[] = [];
 try {
-  const { data: records, error: recordsError } = await Astro.locals.supabase
+  const { data: records, error: recordsError } = await supabase
     .from("personal_records")
     .select("*")
     .eq("user_id", user.id)

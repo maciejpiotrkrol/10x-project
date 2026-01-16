@@ -1,4 +1,5 @@
-import { Home, User, PlusCircle } from "lucide-react";
+import { Home, User, PlusCircle, LogOut } from "lucide-react";
+import { useState } from "react";
 
 interface BottomNavProps {
   currentPath: string;
@@ -10,7 +11,36 @@ interface BottomNavProps {
  * Visible only on mobile devices (md:hidden)
  */
 export function BottomNav({ currentPath }: BottomNavProps) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const isActive = (path: string) => currentPath === path;
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+
+      const response = await fetch("/api/auth/signout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // Success - redirect to login page
+        window.location.href = "/auth/login";
+      } else {
+        // Error
+        console.error("Logout failed:", response.status);
+        alert("Wystąpił błąd podczas wylogowywania. Spróbuj ponownie.");
+        setIsLoggingOut(false);
+      }
+    } catch (error) {
+      // Network error
+      console.error("Logout error:", error);
+      alert("Wystąpił błąd podczas wylogowywania. Sprawdź połączenie internetowe.");
+      setIsLoggingOut(false);
+    }
+  };
 
   const navItems = [
     {
@@ -52,6 +82,17 @@ export function BottomNav({ currentPath }: BottomNavProps) {
             </a>
           );
         })}
+
+        {/* Logout button */}
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex flex-col items-center justify-center gap-1 w-full h-full transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
+          aria-label="Wyloguj się"
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="text-xs font-medium">{isLoggingOut ? "Wyloguj..." : "Wyloguj"}</span>
+        </button>
       </div>
     </nav>
   );

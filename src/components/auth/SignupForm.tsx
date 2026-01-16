@@ -25,7 +25,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 
 /**
  * Komponent formularza rejestracji użytkownika.
- * Obsługuje walidację client-side i przygotowany do integracji z API.
+ * Po pomyślnej rejestracji automatycznie loguje i przekierowuje na /survey.
  */
 export function SignupForm() {
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -43,14 +43,34 @@ export function SignupForm() {
     try {
       setGeneralError(null);
 
-      // TODO: Wywołanie API /api/auth/signup
-      console.log("Signup data:", { email: data.email, password: data.password });
+      // Call signup API endpoint
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
 
-      // Symulacja opóźnienia API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const responseData = await response.json();
 
-      // TODO: Po sukcesie - redirect na /survey
-      // window.location.href = "/survey";
+      if (!response.ok) {
+        // Handle error responses
+        if (response.status === 409) {
+          setGeneralError(responseData.error?.message || "Użytkownik o podanym adresie email już istnieje");
+        } else if (response.status === 400) {
+          setGeneralError(responseData.error?.message || "Błąd walidacji danych");
+        } else {
+          setGeneralError("Wystąpił błąd podczas rejestracji. Spróbuj ponownie.");
+        }
+        return;
+      }
+
+      // Success - user is automatically logged in, redirect to survey
+      window.location.href = "/survey";
     } catch (error) {
       setGeneralError("Wystąpił błąd podczas rejestracji. Spróbuj ponownie.");
       console.error("Signup error:", error);

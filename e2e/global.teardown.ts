@@ -9,7 +9,7 @@ import { createClient } from "@supabase/supabase-js";
  *
  * Wykorzystuje RLS policies - użytkownik może usuwać tylko własne dane.
  */
-teardown("cleanup test user data from database", async ({}) => {
+teardown("cleanup test user data from database", async () => {
   console.log("🧹 Starting database cleanup...");
 
   const supabaseUrl = process.env.SUPABASE_URL;

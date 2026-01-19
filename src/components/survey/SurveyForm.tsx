@@ -119,7 +119,7 @@ export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: Surv
     if (result.success) {
       // Success - clear sessionStorage and redirect
       clearSaved();
-      window.location.href = "/dashboard";
+      window.location.assign("/dashboard");
     } else {
       // Error - show error state in modal
       setLoadingModalState("error");

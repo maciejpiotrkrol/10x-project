@@ -67,7 +67,12 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
   }, [isOpen]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => {
+        // Intentionally empty to prevent closing
+      }}
+    >
       <DialogContent
         className="sm:max-w-[500px]"
         showCloseButton={state !== "loading"}

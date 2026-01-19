@@ -24,7 +24,7 @@ export function useFormPersistence(key: string, formData: SurveyFormData, setVal
       // Restore each field value
       Object.entries(parsed).forEach(([fieldKey, fieldValue]) => {
         if (fieldValue !== undefined) {
-          setValue(fieldKey as keyof SurveyFormData, fieldValue as any, {
+          setValue(fieldKey as keyof SurveyFormData, fieldValue as SurveyFormData[keyof SurveyFormData], {
             shouldValidate: false,
             shouldDirty: false,
           });
@@ -35,8 +35,7 @@ export function useFormPersistence(key: string, formData: SurveyFormData, setVal
       // Clear corrupted data
       sessionStorage.removeItem(key);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount
+  }, [key, setValue]); // Run on mount and when key/setValue changes
 
   // Save to sessionStorage on change (debounced)
   useEffect(() => {

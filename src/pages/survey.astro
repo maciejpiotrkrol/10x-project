@@ -8,7 +8,10 @@ import type { ProfileDTO, PersonalRecordDTO } from "@/types";
 export const prerender = false;
 
 // User is guaranteed to be authenticated here (middleware redirects if not)
-const user = Astro.locals.user!;
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login");
+}
 
 // Create Supabase client for data fetching
 const supabase = createSupabaseServerInstance({

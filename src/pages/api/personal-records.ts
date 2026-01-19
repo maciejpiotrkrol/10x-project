@@ -156,7 +156,11 @@ export async function POST(context: APIContext): Promise<Response> {
     // RLS policy automatically enforces user_id = auth.uid()
     // Database automatically generates id and sets created_at
     // NOTE: In dev mode with SKIP_AUTH, we need to manually set user_id
-    const insertData: any = {
+    const insertData: {
+      distance: string;
+      time_seconds: number;
+      user_id?: string;
+    } = {
       distance: validationResult.data.distance,
       time_seconds: validationResult.data.time_seconds,
     };

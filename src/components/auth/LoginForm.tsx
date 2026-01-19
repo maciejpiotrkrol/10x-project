@@ -64,7 +64,7 @@ export function LoginForm() {
       }
 
       // Success - redirect to dashboard
-      window.location.href = "/dashboard";
+      window.location.assign("/dashboard");
     } catch (error) {
       setGeneralError("Wystąpił błąd podczas logowania. Spróbuj ponownie.");
       console.error("Login error:", error);

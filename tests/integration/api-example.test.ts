@@ -76,7 +76,7 @@ describe("API Integration Tests - Example", () => {
       // TC-DASH-002: Toggle workout completion
 
       // Arrange
-      const workoutId = "test-workout-id";
+      // TODO: const workoutId = "test-workout-id";
       const updatePayload = {
         is_completed: true,
       };
@@ -92,7 +92,7 @@ describe("API Integration Tests - Example", () => {
       // TC-DASH-004: Cannot mark rest days as completed
 
       // Arrange
-      const restDayId = "rest-day-id";
+      // TODO: const restDayId = "rest-day-id";
       const invalidUpdate = {
         is_completed: true,
       };

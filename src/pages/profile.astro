@@ -9,7 +9,6 @@ import type { ApiSuccessResponse } from "@/types";
 export const prerender = false;
 
 // User is guaranteed to be authenticated here (middleware redirects if not)
-const user = Astro.locals.user!;
 
 // Fetch user profile and personal records
 let profile: Profile | null = null;

@@ -3,26 +3,6 @@
  */
 
 // ============================================================================
-// Props interfejsy
-// ============================================================================
-
-export interface SignupFormProps {
-  // Standalone component - brak props
-}
-
-export interface LoginFormProps {
-  // Standalone component - brak props
-}
-
-export interface ForgotPasswordFormProps {
-  // Standalone component - brak props
-}
-
-export interface ResetPasswordFormProps {
-  // Standalone component - token pobierany z URL
-}
-
-// ============================================================================
 // State interfejsy dla formularzy
 // ============================================================================
 

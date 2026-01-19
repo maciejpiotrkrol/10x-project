@@ -41,11 +41,6 @@ const UpdateWorkoutDaySchema = z.object({
  * - This is enforced by database CHECK constraint: no_completed_rest_days
  * - Attempting to mark a rest day as completed will result in 400 Bad Request
  *
- * Development Mode:
- * When SKIP_AUTH=true is set in .env, this endpoint uses the service role
- * client which bypasses RLS. This is useful for testing without authentication
- * but should NEVER be used in production.
- *
  * @param context - Astro API context containing Supabase client and request params
  * @returns Response with updated workout day data or error
  *
@@ -103,14 +98,8 @@ const UpdateWorkoutDaySchema = z.object({
  *
  * Examples:
  * ```bash
- * # With authentication (production)
  * curl -X PATCH http://localhost:3000/api/workout-days/550e8400-e29b-41d4-a716-446655440000 \
  *   -H "Authorization: Bearer <jwt-token>" \
- *   -H "Content-Type: application/json" \
- *   -d '{"is_completed": true}'
- *
- * # Without authentication (SKIP_AUTH=true in dev mode)
- * curl -X PATCH http://localhost:3000/api/workout-days/550e8400-e29b-41d4-a716-446655440000 \
  *   -H "Content-Type: application/json" \
  *   -d '{"is_completed": true}'
  * ```
@@ -118,8 +107,6 @@ const UpdateWorkoutDaySchema = z.object({
 export async function PATCH(context: APIContext): Promise<Response> {
   try {
     // Step 1: Verify authentication
-    // Uses verifyAuth() helper which handles both JWT verification (production)
-    // and mock user mode (SKIP_AUTH=true in development)
     const { user, error: authError } = await verifyAuth(context);
 
     if (authError || !user) {

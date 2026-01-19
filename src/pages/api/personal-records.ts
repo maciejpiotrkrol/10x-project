@@ -155,20 +155,10 @@ export async function POST(context: APIContext): Promise<Response> {
     // Step 4: Insert personal record into database
     // RLS policy automatically enforces user_id = auth.uid()
     // Database automatically generates id and sets created_at
-    // NOTE: In dev mode with SKIP_AUTH, we need to manually set user_id
-    const insertData: {
-      distance: string;
-      time_seconds: number;
-      user_id?: string;
-    } = {
+    const insertData = {
       distance: validationResult.data.distance,
       time_seconds: validationResult.data.time_seconds,
     };
-
-    // If SKIP_AUTH is enabled, manually set user_id (RLS won't work with mock user)
-    if (import.meta.env.SKIP_AUTH === "true") {
-      insertData.user_id = user.id;
-    }
 
     const { data: personalRecord, error: dbError } = await context.locals.supabase
       .from("personal_records")

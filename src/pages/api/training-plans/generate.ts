@@ -10,7 +10,6 @@
  * 6. Marks new plan as active
  *
  * Authentication: Required (JWT token)
- * Development Mode: Supports SKIP_AUTH=true for testing
  */
 
 import type { APIContext } from "astro";

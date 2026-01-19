@@ -426,16 +426,19 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Aplikacja dostępna
 - Email testowy nie istnieje w systemie
 
 **Kroki**:
+
 1. Nawiguj do `/auth/signup`
 2. Wprowadź email: `test+{timestamp}@example.com`
 3. Wprowadź hasło: `Test1234!` (min. 8 znaków)
 4. Kliknij "Zarejestruj się"
 
 **Oczekiwany rezultat**:
+
 - Użytkownik zostaje przekierowany do `/survey`
 - Sesja zostaje utworzona (cookie obecny)
 - Rekord w tabeli `auth.users` zostaje stworzony
@@ -450,21 +453,25 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik `test@example.com` istnieje w systemie
 - Hasło: `Test1234!`
 
 **Kroki**:
+
 1. Nawiguj do `/auth/login`
 2. Wprowadź email: `test@example.com`
 3. Wprowadź hasło: `Test1234!`
 4. Kliknij "Zaloguj się"
 
 **Oczekiwany rezultat**:
+
 - Użytkownik zostaje przekierowany do `/dashboard`
 - Sesja zostaje utworzona
 - Navbar pokazuje nazwę użytkownika / avatar
 
 **Przypadki negatywne**:
+
 - TC-AUTH-002-NEG-1: Błędne hasło → Error toast "Nieprawidłowy email lub hasło"
 - TC-AUTH-002-NEG-2: Nieistniejący email → Error toast
 - TC-AUTH-002-NEG-3: Puste pola → Validation errors
@@ -477,9 +484,11 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik `test@example.com` istnieje
 
 **Kroki**:
+
 1. Nawiguj do `/auth/login`
 2. Kliknij "Zapomniałeś hasła?"
 3. Wprowadź email: `test@example.com`
@@ -491,6 +500,7 @@ WHERE id = '<user_b_workout_id>';
 9. Kliknij "Zresetuj hasło"
 
 **Oczekiwany rezultat**:
+
 - Email z linkiem zostaje wysłany
 - Link prowadzi do `/auth/reset-password?token=...`
 - Po resecie: przekierowanie do `/auth/login`
@@ -505,13 +515,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 
 **Kroki**:
+
 1. Kliknij "Wyloguj" w Navbar
 2. Potwierdź wylogowanie (jeśli confirmation dialog)
 
 **Oczekiwany rezultat**:
+
 - Przekierowanie do `/auth/login`
 - Sesja zostaje usunięta (cookie cleared)
 - Próba dostępu do `/dashboard` → redirect do login
@@ -524,15 +537,18 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 - Token JWT wygasł (symulacja poprzez zmianę czasu systemowego lub manualną invalidację)
 
 **Kroki**:
+
 1. Zaloguj się
 2. Symuluj wygaśnięcie sesji
 3. Próbuj oznaczyć trening jako wykonany (PATCH /api/workout-days/[id])
 
 **Oczekiwany rezultat**:
+
 - API zwraca 401 Unauthorized
 - Toast error: "Sesja wygasła. Zaloguj się ponownie."
 - Przekierowanie do `/auth/login` po 1.5s
@@ -547,34 +563,28 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 - Brak aktywnego planu treningowego
 
 **Kroki**:
 
 **Sekcja 1: Dane osobowe (PersonalDataSection)**
+
 1. Wprowadź wiek: `30`
 2. Wprowadź wagę: `70` kg
 3. Wprowadź wzrost: `175` cm
 4. Wybierz płeć: `M`
 5. Kliknij "Dalej"
 
-**Sekcja 2: Cele treningowe (TrainingGoalsSection)**
-6. Wybierz dystans docelowy: `Half Marathon`
-7. Wprowadź tygodniowy kilometraż: `30` km
-8. Wybierz ilość dni treningowych: `4` dni/tydzień
-9. Kliknij "Dalej"
+**Sekcja 2: Cele treningowe (TrainingGoalsSection)** 6. Wybierz dystans docelowy: `Half Marathon` 7. Wprowadź tygodniowy kilometraż: `30` km 8. Wybierz ilość dni treningowych: `4` dni/tydzień 9. Kliknij "Dalej"
 
-**Sekcja 3: Rekordy życiowe (PersonalRecordsSection)**
-10. Dodaj rekord 5K: `00:22:30` (22 min 30 sek)
-11. Dodaj rekord 10K: `00:48:00` (48 min)
-12. Kliknij "Dalej"
+**Sekcja 3: Rekordy życiowe (PersonalRecordsSection)** 10. Dodaj rekord 5K: `00:22:30` (22 min 30 sek) 11. Dodaj rekord 10K: `00:48:00` (48 min) 12. Kliknij "Dalej"
 
-**Sekcja 4: Disclaimer**
-13. Zaznacz checkbox: "Rozumiem i akceptuję..."
-14. Kliknij "Generuj plan treningowy"
+**Sekcja 4: Disclaimer** 13. Zaznacz checkbox: "Rozumiem i akceptuję..." 14. Kliknij "Generuj plan treningowy"
 
 **Oczekiwany rezultat**:
+
 - Loading modal z animacją
 - Request do `POST /api/training-plans/generate` zostaje wysłany
 - AI generuje 70 workout days
@@ -592,13 +602,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Użytkownik na stronie `/survey`
 
 **Kroki**:
+
 1. Pozostaw wszystkie pola puste
 2. Kliknij "Dalej"
 
 **Oczekiwany rezultat**:
+
 - Formularze nie przechodzą dalej
 - Error messages wyświetlane przy pustych polach:
   - "Wiek jest wymagany"
@@ -615,19 +628,20 @@ WHERE id = '<user_b_workout_id>';
 
 **Warunki testowe**:
 
-| Pole | Wartość testowa | Oczekiwany błąd |
-|------|----------------|-----------------|
-| Wiek | `0` | "Age must be at least 1" |
-| Wiek | `150` | "Age must be less than 120" |
-| Waga | `0` | "Weight must be greater than 0" |
-| Waga | `400` | "Weight must be less than 300kg" |
-| Wzrost | `0` | "Height must be greater than 0" |
-| Wzrost | `350` | "Height must be less than 300cm" |
-| Tygodniowy km | `-10` | "Weekly km must be greater than 0" |
-| Dni treningowe | `1` | "Minimum 2 training days per week" |
-| Dni treningowe | `8` | "Maximum 7 training days per week" |
+| Pole           | Wartość testowa | Oczekiwany błąd                    |
+| -------------- | --------------- | ---------------------------------- |
+| Wiek           | `0`             | "Age must be at least 1"           |
+| Wiek           | `150`           | "Age must be less than 120"        |
+| Waga           | `0`             | "Weight must be greater than 0"    |
+| Waga           | `400`           | "Weight must be less than 300kg"   |
+| Wzrost         | `0`             | "Height must be greater than 0"    |
+| Wzrost         | `350`           | "Height must be less than 300cm"   |
+| Tygodniowy km  | `-10`           | "Weekly km must be greater than 0" |
+| Dni treningowe | `1`             | "Minimum 2 training days per week" |
+| Dni treningowe | `8`             | "Maximum 7 training days per week" |
 
 **Oczekiwany rezultat**:
+
 - Client-side validation blokuje submit
 - Server-side validation (Zod) zwraca 400 Bad Request z details
 
@@ -639,6 +653,7 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Kroki**:
+
 1. Nawiguj do sekcji "Rekordy życiowe"
 2. Kliknij "Dodaj rekord"
 3. Wybierz dystans: `5K`
@@ -649,6 +664,7 @@ WHERE id = '<user_b_workout_id>';
 8. Kliknij "Dalej"
 
 **Oczekiwany rezultat**:
+
 - Rekordy dynamicznie dodawane/usuwane w UI
 - Validation: minimum 1 rekord wymagany
 - Przejście do kolejnej sekcji działa
@@ -662,10 +678,12 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik ma aktywny plan treningowy
 - Nawiguje do `/survey`
 
 **Kroki**:
+
 1. Wypełnij ankietę
 2. Kliknij "Generuj plan treningowy"
 3. Dialog "Confirmation" pojawia się z ostrzeżeniem: "Posiadasz już aktywny plan. Wygenerowanie nowego planu spowoduje nadpisanie obecnego..."
@@ -675,6 +693,7 @@ WHERE id = '<user_b_workout_id>';
 7. Kliknij "Potwierdź"
 
 **Oczekiwany rezultat**:
+
 - Po anulowaniu: brak requestu do API
 - Po potwierdzeniu:
   - Request do API wysłany
@@ -692,11 +711,14 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - OpenRouter API key skonfigurowany
 - AI service dostępny
 
 **Kroki**:
+
 1. Wywołaj POST `/api/training-plans/generate` z valid payload:
+
 ```json
 {
   "profile": {
@@ -709,13 +731,14 @@ WHERE id = '<user_b_workout_id>';
     "gender": "M"
   },
   "personal_records": [
-    {"distance": "10K", "time_seconds": 2700},
-    {"distance": "Half Marathon", "time_seconds": 5400}
+    { "distance": "10K", "time_seconds": 2700 },
+    { "distance": "Half Marathon", "time_seconds": 5400 }
   ]
 }
 ```
 
 **Oczekiwany rezultat**:
+
 - Status: 201 Created
 - Response zawiera:
   - `training_plan` object z `id`, `start_date`, `end_date`, `is_active: true`
@@ -729,6 +752,7 @@ WHERE id = '<user_b_workout_id>';
   - Stary plan (jeśli był) został zdeaktywowany
 
 **Weryfikacja AI output**:
+
 - Workout descriptions w języku polskim
 - Rest days: `workout_description = "Odpoczynek"`, `is_rest_day = true`
 - Trenujące dni: detailed descriptions, `is_rest_day = false`
@@ -742,15 +766,19 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Symulacja OpenRouter API returning 503 Service Unavailable
 
 **Kroki**:
+
 1. Mock OpenRouter response: `503 Service Unavailable`
 2. Wywołaj POST `/api/training-plans/generate`
 
 **Oczekiwany rezultat**:
+
 - Status: 503 Service Unavailable
 - Response body:
+
 ```json
 {
   "error": {
@@ -758,6 +786,7 @@ WHERE id = '<user_b_workout_id>';
   }
 }
 ```
+
 - Database: **NIE POWINNO** dojść do żadnych zmian (no profile upsert, no plan creation)
 - Frontend: Error toast z user-friendly message
 
@@ -769,6 +798,7 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Mock AI response z invalid structure
 
 **Scenariusze testowe**:
@@ -790,6 +820,7 @@ WHERE id = '<user_b_workout_id>';
    - Expected: 500 error lub validation error
 
 **Oczekiwany rezultat**:
+
 - Błędy obsłużone gracefully
 - Database rollback (brak partial state)
 - User-friendly error message
@@ -802,13 +833,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Symulacja OpenRouter returning 429 Too Many Requests
 
 **Kroki**:
+
 1. Mock OpenRouter response: `429 Too Many Requests`
 2. Wywołaj POST `/api/training-plans/generate`
 
 **Oczekiwany rezultat**:
+
 - Status: 503 Service Unavailable
 - Error message: "AI service temporarily unavailable. Please try again later."
 - (Optional) Retry logic z exponential backoff
@@ -823,13 +857,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 - Aktywny plan treningowy istnieje (70 workout days)
 
 **Kroki**:
+
 1. Nawiguj do `/dashboard`
 
 **Oczekiwany rezultat**:
+
 - PlanHeader wyświetla:
   - Start date i end date planu
   - Progress bar z completion percentage
@@ -840,6 +877,7 @@ WHERE id = '<user_b_workout_id>';
 - Auto-scroll do dzisiejszego treningu
 
 **Weryfikacja danych**:
+
 - Workout days pogrupowane po 7 na tydzień
 - Day numbers: 1-7, 8-14, ..., 64-70
 - Rest days wyświetlane z "Odpoczynek" i disabled checkbox
@@ -852,24 +890,29 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E + Integration
 
 **Warunki wstępne**:
+
 - Użytkownik na dashboardzie
 - Trening ID: `workout-123`, `is_completed: false`, `is_rest_day: false`
 
 **Kroki**:
+
 1. Kliknij checkbox przy treningu `workout-123`
 
 **Oczekiwany rezultat (Optimistic UI)**:
+
 - Checkbox zmienia stan natychmiast (< 50ms)
 - Trening card wizualnie oznaczony jako completed (np. opacity, strikethrough)
 - Progress bar aktualizuje się natychmiast
 
 **Weryfikacja API call**:
+
 - Request: `PATCH /api/workout-days/workout-123`
 - Body: `{"is_completed": true}`
 - Response: 200 OK z updated workout day
 - Database: `is_completed = true`, `completed_at = NOW()`
 
 **Weryfikacja rollback przy błędzie**:
+
 - Symuluj network error (disconnect)
 - Checkbox powinien powrócić do stanu `unchecked`
 - Toast error: "Brak połączenia z internetem..."
@@ -882,12 +925,15 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Trening ID: `workout-123`, `is_completed: true`, `completed_at: "2025-01-15T10:00:00Z"`
 
 **Kroki**:
+
 1. Kliknij checkbox (uncheck)
 
 **Oczekiwany rezultat**:
+
 - Checkbox natychmiast unchecked
 - API call: `PATCH /api/workout-days/workout-123` z `{"is_completed": false}`
 - Database: `is_completed = false`, `completed_at = NULL`
@@ -902,16 +948,20 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E + Integration
 
 **Warunki wstępne**:
+
 - Trening ID: `workout-rest`, `is_rest_day: true`, `is_completed: false`
 
 **Kroki**:
+
 1. Próbuj kliknąć checkbox przy rest day
 
 **Oczekiwany rezultat (Client-side prevention)**:
+
 - Checkbox jest disabled (nie można kliknąć)
 - Tooltip: "Dni odpoczynku nie mogą być oznaczone jako wykonane"
 
 **Weryfikacja server-side**:
+
 - Symuluj API call: `PATCH /api/workout-days/workout-rest` z `{"is_completed": true}`
 - Response: 400 Bad Request
 - Error: "Rest days cannot be marked as completed"
@@ -926,22 +976,26 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Plan z 70 dniami (50 workout days, 20 rest days)
 - 25 treningów wykonanych
 
 **Kroki**:
+
 1. Załaduj dashboard
 2. Weryfikuj PlanHeader
 
 **Oczekiwany rezultat**:
+
 - Total workouts: `50`
 - Completed workouts: `25`
 - Total rest days: `20`
-- Completion percentage: `50%` (25/50 * 100)
+- Completion percentage: `50%` (25/50 \* 100)
 - Progress bar wypełniony w 50%
 - Text: "Wykonano 25 z 50 treningów"
 
 **Edge case**:
+
 - Wszystkie treningi wykonane (50/50):
   - Completion percentage: `100%`
   - `is_plan_completed: true`
@@ -955,15 +1009,18 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Plan treningowy obejmuje dzisiejszą datę
 - Użytkownik scrolluje dashboard poza viewport dzisiejszego treningu
 
 **Kroki**:
+
 1. Załaduj dashboard
 2. Scrolluj w górę lub w dół (poza dzisiejszy trening)
 3. Kliknij Floating Action Button (FAB) "Przewiń do dziś"
 
 **Oczekiwany rezultat**:
+
 - Smooth scroll do dzisiejszego treningu
 - Dzisiejszy trening highlighted (np. border, background color)
 - FAB widoczny tylko gdy dzisiejszy trening poza viewport
@@ -976,13 +1033,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 - Brak aktywnego planu (`GET /api/training-plans/active` zwraca null)
 
 **Kroki**:
+
 1. Nawiguj do `/dashboard`
 
 **Oczekiwany rezultat**:
+
 - Empty state message:
   - "Nie masz jeszcze planu treningowego"
   - Button: "Utwórz plan" → redirect do `/survey`
@@ -999,13 +1059,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Użytkownik zalogowany
 - Profile i personal records istnieją w bazie
 
 **Kroki**:
+
 1. Nawiguj do `/profile`
 
 **Oczekiwany rezultat**:
+
 - **PersonalDataCard** wyświetla:
   - Wiek: `30 lat`
   - Waga: `70 kg`
@@ -1026,6 +1089,7 @@ WHERE id = '<user_b_workout_id>';
   - (Optional) Button: "Usuń konto"
 
 **Weryfikacja read-only**:
+
 - Brak możliwości edycji danych inline
 - Brak input fields, tylko display
 
@@ -1037,13 +1101,16 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: E2E
 
 **Warunki wstępne**:
+
 - Nowy użytkownik (signup + login)
 - Brak profile i personal records
 
 **Kroki**:
+
 1. Nawiguj do `/profile`
 
 **Oczekiwany rezultat**:
+
 - Empty state:
   - "Uzupełnij ankietę, aby zobaczyć swój profil"
   - Button: "Wypełnij ankietę" → redirect do `/survey`
@@ -1058,18 +1125,22 @@ WHERE id = '<user_b_workout_id>';
 **Typ**: Security
 
 **Warunki wstępne**:
+
 - User A (ID: `user-a-uuid`) z aktywnym planem
 - User B (ID: `user-b-uuid`) zalogowany
 
 **Kroki**:
+
 1. Zaloguj się jako User B
 2. Próbuj wywołać `GET /api/training-plans/active` (which queries training_plans for User B)
 3. Manualnie spróbuj odczytać dane User A poprzez direct Supabase query:
+
 ```sql
 SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 ```
 
 **Oczekiwany rezultat**:
+
 - API endpoint zwraca tylko dane User B
 - Direct query zwraca 0 rows (RLS policy blocks)
 - Brak możliwości odczytu danych User A
@@ -1082,14 +1153,17 @@ SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 **Typ**: Security
 
 **Warunki wstępne**:
+
 - User A ma workout day ID: `workout-a-uuid`
 - User B zalogowany
 
 **Kroki**:
+
 1. Zaloguj się jako User B
 2. Wywołaj `PATCH /api/workout-days/workout-a-uuid` z `{"is_completed": true}`
 
 **Oczekiwany rezultat**:
+
 - Response: 404 Not Found (nie 403, dla security reasons)
 - Error message: "Workout day not found"
 - Code: "WORKOUT_DAY_NOT_FOUND"
@@ -1103,15 +1177,18 @@ SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 **Typ**: Security
 
 **Warunki wstępne**:
+
 - Brak sesji (użytkownik niezalogowany)
 
 **Kroki**:
+
 1. Wywołaj API endpoints bez tokena:
    - `GET /api/training-plans/active`
    - `GET /api/profile`
    - `PATCH /api/workout-days/[id]`
 
 **Oczekiwany rezultat**:
+
 - Wszystkie endpoints zwracają 401 Unauthorized
 - RLS policies dla `anon` role deny all operations
 
@@ -1126,15 +1203,16 @@ SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 
 **Operacje do przetestowania dla każdej tabeli**:
 
-| Operacja | Policy | Expected behavior |
-|----------|--------|-------------------|
-| SELECT | "Users can view own X" | Only user's own data returned |
-| INSERT | "Users can insert own X" | Only if user_id = auth.uid() |
-| UPDATE | "Users can update own X" | Only user's own data updated |
-| DELETE | "Users can delete own X" | Only user's own data deleted |
+| Operacja   | Policy                      | Expected behavior              |
+| ---------- | --------------------------- | ------------------------------ |
+| SELECT     | "Users can view own X"      | Only user's own data returned  |
+| INSERT     | "Users can insert own X"    | Only if user_id = auth.uid()   |
+| UPDATE     | "Users can update own X"    | Only user's own data updated   |
+| DELETE     | "Users can delete own X"    | Only user's own data deleted   |
 | ALL (anon) | "Anon users have no access" | All operations denied for anon |
 
 **Test methodology**:
+
 1. Create test users: User A, User B
 2. User A creates data
 3. User B attempts to access User A's data
@@ -1150,17 +1228,21 @@ SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - User ma aktywny plan (is_active = true)
 
 **Kroki**:
+
 1. Próbuj INSERT nowego planu z `is_active = true` dla tego samego użytkownika
 
 **Oczekiwany rezultat**:
+
 - Database zwraca unique constraint violation error
 - Constraint: `idx_training_plans_user_active`
 - Error code: 23505 (PostgreSQL unique violation)
 
 **Weryfikacja przez aplikację**:
+
 - Aplikacja najpierw deaktywuje stary plan (`UPDATE is_active = false`)
 - Następnie tworzy nowy plan
 - Constraint nie jest naruszony
@@ -1173,10 +1255,13 @@ SELECT * FROM training_plans WHERE user_id = 'user-a-uuid';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - Workout day z `is_rest_day = true`
 
 **Kroki**:
+
 1. Direct database UPDATE:
+
 ```sql
 UPDATE workout_days
 SET is_completed = true
@@ -1184,12 +1269,14 @@ WHERE id = 'rest-day-uuid';
 ```
 
 **Oczekiwany rezultat**:
+
 - Database zwraca CHECK constraint violation
 - Constraint: `no_completed_rest_days`
 - Error code: 23514 (PostgreSQL check violation)
 - 0 rows updated
 
 **Weryfikacja przez API**:
+
 - `PATCH /api/workout-days/[id]` zwraca 400 Bad Request
 - Error message: "Rest days cannot be marked as completed"
 
@@ -1201,16 +1288,20 @@ WHERE id = 'rest-day-uuid';
 **Typ**: Integration
 
 **Warunki wstępne**:
+
 - User A ma training plan
 - Training plan ma 70 workout days
 
 **Kroki**:
+
 1. DELETE training plan:
+
 ```sql
 DELETE FROM training_plans WHERE id = 'plan-uuid';
 ```
 
 **Oczekiwany rezultat**:
+
 - Training plan usunięty
 - Wszystkie 70 workout days automatycznie usunięte (CASCADE)
 - Foreign key constraint: `training_plan_id` references `training_plans(id) ON DELETE CASCADE`
@@ -1224,19 +1315,20 @@ DELETE FROM training_plans WHERE id = 'plan-uuid';
 
 **Constraints do przetestowania**:
 
-| Tabela | Kolumna | Constraint | Invalid value | Expected error |
-|--------|---------|------------|---------------|----------------|
-| profiles | age | `age > 0 and age < 120` | `0` | Violation |
-| profiles | age | `age > 0 and age < 120` | `150` | Violation |
-| profiles | weight | `weight > 0 and weight < 300` | `-5` | Violation |
-| profiles | height | `height > 0 and height < 300` | `400` | Violation |
-| profiles | training_days_per_week | `between 2 and 7` | `1` | Violation |
-| profiles | training_days_per_week | `between 2 and 7` | `8` | Violation |
-| workout_days | day_number | `between 1 and 70` | `0` | Violation |
-| workout_days | day_number | `between 1 and 70` | `71` | Violation |
-| personal_records | time_seconds | `time_seconds > 0` | `-100` | Violation |
+| Tabela           | Kolumna                | Constraint                    | Invalid value | Expected error |
+| ---------------- | ---------------------- | ----------------------------- | ------------- | -------------- |
+| profiles         | age                    | `age > 0 and age < 120`       | `0`           | Violation      |
+| profiles         | age                    | `age > 0 and age < 120`       | `150`         | Violation      |
+| profiles         | weight                 | `weight > 0 and weight < 300` | `-5`          | Violation      |
+| profiles         | height                 | `height > 0 and height < 300` | `400`         | Violation      |
+| profiles         | training_days_per_week | `between 2 and 7`             | `1`           | Violation      |
+| profiles         | training_days_per_week | `between 2 and 7`             | `8`           | Violation      |
+| workout_days     | day_number             | `between 1 and 70`            | `0`           | Violation      |
+| workout_days     | day_number             | `between 1 and 70`            | `71`          | Violation      |
+| personal_records | time_seconds           | `time_seconds > 0`            | `-100`        | Violation      |
 
 **Test methodology**:
+
 - Direct INSERT/UPDATE z invalid values
 - Verify database rejects with constraint violation
 - Verify application-level Zod validation catches errors before DB
@@ -1248,13 +1340,15 @@ DELETE FROM training_plans WHERE id = 'plan-uuid';
 ### 5.1. Środowiska
 
 #### Development (Local)
+
 - **URL**: `http://localhost:3000`
 - **Node.js**: 22.14.0 (nvm)
 - **Database**: Supabase Local (Docker) lub Supabase Cloud (dev project)
 - **AI Service**: OpenRouter API (test API key z rate limiting)
-- **Auth**: SKIP_AUTH=true dla testów bez autentykacji
+- **Auth**: Standardowa autentykacja Supabase
 
 #### Staging
+
 - **URL**: `https://staging.athletica.app`
 - **Hosting**: DigitalOcean (Docker deployment)
 - **Database**: Supabase Cloud (staging project)
@@ -1262,6 +1356,7 @@ DELETE FROM training_plans WHERE id = 'plan-uuid';
 - **Auth**: Supabase Auth (staging configuration)
 
 #### Production
+
 - **URL**: `https://athletica.app`
 - **Hosting**: DigitalOcean (Docker deployment)
 - **Database**: Supabase Cloud (production project)
@@ -1280,9 +1375,6 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # OpenRouter
 OPENROUTER_API_KEY=sk-or-v1-xxx...
-
-# Development Mode (bypass auth)
-SKIP_AUTH=true  # tylko dla testów lokalnych!
 
 # Node Environment
 NODE_ENV=development
@@ -1307,6 +1399,7 @@ supabase db seed
 #### Test Data Seeding
 
 Przygotować seed scripts dla:
+
 - **Test users**: 5 użytkowników z różnymi rolami
 - **Profiles**: Complete profiles dla każdego użytkownika
 - **Training plans**: 2 aktywne plany, 3 historyczne
@@ -1319,12 +1412,14 @@ Przygotować seed scripts dla:
 ### 6.1. Automatyzacja testów
 
 #### Unit & Integration Tests
+
 - **Vitest**: Test runner dla unit i integration tests
 - **React Testing Library**: Testowanie React components
 - **Supertest**: Testowanie API endpoints
 - **MSW (Mock Service Worker)**: Mockowanie API calls (OpenRouter)
 
 #### E2E Tests
+
 - **Playwright**: Cross-browser E2E testing
   - Browsers: Chromium, Firefox, WebKit
   - Mobile emulation: iPhone, iPad, Android
@@ -1332,11 +1427,13 @@ Przygotować seed scripts dla:
   - Screenshots i videos on failure
 
 #### Performance Testing
+
 - **Lighthouse CI**: Automated performance audits
 - **WebPageTest**: Real-world performance testing
 - **k6**: Load testing dla API endpoints
 
 #### Security Testing
+
 - **OWASP ZAP**: Vulnerability scanning
 - **Supabase CLI**: RLS policy testing
 - **npm audit**: Dependency vulnerability scanning
@@ -1344,22 +1441,26 @@ Przygotować seed scripts dla:
 ### 6.2. Monitoring i raportowanie
 
 #### Test Reporting
+
 - **Vitest UI**: Interactive test results
 - **Playwright HTML Reporter**: E2E test reports z screenshots
 - **Allure**: Agregowane raporty testów
 
 #### CI/CD Integration
+
 - **GitHub Actions**: Automated test execution
   - Trigger: Pull request, push to main
   - Jobs: Unit tests, Integration tests, E2E tests, Lint
   - Artifacts: Test reports, screenshots, videos
 
 #### Error Tracking (Production)
+
 - **Sentry**: Frontend i backend error tracking
 - **Supabase Logs**: Database query logs
 - **Pino**: Structured logging (Node.js)
 
 ### 6.3. Accessibility Testing
+
 - **axe DevTools**: Browser extension dla accessibility audits
 - **Lighthouse Accessibility**: Automated a11y scoring
 - **NVDA / VoiceOver**: Manual screen reader testing
@@ -1371,6 +1472,7 @@ Przygotować seed scripts dla:
 ### 7.1. Fazy testowania
 
 #### Faza 1: Unit & Integration Tests (Tydzień 1-2)
+
 - **Czas trwania**: 10 dni roboczych
 - **Zakres**:
   - Implementacja unit tests dla services, utils, hooks
@@ -1380,6 +1482,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: Test suite z passing tests, coverage report
 
 #### Faza 2: E2E Tests (Tydzień 3)
+
 - **Czas trwania**: 5 dni roboczych
 - **Zakres**:
   - Implementacja Playwright E2E tests
@@ -1389,6 +1492,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: E2E test suite, browser compatibility matrix
 
 #### Faza 3: Security & RLS Testing (Tydzień 4)
+
 - **Czas trwania**: 5 dni roboczych
 - **Zakres**:
   - RLS policy verification
@@ -1398,6 +1502,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: Security audit report, RLS test results
 
 #### Faza 4: Performance Testing (Tydzień 4-5)
+
 - **Czas trwania**: 3 dni robocze
 - **Zakres**:
   - Lighthouse audits
@@ -1407,6 +1512,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: Performance report, bottleneck analysis
 
 #### Faza 5: Accessibility & Responsive Testing (Tydzień 5)
+
 - **Czas trwania**: 3 dni robocze
 - **Zakres**:
   - WCAG 2.1 AA compliance
@@ -1416,6 +1522,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: A11y audit report, responsive testing matrix
 
 #### Faza 6: Regression Testing (Tydzień 6)
+
 - **Czas trwania**: 3 dni robocze
 - **Zakres**:
   - Re-run all automated tests
@@ -1425,6 +1532,7 @@ Przygotować seed scripts dla:
 - **Deliverables**: Final test report, bug list
 
 #### Faza 7: UAT (User Acceptance Testing) (Tydzień 7)
+
 - **Czas trwania**: 5 dni roboczych
 - **Zakres**:
   - Beta testing z 10-20 użytkownikami
@@ -1498,12 +1606,14 @@ jobs:
 ### 8.1. Exit Criteria - Testy mogą być zakończone gdy:
 
 #### Kryteria ilościowe:
+
 - ✅ **Test Pass Rate**: ≥ 98% (wszystkie typy testów)
 - ✅ **Code Coverage**: ≥ 80% dla services/utils, ≥ 70% dla components
 - ✅ **E2E Test Coverage**: 100% kluczowych user flows
 - ✅ **Performance**: 100% Lighthouse scores ≥ 90 (Performance, Accessibility, Best Practices, SEO)
 
 #### Kryteria jakościowe:
+
 - ✅ **Zero Critical Bugs**: Brak błędów Critical lub Blocker
 - ✅ **High Priority Bugs**: ≤ 3 High priority bugs (z planem naprawy)
 - ✅ **Security**: Zero luk bezpieczeństwa High/Critical (OWASP ZAP)
@@ -1511,6 +1621,7 @@ jobs:
 - ✅ **Accessibility**: WCAG 2.1 AA compliance (≥ 95%)
 
 #### Dokumentacja:
+
 - ✅ Test reports wygenerowane i przejrzane
 - ✅ Bug tracking system zaktualizowany
 - ✅ Regression test suite kompletny
@@ -1519,22 +1630,26 @@ jobs:
 ### 8.2. Success Metrics
 
 #### Funkcjonalność:
+
 - **Auth Success Rate**: 100% (signup, login, password reset)
 - **Plan Generation Success Rate**: ≥ 95% (excluding AI service outages)
 - **Workout Toggle Success Rate**: 100%
 
 #### Wydajność:
+
 - **API Response Time (p95)**: < 2s (excluding AI generation)
 - **AI Generation Time (p95)**: < 15s
 - **Page Load Time (p95)**: < 2s
 - **First Contentful Paint**: < 1.5s
 
 #### Bezpieczeństwo:
+
 - **RLS Policy Pass Rate**: 100% (zero data leaks)
 - **Input Validation Pass Rate**: 100% (zero SQL injection / XSS)
 - **Auth Bypass Attempts**: 0 successful
 
 #### Dostępność:
+
 - **Keyboard Navigation**: 100% accessible
 - **Screen Reader Compatibility**: 100% critical flows navigable
 - **Color Contrast**: 100% WCAG AA compliant
@@ -1546,7 +1661,9 @@ jobs:
 ### 9.1. Zespół testowy
 
 #### QA Lead / Test Manager
+
 **Odpowiedzialność**:
+
 - Planowanie strategii testowej
 - Koordynacja działań zespołu testowego
 - Review test plans i test cases
@@ -1555,6 +1672,7 @@ jobs:
 - Sign-off na production readiness
 
 **Deliverables**:
+
 - Test Plan (ten dokument)
 - Test Status Reports (weekly)
 - Final Test Summary Report
@@ -1562,7 +1680,9 @@ jobs:
 ---
 
 #### QA Engineers (2 osoby)
+
 **Odpowiedzialność**:
+
 - Implementacja automated tests (E2E, Integration)
 - Wykonywanie manual exploratory testing
 - Testowanie regresji
@@ -1571,6 +1691,7 @@ jobs:
 - Koordynacja UAT z użytkownikami
 
 **Deliverables**:
+
 - Test cases w Jira/TestRail
 - Automated test scripts (Playwright)
 - Bug reports
@@ -1579,7 +1700,9 @@ jobs:
 ---
 
 #### Backend Developer
+
 **Odpowiedzialność**:
+
 - Unit tests dla services (`ai.service.ts`, `training-plan.service.ts`)
 - Integration tests dla API endpoints
 - Database schema testing (migrations, constraints)
@@ -1587,6 +1710,7 @@ jobs:
 - Performance optimization (API response times)
 
 **Deliverables**:
+
 - Unit test suite (Vitest)
 - API integration tests (Supertest)
 - RLS test scripts
@@ -1595,7 +1719,9 @@ jobs:
 ---
 
 #### Frontend Developer
+
 **Odpowiedzialność**:
+
 - Unit tests dla React components
 - Unit tests dla custom hooks (useOptimisticWorkouts, etc.)
 - Integration tests dla user flows
@@ -1604,6 +1730,7 @@ jobs:
 - Browser compatibility testing
 
 **Deliverables**:
+
 - Component tests (React Testing Library)
 - Hook tests (Vitest)
 - Accessibility audit results
@@ -1612,7 +1739,9 @@ jobs:
 ---
 
 #### DevOps Engineer
+
 **Odpowiedzialność**:
+
 - CI/CD pipeline setup (GitHub Actions)
 - Test environment provisioning (Staging, UAT)
 - Database migrations w test environments
@@ -1620,6 +1749,7 @@ jobs:
 - Monitoring i logging setup (Sentry, Supabase Logs)
 
 **Deliverables**:
+
 - CI/CD workflows (.github/workflows)
 - Staging environment
 - Performance test scripts (k6)
@@ -1628,7 +1758,9 @@ jobs:
 ---
 
 #### Product Owner
+
 **Odpowiedzialność**:
+
 - Definicja acceptance criteria
 - Priorytetyzacja bug fixes
 - UAT coordination
@@ -1636,6 +1768,7 @@ jobs:
 - Stakeholder communication
 
 **Deliverables**:
+
 - User stories z acceptance criteria
 - UAT test scenarios
 - Production deployment approval
@@ -1645,6 +1778,7 @@ jobs:
 ### 9.2. Struktura komunikacji
 
 #### Daily Standups (15 min)
+
 - **Uczestnicy**: Cały zespół
 - **Agenda**:
   - Co zrobiono wczoraj (testing progress)
@@ -1652,6 +1786,7 @@ jobs:
   - Blockers i dependencies
 
 #### Test Status Meetings (30 min, 2x tydzień)
+
 - **Uczestnicy**: QA Lead, QA Engineers, Developers
 - **Agenda**:
   - Test execution status (pass/fail rates)
@@ -1660,6 +1795,7 @@ jobs:
   - Adjustments do test plan
 
 #### Bug Triage Meetings (45 min, weekly)
+
 - **Uczestnicy**: Cały zespół
 - **Agenda**:
   - Review new bugs
@@ -1676,54 +1812,65 @@ jobs:
 #### Obowiązkowe pola:
 
 **Summary**: Krótki, opisowy tytuł (max 80 znaków)
+
 - ✅ Dobry: "Login fails with 500 error when email contains special characters"
 - ❌ Zły: "Login broken"
 
 **Description**: Szczegółowy opis problemu
+
 ```markdown
 ## Opis
+
 Użytkownik nie może się zalogować gdy email zawiera znak "+" (np. test+alias@example.com).
 API zwraca 500 Internal Server Error.
 
 ## Environment
+
 - URL: https://staging.athletica.app/auth/login
 - Browser: Chrome 120.0.6099.109
 - OS: macOS 14.2
 - User: test+bug@example.com
 
 ## Kroki reprodukcji
+
 1. Nawiguj do /auth/login
 2. Wprowadź email: test+alias@example.com
 3. Wprowadź hasło: Test1234!
 4. Kliknij "Zaloguj się"
 
 ## Oczekiwany rezultat
+
 Użytkownik zostaje zalogowany i przekierowany do /dashboard
 
 ## Aktualny rezultat
+
 - Error toast: "Internal server error"
 - Console error: "POST /api/auth/login 500"
 - User pozostaje na stronie logowania
 
 ## Dodatkowe informacje
+
 - Network tab screenshot: [załącznik]
 - Console logs: [załącznik]
 - Podobny issue: ATHS-123
 ```
 
 **Severity** (wybierz jedną):
+
 - **Critical**: System crash, data loss, security breach
 - **High**: Major functionality broken, no workaround
 - **Medium**: Functionality broken, workaround exists
 - **Low**: Minor issue, cosmetic, edge case
 
 **Priority** (wybierz jedną):
+
 - **P0**: Blocker - must fix before deployment
 - **P1**: High - fix in current sprint
 - **P2**: Medium - fix in next sprint
 - **P3**: Low - backlog
 
 **Component**: (wybierz z listy)
+
 - Auth
 - Survey
 - Dashboard
@@ -1735,6 +1882,7 @@ Użytkownik zostaje zalogowany i przekierowany do /dashboard
 - Accessibility
 
 **Attachments**:
+
 - Screenshots (required dla UI bugs)
 - Console logs
 - Network tab HAR file
@@ -1766,24 +1914,28 @@ Alternative paths:
 #### Severity Assignment Guidelines:
 
 **Critical**:
+
 - Authentication nie działa (100% users affected)
 - Data loss lub corruption
 - Security vulnerability (RLS bypass, XSS, SQL injection)
 - Payment processing broken (if applicable)
 
 **High**:
+
 - Kluczowa funkcjonalność nie działa (plan generation fails)
 - Significant UX degradation
 - Performance degradation > 50%
 - Accessibility blocker (WCAG AA violation)
 
 **Medium**:
+
 - Funkcjonalność działa ale z błędami
 - Minor UX issues
 - Performance degradation 20-50%
 - Workaround exists but inconvenient
 
 **Low**:
+
 - Cosmetic issues (text alignment, colors)
 - Edge cases affecting < 5% users
 - Minor performance degradation < 20%
@@ -1794,6 +1946,7 @@ Alternative paths:
 ### 10.4. Bug Reporting Guidelines
 
 #### Dla QA:
+
 1. **Reproduce consistently** przed reportowaniem
 2. **Sprawdź duplicates** w Jira
 3. **Attach evidence**: screenshots, logs, videos
@@ -1802,6 +1955,7 @@ Alternative paths:
 6. **Include version info**: Environment, browser, build number
 
 #### Dla Developers:
+
 1. **Root cause analysis** w komentarzach
 2. **Link related code** (GitHub commit, PR)
 3. **Add fix verification steps** dla QA
@@ -1814,18 +1968,18 @@ Alternative paths:
 
 ### 11.1. Ryzyka testowe
 
-| Ryzyko | Prawdopodobieństwo | Wpływ | Mitygacja |
-|--------|-------------------|-------|-----------|
-| **OpenRouter AI unavailable podczas testów** | Średnie | Wysoki | Mock AI responses w testach, retry logic, fallback test data |
-| **RLS policies incorrectly configured** | Niskie | Krytyczny | Automated RLS tests, peer review, security audit |
-| **Test data corruption** | Niskie | Średni | Database snapshots, seed scripts, separate test DB |
-| **Browser compatibility issues** | Średnie | Średni | Playwright multi-browser testing, BrowserStack |
-| **Performance regression** | Średnie | Wysoki | Lighthouse CI, performance budgets, k6 load tests |
-| **Insufficient test coverage** | Średnie | Wysoki | Code coverage thresholds (80%), mandatory PR checks |
-| **Late discovery of critical bugs** | Niskie | Krytyczny | Early integration testing, daily test runs, shift-left approach |
-| **Test environment instability** | Średnie | Średni | Infrastructure as Code, automated provisioning, health checks |
-| **Accessibility violations** | Średnie | Średni | Automated a11y testing (axe), manual screen reader testing |
-| **Dependency vulnerabilities** | Średnie | Wysoki | npm audit w CI/CD, Dependabot alerts, regular updates |
+| Ryzyko                                       | Prawdopodobieństwo | Wpływ     | Mitygacja                                                       |
+| -------------------------------------------- | ------------------ | --------- | --------------------------------------------------------------- |
+| **OpenRouter AI unavailable podczas testów** | Średnie            | Wysoki    | Mock AI responses w testach, retry logic, fallback test data    |
+| **RLS policies incorrectly configured**      | Niskie             | Krytyczny | Automated RLS tests, peer review, security audit                |
+| **Test data corruption**                     | Niskie             | Średni    | Database snapshots, seed scripts, separate test DB              |
+| **Browser compatibility issues**             | Średnie            | Średni    | Playwright multi-browser testing, BrowserStack                  |
+| **Performance regression**                   | Średnie            | Wysoki    | Lighthouse CI, performance budgets, k6 load tests               |
+| **Insufficient test coverage**               | Średnie            | Wysoki    | Code coverage thresholds (80%), mandatory PR checks             |
+| **Late discovery of critical bugs**          | Niskie             | Krytyczny | Early integration testing, daily test runs, shift-left approach |
+| **Test environment instability**             | Średnie            | Średni    | Infrastructure as Code, automated provisioning, health checks   |
+| **Accessibility violations**                 | Średnie            | Średni    | Automated a11y testing (axe), manual screen reader testing      |
+| **Dependency vulnerabilities**               | Średnie            | Wysoki    | npm audit w CI/CD, Dependabot alerts, regular updates           |
 
 ### 11.2. Strategia mitygacji
 
@@ -1944,6 +2098,7 @@ Plan testów dla projektu **Athletica** obejmuje kompleksowe podejście do zapew
 ### 13.2. Priorytety testowe
 
 **P0 (Must Have przed production)**:
+
 - Autentykacja i autoryzacja
 - Generowanie planów AI
 - RLS policies verification
@@ -1951,6 +2106,7 @@ Plan testów dla projektu **Athletica** obejmuje kompleksowe podejście do zapew
 - Critical user flows (signup → survey → dashboard)
 
 **P1 (Should Have przed production)**:
+
 - Password reset flow
 - Survey validation
 - Performance benchmarks
@@ -1958,6 +2114,7 @@ Plan testów dla projektu **Athletica** obejmuje kompleksowe podejście do zapew
 - Cross-browser compatibility
 
 **P2 (Nice to Have)**:
+
 - Advanced performance optimization
 - Edge case handling
 - Comprehensive exploratory testing
@@ -2007,6 +2164,7 @@ Projekt jest gotowy do production deployment gdy:
 ## Appendix B: Test Data Examples
 
 ### Example Profile Data
+
 ```json
 {
   "goal_distance": "Half Marathon",
@@ -2020,15 +2178,17 @@ Projekt jest gotowy do production deployment gdy:
 ```
 
 ### Example Personal Records
+
 ```json
 [
-  {"distance": "5K", "time_seconds": 1350},
-  {"distance": "10K", "time_seconds": 2880},
-  {"distance": "Half Marathon", "time_seconds": 6300}
+  { "distance": "5K", "time_seconds": 1350 },
+  { "distance": "10K", "time_seconds": 2880 },
+  { "distance": "Half Marathon", "time_seconds": 6300 }
 ]
 ```
 
 ### Example Workout Day
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",

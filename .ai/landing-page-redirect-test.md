@@ -88,7 +88,6 @@ if (user && context.url.pathname === "/") {
 - Middleware działa na każdym requeście (export const onRequest)
 - Sprawdzenie autentykacji jest asynchroniczne (async/await)
 - Używa context.locals.supabase (nie direct import)
-- SKIP_AUTH=true bypasuje sprawdzanie (dev mode)
 
 ### Edge cases
 

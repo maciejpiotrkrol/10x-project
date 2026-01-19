@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Setup project
         uses: ./.github/actions/setup-node-project
 
@@ -23,6 +26,9 @@ jobs:
     continue-on-error: true
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Setup project
         uses: ./.github/actions/setup-node-project
 
@@ -35,6 +41,9 @@ jobs:
     needs: lint
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Setup project
         uses: ./.github/actions/setup-node-project
 
@@ -64,6 +73,9 @@ jobs:
       E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Setup project
         uses: ./.github/actions/setup-node-project
 

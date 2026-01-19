@@ -73,13 +73,14 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
         showCloseButton={state !== "loading"}
         onPointerDownOutside={(e) => state === "loading" && e.preventDefault()}
         onEscapeKeyDown={(e) => state === "loading" && e.preventDefault()}
+        data-testid="loading-modal"
       >
         {/* Loading State */}
         {state === "loading" && (
           <>
             <DialogHeader>
               <div className="flex flex-col items-center gap-4 py-4">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <Loader2 className="h-12 w-12 animate-spin text-primary" data-testid="loading-spinner" />
                 <DialogTitle className="text-center">Generowanie planu treningowego</DialogTitle>
               </div>
             </DialogHeader>
@@ -117,12 +118,12 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
 
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                 {onRetry && (
-                  <Button onClick={onRetry} className="w-full sm:w-auto">
+                  <Button onClick={onRetry} className="w-full sm:w-auto" data-testid="loading-error-retry">
                     Spróbuj ponownie
                   </Button>
                 )}
                 {onClose && (
-                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
+                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto" data-testid="loading-error-close">
                     Zamknij
                   </Button>
                 )}
@@ -151,12 +152,12 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
 
               <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                 {onRetry && (
-                  <Button onClick={onRetry} className="w-full sm:w-auto">
+                  <Button onClick={onRetry} className="w-full sm:w-auto" data-testid="loading-error-retry">
                     Spróbuj ponownie
                   </Button>
                 )}
                 {onClose && (
-                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto">
+                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto" data-testid="loading-error-close">
                     Zamknij
                   </Button>
                 )}

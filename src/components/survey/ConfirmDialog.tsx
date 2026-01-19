@@ -26,7 +26,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ isOpen, onConfirm, onCancel }: ConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" data-testid="confirm-dialog">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
@@ -44,10 +44,10 @@ export function ConfirmDialog({ isOpen, onConfirm, onCancel }: ConfirmDialogProp
         <DialogDescription className="text-base pt-2">Czy na pewno chcesz kontynuować?</DialogDescription>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} data-testid="confirm-dialog-cancel">
             Anuluj
           </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm}>
+          <Button type="button" variant="destructive" onClick={onConfirm} data-testid="confirm-dialog-confirm">
             Tak, wygeneruj nowy plan
           </Button>
         </DialogFooter>

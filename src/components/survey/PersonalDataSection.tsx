@@ -27,7 +27,7 @@ export function PersonalDataSection() {
               <FormLabel>Wiek</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="1" max="119" step="1" {...field} className="pr-12" />
+                  <Input type="number" placeholder="0" min="1" max="119" step="1" {...field} className="pr-12" data-testid="age-input" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">lat</span>
               </div>
@@ -46,7 +46,7 @@ export function PersonalDataSection() {
               <FormLabel>Waga</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="0" max="300" step="0.1" {...field} className="pr-12" />
+                  <Input type="number" placeholder="0" min="0" max="300" step="0.1" {...field} className="pr-12" data-testid="weight-input" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">kg</span>
               </div>
@@ -65,7 +65,7 @@ export function PersonalDataSection() {
               <FormLabel>Wzrost</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="0" max="300" step="1" {...field} className="pr-12" />
+                  <Input type="number" placeholder="0" min="0" max="300" step="1" {...field} className="pr-12" data-testid="height-input" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">cm</span>
               </div>
@@ -86,13 +86,13 @@ export function PersonalDataSection() {
                 <RadioGroup onValueChange={field.onChange} value={field.value} className="flex flex-col space-y-1">
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="M" />
+                      <RadioGroupItem value="M" data-testid="gender-male-radio" />
                     </FormControl>
                     <FormLabel className="font-normal cursor-pointer">Mężczyzna</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="F" />
+                      <RadioGroupItem value="F" data-testid="gender-female-radio" />
                     </FormControl>
                     <FormLabel className="font-normal cursor-pointer">Kobieta</FormLabel>
                   </FormItem>

@@ -28,7 +28,7 @@ export function TrainingGoalsSection() {
               <FormLabel>Dystans docelowy</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="goal-distance-select">
                     <SelectValue placeholder="Wybierz dystans" />
                   </SelectTrigger>
                 </FormControl>
@@ -54,7 +54,7 @@ export function TrainingGoalsSection() {
               <FormLabel>Średni tygodniowy kilometraż</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" step="0.1" min="0" {...field} className="pr-12" />
+                  <Input type="number" placeholder="0" step="0.1" min="0" {...field} className="pr-12" data-testid="weekly-km-input" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">km</span>
               </div>
@@ -73,7 +73,7 @@ export function TrainingGoalsSection() {
               <FormLabel>Liczba dni treningowych w tygodniu</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="2" max="7" step="1" {...field} className="pr-28" />
+                  <Input type="number" placeholder="0" min="2" max="7" step="1" {...field} className="pr-28" data-testid="training-days-input" />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                   dni/tydzień

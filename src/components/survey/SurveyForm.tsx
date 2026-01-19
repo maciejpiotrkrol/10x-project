@@ -154,7 +154,7 @@ export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: Surv
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" data-testid="survey-form">
           {/* Training Goals Section */}
           <TrainingGoalsSection />
 
@@ -169,7 +169,7 @@ export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: Surv
 
           {/* Submit Button */}
           <div className="flex justify-end">
-            <Button type="submit" size="lg" disabled={form.formState.isSubmitting} className="min-w-[200px]">
+            <Button type="submit" size="lg" disabled={form.formState.isSubmitting} className="min-w-[200px]" data-testid="survey-submit-button">
               {form.formState.isSubmitting ? "Generowanie..." : "Wygeneruj plan"}
             </Button>
           </div>

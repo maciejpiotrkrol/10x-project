@@ -54,7 +54,7 @@ export function TrainingPlanView({ trainingPlan }: TrainingPlanViewProps) {
   }, [workouts]);
 
   return (
-    <main className="container mx-auto px-4 py-8 space-y-6" role="main" aria-label="Widok planu treningowego">
+    <main className="container mx-auto px-4 py-8 space-y-6" role="main" aria-label="Widok planu treningowego" data-testid="training-plan-view">
       <PlanHeader trainingPlan={trainingPlan} completionStats={completionStats} />
 
       <section className="space-y-4" aria-label="10 tygodni planu treningowego">

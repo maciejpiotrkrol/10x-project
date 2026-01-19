@@ -89,6 +89,7 @@ export function LoginForm() {
               placeholder="twoj@email.com"
               aria-invalid={!!errors.email}
               disabled={isSubmitting}
+              data-testid="login-email-input"
               {...register("email")}
             />
             {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
@@ -103,6 +104,7 @@ export function LoginForm() {
               placeholder="Twoje hasło"
               aria-invalid={!!errors.password}
               disabled={isSubmitting}
+              data-testid="login-password-input"
               {...register("password")}
             />
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
@@ -117,14 +119,14 @@ export function LoginForm() {
 
           {/* Błąd ogólny */}
           {generalError && (
-            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
+            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20" data-testid="login-error-message">
               <p className="text-sm text-destructive">{generalError}</p>
             </div>
           )}
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" className="w-full" disabled={isSubmitting} data-testid="login-submit-button">
             {isSubmitting ? "Logowanie..." : "Zaloguj się"}
           </Button>
 

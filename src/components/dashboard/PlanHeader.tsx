@@ -21,7 +21,7 @@ export function PlanHeader({ trainingPlan, completionStats }: PlanHeaderProps) {
   const percentageText = completionStats.completion_percentage.toFixed(0);
 
   return (
-    <Card role="region" aria-label="Podsumowanie planu treningowego">
+    <Card role="region" aria-label="Podsumowanie planu treningowego" data-testid="plan-header">
       <CardHeader>
         <CardTitle>Twój plan treningowy</CardTitle>
         <p className="text-sm text-muted-foreground" aria-label={`Zakres dat: od ${startDate} do ${endDate}`}>
@@ -29,7 +29,7 @@ export function PlanHeader({ trainingPlan, completionStats }: PlanHeaderProps) {
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2" role="status" aria-live="polite">
+        <div className="space-y-2" role="status" aria-live="polite" data-testid="plan-completion-stats">
           <div className="flex justify-between text-sm">
             <span id="workout-stats-label">Wykonane treningi:</span>
             <span className="font-semibold" aria-labelledby="workout-stats-label">

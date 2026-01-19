@@ -19,7 +19,7 @@ export function DisclaimerSection() {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Disclaimer Text */}
-        <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+        <ScrollArea className="h-[200px] w-full rounded-md border p-4" data-testid="disclaimer-text">
           <div className="text-sm text-muted-foreground space-y-3">
             <p>Przed rozpoczęciem jakiejkolwiek aktywności fizycznej zalecamy konsultację z lekarzem.</p>
             <p>
@@ -50,7 +50,7 @@ export function DisclaimerSection() {
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} data-testid="disclaimer-checkbox" />
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="cursor-pointer">

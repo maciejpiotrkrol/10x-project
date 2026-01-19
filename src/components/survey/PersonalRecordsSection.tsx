@@ -56,7 +56,7 @@ export function PersonalRecordsSection() {
                     <FormLabel>Dystans</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger data-testid={`record-distance-select-${index}`}>
                           <SelectValue placeholder="Wybierz dystans" />
                         </SelectTrigger>
                       </FormControl>
@@ -81,7 +81,7 @@ export function PersonalRecordsSection() {
                     <FormLabel>Czas</FormLabel>
                     <div className="relative">
                       <FormControl>
-                        <Input type="number" placeholder="0" min="0" step="1" {...field} className="pr-20" />
+                        <Input type="number" placeholder="0" min="0" step="1" {...field} className="pr-20" data-testid={`record-time-input-${index}`} />
                       </FormControl>
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         sekund
@@ -101,6 +101,7 @@ export function PersonalRecordsSection() {
                 onClick={() => handleRemoveRecord(index)}
                 disabled={fields.length === 1}
                 className="w-full"
+                data-testid={`remove-record-button-${index}`}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Usuń rekord
@@ -110,7 +111,7 @@ export function PersonalRecordsSection() {
         </div>
 
         {/* Add Record Button */}
-        <Button type="button" variant="outline" onClick={handleAddRecord} className="w-full">
+        <Button type="button" variant="outline" onClick={handleAddRecord} className="w-full" data-testid="add-record-button">
           <Plus className="h-4 w-4 mr-2" />
           Dodaj kolejny rekord
         </Button>

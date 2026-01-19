@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -89,3 +90,5 @@ export default defineConfig({
     timeout: 120000,
   },
 });
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });

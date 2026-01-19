@@ -167,19 +167,18 @@ Funkcjonalności planowane po MVP:
 
 **Zakres**:
 
-**Scenariusz 1: Rejestracja i pierwsze użycie**
+**Scenariusz 1: Logowanie i pierwsze użycie**
 
 1. Odwiedzenie strony głównej
-2. Kliknięcie "Zarejestruj się"
-3. Wypełnienie formularza rejestracji (email, hasło)
-4. Potwierdzenie emaila (jeśli wymagane)
-5. Logowanie
-6. Wypełnienie ankiety (wszystkie sekcje)
-7. Zaakceptowanie disclaimer
-8. Kliknięcie "Generuj plan"
-9. Oczekiwanie na wygenerowanie planu (loading modal)
-10. Przekierowanie do dashboardu
-11. Weryfikacja wyświetlenia planu treningowego
+2. Kliknięcie "Zaloguj się"
+3. Wypełnienie formularza logowania (email, hasło)
+4. Logowanie
+5. Wypełnienie ankiety (wszystkie sekcje)
+6. Zaakceptowanie disclaimer
+7. Kliknięcie "Generuj plan"
+8. Oczekiwanie na wygenerowanie planu (loading modal)
+9. Przekierowanie do dashboardu
+10. Weryfikacja wyświetlenia planu treningowego
 
 **Scenariusz 2: Logowanie i zarządzanie planem**
 

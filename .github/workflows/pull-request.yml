@@ -14,14 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup project
+        uses: ./.github/actions/setup-node-project
 
       - name: Run linter
         run: npm run lint
@@ -35,14 +29,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup project
+        uses: ./.github/actions/setup-node-project
 
       - name: Run security audit
         run: npm audit --audit-level=moderate
@@ -56,14 +44,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup project
+        uses: ./.github/actions/setup-node-project
 
       - name: Run unit tests with coverage
         run: npm run test:coverage
@@ -94,14 +76,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup project
+        uses: ./.github/actions/setup-node-project
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox

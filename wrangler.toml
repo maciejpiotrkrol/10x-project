@@ -1,0 +1,9 @@
+# Cloudflare Pages configuration
+# Project name will be set via --project-name flag in deployment
+compatibility_date = "2026-01-19"
+
+# Pages configuration
+pages_build_output_dir = "dist"
+
+# Environment variables can be set in Cloudflare dashboard
+# or passed via GitHub Actions secrets

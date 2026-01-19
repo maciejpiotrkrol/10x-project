@@ -17,9 +17,9 @@ test.describe("Login Flow", () => {
     // TC-AUTH-002-NEG-3: Empty fields should show validation errors
     await page.getByRole("button", { name: /zaloguj/i }).click();
 
-    // Wait for validation messages to appear (longer timeout for slow browsers)
+    // Wait for validation messages to appear (longer timeout for mobile browsers)
     await expect(page.locator("text=/jest wymagany|jest wymagane/i").first()).toBeVisible({
-      timeout: 10000
+      timeout: 15000
     });
   });
 

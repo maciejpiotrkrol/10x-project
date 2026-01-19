@@ -93,7 +93,7 @@ export class SurveyPage {
       "5K": "5K",
       "10K": "10K",
       "Half Marathon": "Półmaraton",
-      "Marathon": "Maraton",
+      Marathon: "Maraton",
     };
 
     // Kliknij select i wybierz dystans
@@ -155,7 +155,7 @@ export class SurveyPage {
       "5K": "5K",
       "10K": "10K",
       "Half Marathon": "Półmaraton",
-      "Marathon": "Maraton",
+      Marathon: "Maraton",
     };
 
     // Jeśli jest więcej niż 1 rekord, dodaj brakujące

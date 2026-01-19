@@ -50,7 +50,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (user) {
     context.locals.user = {
       id: user.id,
-      email: user.email!,
+      email: user.email ?? "",
     };
   } else {
     context.locals.user = null;

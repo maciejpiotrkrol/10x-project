@@ -19,7 +19,7 @@ test.describe("Login Flow", () => {
 
     // Wait for validation messages to appear (longer timeout for mobile browsers)
     await expect(page.locator("text=/jest wymagany|jest wymagane/i").first()).toBeVisible({
-      timeout: 15000
+      timeout: 15000,
     });
   });
 

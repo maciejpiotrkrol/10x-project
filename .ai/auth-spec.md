@@ -5,12 +5,14 @@
 ### 1.1. Przegląd struktury stron i layoutów
 
 #### Strony publiczne (non-auth)
+
 - **`src/pages/index.astro`** - Landing page (istniejąca, wymaga aktualizacji linku)
   - Aktualnie przekierowuje zalogowanych użytkowników do `/dashboard` (middleware)
   - Link "Zacznij za darmo" musi wskazywać na `/auth/signup` zamiast obecnego
   - Brak zmian w strukturze, jedynie aktualizacja href w komponencie Button
 
 #### Nowe strony autentykacji (non-auth)
+
 - **`src/pages/auth/signup.astro`** - Strona rejestracji
   - Layout: `Layout.astro` (podstawowy layout bez nawigacji)
   - Tytuł: "Rejestracja - Athletica"
@@ -46,7 +48,9 @@
   - Może zawierać przycisk do ponownego wysłania emaila
 
 #### Strony chronione (auth)
+
 Istniejące strony wymagające autentykacji:
+
 - **`src/pages/dashboard.astro`** - wymaga sprawdzenia auth i redirect do `/auth/login` przy 401
 - **`src/pages/profile.astro`** - wymaga sprawdzenia auth i redirect do `/auth/login` przy 401
 - **`src/pages/survey.astro`** - wymaga sprawdzenia auth i redirect do `/auth/login` przy 401
@@ -54,9 +58,11 @@ Istniejące strony wymagające autentykacji:
 ### 1.2. Komponenty React do formularzy autentykacji
 
 #### SignupForm (`src/components/auth/SignupForm.tsx`)
+
 **Odpowiedzialność**: Formularz rejestracji użytkownika
 
 **Stan komponentu**:
+
 ```typescript
 interface SignupFormState {
   email: string;
@@ -73,11 +79,13 @@ interface SignupFormState {
 ```
 
 **Walidacja client-side**:
+
 - Email: format email (regex), wymagane
 - Hasło: min. 8 znaków, wymagane
 - Potwierdzenie hasła: musi być identyczne z hasłem
 
 **Komunikaty błędów**:
+
 - Email nieprawidłowy: "Podaj prawidłowy adres email"
 - Hasło za krótkie: "Hasło musi mieć co najmniej 8 znaków"
 - Hasła różne: "Hasła muszą być identyczne"
@@ -85,6 +93,7 @@ interface SignupFormState {
 - Błąd sieciowy: "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
 
 **Przebieg akcji**:
+
 1. Użytkownik wypełnia formularz (email, hasło, potwierdzenie hasła)
 2. Po kliknięciu "Zarejestruj się" - walidacja client-side
 3. Jeśli walidacja OK - wywołanie `POST /api/auth/signup` z body: `{ email, password }`
@@ -97,6 +106,7 @@ interface SignupFormState {
    - 500: Wyświetlenie błędu ogólnego
 
 **Elementy UI**:
+
 - Input type="email" dla adresu email
 - Input type="password" dla hasła
 - Input type="password" dla potwierdzenia hasła
@@ -105,9 +115,11 @@ interface SignupFormState {
 - Link do strony logowania: "Masz już konto? Zaloguj się"
 
 #### LoginForm (`src/components/auth/LoginForm.tsx`)
+
 **Odpowiedzialność**: Formularz logowania użytkownika
 
 **Stan komponentu**:
+
 ```typescript
 interface LoginFormState {
   email: string;
@@ -122,16 +134,19 @@ interface LoginFormState {
 ```
 
 **Walidacja client-side**:
+
 - Email: format email, wymagane
 - Hasło: wymagane
 
 **Komunikaty błędów**:
+
 - Email nieprawidłowy: "Podaj prawidłowy adres email"
 - Pola puste: "To pole jest wymagane"
 - Błędne dane (z API): "Nieprawidłowy email lub hasło"
 - Błąd sieciowy: "Wystąpił błąd podczas logowania. Spróbuj ponownie."
 
 **Przebieg akcji**:
+
 1. Użytkownik wypełnia formularz (email, hasło)
 2. Po kliknięciu "Zaloguj się" - walidacja client-side
 3. Jeśli walidacja OK - wywołanie `POST /api/auth/login` z body: `{ email, password }`
@@ -144,6 +159,7 @@ interface LoginFormState {
    - 500: Wyświetlenie błędu ogólnego
 
 **Elementy UI**:
+
 - Input type="email" dla adresu email
 - Input type="password" dla hasła
 - Button typu submit z tekstem "Zaloguj się"
@@ -152,9 +168,11 @@ interface LoginFormState {
 - Link do rejestracji: "Nie masz konta? Zarejestruj się"
 
 #### ForgotPasswordForm (`src/components/auth/ForgotPasswordForm.tsx`)
+
 **Odpowiedzialność**: Formularz żądania resetowania hasła
 
 **Stan komponentu**:
+
 ```typescript
 interface ForgotPasswordFormState {
   email: string;
@@ -168,15 +186,18 @@ interface ForgotPasswordFormState {
 ```
 
 **Walidacja client-side**:
+
 - Email: format email, wymagane
 
 **Komunikaty**:
+
 - Sukces: "Jeśli podany adres email istnieje w systemie, wysłaliśmy na niego link do resetowania hasła. Sprawdź swoją skrzynkę."
 - Email nieprawidłowy: "Podaj prawidłowy adres email"
 - Błąd sieciowy: "Wystąpił błąd. Spróbuj ponownie."
 - UWAGA: Komunikat sukcesu nie ujawnia, czy email istnieje w systemie (security best practice)
 
 **Przebieg akcji**:
+
 1. Użytkownik wpisuje email
 2. Po kliknięciu "Wyślij link resetujący" - walidacja client-side
 3. Jeśli walidacja OK - wywołanie `POST /api/auth/forgot-password` z body: `{ email }`
@@ -189,6 +210,7 @@ interface ForgotPasswordFormState {
    - UWAGA: Nawet jeśli email nie istnieje, zwracamy 200 (security best practice - nie ujawniamy, czy email jest w systemie)
 
 **Elementy UI**:
+
 - Input type="email" dla adresu email
 - Button typu submit z tekstem "Wyślij link resetujący"
 - Spinner/disabled state podczas submitting
@@ -196,9 +218,11 @@ interface ForgotPasswordFormState {
 - Link powrotny: "Powrót do logowania"
 
 #### ResetPasswordForm (`src/components/auth/ResetPasswordForm.tsx`)
+
 **Odpowiedzialność**: Formularz ustawiania nowego hasła po otrzymaniu linku resetującego
 
 **Stan komponentu**:
+
 ```typescript
 interface ResetPasswordFormState {
   password: string;
@@ -215,16 +239,19 @@ interface ResetPasswordFormState {
 ```
 
 **Walidacja client-side**:
+
 - Hasło: min. 8 znaków, wymagane
 - Potwierdzenie hasła: musi być identyczne z hasłem
 
 **Komunikaty błędów**:
+
 - Hasło za krótkie: "Hasło musi mieć co najmniej 8 znaków"
 - Hasła różne: "Hasła muszą być identyczne"
 - Token nieważny (z API): "Link resetujący wygasł lub jest nieprawidłowy. Poproś o nowy."
 - Błąd sieciowy: "Wystąpił błąd. Spróbuj ponownie."
 
 **Przebieg akcji**:
+
 1. Użytkownik przechodzi na stronę z linku resetującego (zawiera token w URL)
 2. Komponent pobiera token z URL (useEffect przy montowaniu)
 3. Użytkownik wpisuje nowe hasło i potwierdza
@@ -238,6 +265,7 @@ interface ResetPasswordFormState {
    - 500: Wyświetlenie błędu ogólnego
 
 **Elementy UI**:
+
 - Input type="password" dla nowego hasła
 - Input type="password" dla potwierdzenia hasła
 - Button typu submit z tekstem "Zmień hasło"
@@ -249,6 +277,7 @@ interface ResetPasswordFormState {
 **Lokalizacja**: `src/components/navigation/Navbar.astro`
 
 **Wymagane zmiany**:
+
 - Zamienić formularze wylogowania (`<form action="/api/auth/signout" method="post">`) na wywołanie endpoint API
 - Endpoint wylogowania: `POST /api/auth/signout`
 - Po pomyślnym wylogowaniu (200) - przekierowanie na `/auth/login` (strona logowania)
@@ -261,36 +290,41 @@ interface ResetPasswordFormState {
 **Lokalizacja**: `src/middleware/index.ts`
 
 **Aktualne zachowanie**:
+
 - Sprawdza sesję użytkownika przez `auth.getUser()`
 - Przekierowuje zalogowanych z `/` na `/dashboard`
 
 **Wymagane rozszerzenie**:
+
 - Dodać listę stron publicznych (whitelist): `/`, `/auth/signup`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`
 - Dla wszystkich innych stron (dashboard, profile, survey) - wymagać autentykacji
 - Jeśli użytkownik niezalogowany próbuje dostać się na chronioną stronę - redirect na `/auth/login`
 - Jeśli użytkownik zalogowany próbuje dostać się na stronę auth - redirect na `/dashboard`
 
 **Logika middleware** (pseudokod):
+
 ```typescript
-const publicPaths = ['/', '/auth/signup', '/auth/login', '/auth/forgot-password', '/auth/reset-password'];
-const authPaths = ['/auth/signup', '/auth/login', '/auth/forgot-password', '/auth/reset-password'];
+const publicPaths = ["/", "/auth/signup", "/auth/login", "/auth/forgot-password", "/auth/reset-password"];
+const authPaths = ["/auth/signup", "/auth/login", "/auth/forgot-password", "/auth/reset-password"];
 const currentPath = context.url.pathname;
 
-const { data: { user } } = await context.locals.supabase.auth.getUser();
+const {
+  data: { user },
+} = await context.locals.supabase.auth.getUser();
 
 // Zalogowany użytkownik na stronie auth -> redirect na dashboard
 if (user && authPaths.includes(currentPath)) {
-  return context.redirect('/dashboard');
+  return context.redirect("/dashboard");
 }
 
 // Zalogowany użytkownik na landing page -> redirect na dashboard (obecne)
-if (user && currentPath === '/') {
-  return context.redirect('/dashboard');
+if (user && currentPath === "/") {
+  return context.redirect("/dashboard");
 }
 
 // Niezalogowany użytkownik próbuje dostać się na chronioną stronę
 if (!user && !publicPaths.includes(currentPath)) {
-  return context.redirect('/auth/login');
+  return context.redirect("/auth/login");
 }
 
 return next();
@@ -301,6 +335,7 @@ return next();
 #### US-001: Rejestracja nowego użytkownika
 
 **Happy path**:
+
 1. Użytkownik odwiedza landing page (`/`)
 2. Klika "Zacznij za darmo" -> przekierowanie na `/auth/signup`
 3. Wypełnia formularz: email, hasło, potwierdzenie hasła
@@ -312,6 +347,7 @@ return next();
 6. Użytkownik przekierowany na `/survey` (pierwsza ankieta)
 
 **Error paths**:
+
 - Email już istnieje -> wyświetlenie błędu "Użytkownik o podanym adresie email już istnieje"
 - Hasła nie pasują -> walidacja client-side, komunikat "Hasła muszą być identyczne"
 - Błąd sieciowy -> komunikat "Wystąpił błąd podczas rejestracji. Spróbuj ponownie."
@@ -319,6 +355,7 @@ return next();
 #### US-002: Logowanie do systemu
 
 **Happy path**:
+
 1. Użytkownik odwiedza `/auth/login` (lub jest przekierowany z chronionej strony)
 2. Wypełnia formularz: email, hasło
 3. Klika "Zaloguj się"
@@ -329,12 +366,14 @@ return next();
 5. Użytkownik przekierowany na `/dashboard`
 
 **Error paths**:
+
 - Błędny email lub hasło -> wyświetlenie błędu "Nieprawidłowy email lub hasło"
 - Błąd sieciowy -> komunikat "Wystąpił błąd podczas logowania. Spróbuj ponownie."
 
 #### US-003: Wylogowanie z systemu
 
 **Happy path**:
+
 1. Zalogowany użytkownik klika przycisk "Wyloguj się" w Navbar (desktop) lub BottomNav (mobile)
 2. System:
    - Wysyła POST do `/api/auth/signout`
@@ -342,11 +381,13 @@ return next();
 3. Użytkownik przekierowany na `/auth/login` (strona logowania)
 
 **Error paths**:
+
 - Błąd sieciowy -> toast notification z błędem, użytkownik pozostaje zalogowany
 
 #### US-004: Resetowanie hasła
 
 **Happy path (krok 1 - żądanie)**:
+
 1. Użytkownik klika "Zapomniałeś hasła?" na stronie logowania
 2. Przechodzi na `/auth/forgot-password`
 3. Wpisuje swój email
@@ -358,6 +399,7 @@ return next();
 6. Wyświetlenie komunikatu: "Link do zresetowania hasła został wysłany na podany adres email"
 
 **Happy path (krok 2 - zmiana hasła)**:
+
 1. Użytkownik klika link w emailu
 2. Zostaje przekierowany na `/auth/reset-password?token=XYZ`
 3. Wpisuje nowe hasło i potwierdza
@@ -370,6 +412,7 @@ return next();
 7. Automatyczne przekierowanie na `/auth/login` po 3 sekundach
 
 **Error paths**:
+
 - Token wygasł/nieprawidłowy -> komunikat "Link resetujący wygasł lub jest nieprawidłowy. Poproś o nowy."
 - Błąd sieciowy -> standardowy komunikat błędu
 
@@ -382,11 +425,13 @@ return next();
 Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`
 
 #### POST /api/auth/signup
+
 **Lokalizacja**: `src/pages/api/auth/signup.ts`
 
 **Odpowiedzialność**: Rejestracja nowego użytkownika
 
 **Request body**:
+
 ```typescript
 {
   email: string;
@@ -395,14 +440,16 @@ Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`
 ```
 
 **Walidacja (server-side przez Zod)**:
+
 ```typescript
 const signupSchema = z.object({
   email: z.string().email("Nieprawidłowy format email"),
-  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków")
+  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
 });
 ```
 
 **Logika**:
+
 1. Parsowanie i walidacja body przez Zod
 2. Wywołanie `context.locals.supabase.auth.signUp({ email, password })`
 3. Jeśli sukces:
@@ -413,6 +460,7 @@ const signupSchema = z.object({
    - Inne błędy Supabase -> 500 Internal Server Error
 
 **Response (sukces - 201)**:
+
 ```typescript
 {
   data: {
@@ -426,6 +474,7 @@ const signupSchema = z.object({
 ```
 
 **Response (błąd - 409)**:
+
 ```typescript
 {
   error: {
@@ -436,6 +485,7 @@ const signupSchema = z.object({
 ```
 
 **Response (błąd - 400)**:
+
 ```typescript
 {
   error: {
@@ -449,16 +499,19 @@ const signupSchema = z.object({
 ```
 
 **Konfiguracja**:
+
 ```typescript
 export const prerender = false;
 ```
 
 #### POST /api/auth/login
+
 **Lokalizacja**: `src/pages/api/auth/login.ts`
 
 **Odpowiedzialność**: Logowanie użytkownika
 
 **Request body**:
+
 ```typescript
 {
   email: string;
@@ -467,14 +520,16 @@ export const prerender = false;
 ```
 
 **Walidacja (server-side przez Zod)**:
+
 ```typescript
 const loginSchema = z.object({
   email: z.string().email("Nieprawidłowy format email"),
-  password: z.string().min(1, "Hasło jest wymagane")
+  password: z.string().min(1, "Hasło jest wymagane"),
 });
 ```
 
 **Logika**:
+
 1. Parsowanie i walidacja body przez Zod
 2. Wywołanie `context.locals.supabase.auth.signInWithPassword({ email, password })`
 3. Jeśli sukces:
@@ -485,6 +540,7 @@ const loginSchema = z.object({
    - Inne błędy Supabase -> 500 Internal Server Error
 
 **Response (sukces - 200)**:
+
 ```typescript
 {
   data: {
@@ -497,6 +553,7 @@ const loginSchema = z.object({
 ```
 
 **Response (błąd - 401)**:
+
 ```typescript
 {
   error: {
@@ -507,11 +564,13 @@ const loginSchema = z.object({
 ```
 
 **Konfiguracja**:
+
 ```typescript
 export const prerender = false;
 ```
 
 #### POST /api/auth/signout
+
 **Lokalizacja**: `src/pages/api/auth/signout.ts`
 
 **Odpowiedzialność**: Wylogowanie użytkownika
@@ -519,39 +578,45 @@ export const prerender = false;
 **Request body**: brak (lub pusty)
 
 **Logika**:
+
 1. Wywołanie `context.locals.supabase.auth.signOut()`
 2. Supabase niszczy sesję i czyści cookies
 3. Zwrócenie 200 OK
 
 **Response (sukces - 200)**:
+
 ```typescript
 {
   data: {
-    message: "Wylogowano pomyślnie"
+    message: "Wylogowano pomyślnie";
   }
 }
 ```
 
 **Response (błąd - 500)**:
+
 ```typescript
 {
   error: {
-    message: "Wystąpił błąd podczas wylogowywania"
+    message: "Wystąpił błąd podczas wylogowywania";
   }
 }
 ```
 
 **Konfiguracja**:
+
 ```typescript
 export const prerender = false;
 ```
 
 #### POST /api/auth/forgot-password
+
 **Lokalizacja**: `src/pages/api/auth/forgot-password.ts`
 
 **Odpowiedzialność**: Wysłanie emaila z linkiem resetującym hasło
 
 **Request body**:
+
 ```typescript
 {
   email: string;
@@ -559,23 +624,26 @@ export const prerender = false;
 ```
 
 **Walidacja (server-side przez Zod)**:
+
 ```typescript
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Nieprawidłowy format email")
+  email: z.string().email("Nieprawidłowy format email"),
 });
 ```
 
 **Logika**:
+
 1. Parsowanie i walidacja body przez Zod
 2. Wywołanie `context.locals.supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://domain.com/auth/reset-password' })`
 3. Supabase wysyła email z linkiem zawierającym token
 4. ZAWSZE zwracamy 200 OK (nawet jeśli email nie istnieje - security best practice)
 
 **Response (sukces - 200)**:
+
 ```typescript
 {
   data: {
-    message: "Jeśli podany adres email istnieje w systemie, wysłaliśmy na niego link do resetowania hasła"
+    message: "Jeśli podany adres email istnieje w systemie, wysłaliśmy na niego link do resetowania hasła";
   }
 }
 ```
@@ -583,21 +651,25 @@ const forgotPasswordSchema = z.object({
 **UWAGA**: Nie ujawniamy, czy email istnieje w systemie (zapobiega enumeracji użytkowników)
 
 **Konfiguracja redirectTo**:
+
 - Dla development: `http://localhost:3000/auth/reset-password`
 - Dla production: `https://athletica.com/auth/reset-password`
 - Można odczytać z `import.meta.env.PUBLIC_APP_URL` lub konstruować z `Astro.url.origin`
 
 **Konfiguracja**:
+
 ```typescript
 export const prerender = false;
 ```
 
 #### POST /api/auth/reset-password
+
 **Lokalizacja**: `src/pages/api/auth/reset-password.ts`
 
 **Odpowiedzialność**: Zmiana hasła na podstawie tokenu z emaila
 
 **Request body**:
+
 ```typescript
 {
   token: string;
@@ -606,29 +678,33 @@ export const prerender = false;
 ```
 
 **Walidacja (server-side przez Zod)**:
+
 ```typescript
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token jest wymagany"),
-  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków")
+  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
 });
 ```
 
 **Logika**:
+
 1. Parsowanie i walidacja body przez Zod
 2. Wywołanie `context.locals.supabase.auth.verifyOtp({ token_hash: token, type: 'recovery' })`
 3. Jeśli token poprawny - wywołanie `context.locals.supabase.auth.updateUser({ password })`
 4. Zwrócenie 200 OK
 
 **Response (sukces - 200)**:
+
 ```typescript
 {
   data: {
-    message: "Hasło zostało zmienione pomyślnie"
+    message: "Hasło zostało zmienione pomyślnie";
   }
 }
 ```
 
 **Response (błąd - 400)**:
+
 ```typescript
 {
   error: {
@@ -639,6 +715,7 @@ const resetPasswordSchema = z.object({
 ```
 
 **Konfiguracja**:
+
 ```typescript
 export const prerender = false;
 ```
@@ -646,9 +723,11 @@ export const prerender = false;
 ### 2.2. Serwisy pomocnicze
 
 #### AuthService (`src/lib/services/auth.service.ts`)
+
 **Odpowiedzialność**: Logika biznesowa związana z autentykacją (opcjonalnie, dla enkapsulacji)
 
 **Metody**:
+
 ```typescript
 class AuthService {
   async signup(email: string, password: string, supabase: SupabaseClient): Promise<User>;
@@ -664,28 +743,29 @@ class AuthService {
 ### 2.3. Walidacja i obsługa błędów
 
 #### Zod schemas (`src/lib/validation/auth.schemas.ts`)
+
 **Odpowiedzialność**: Centralne definicje schematów walidacji dla endpointów auth
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 export const signupSchema = z.object({
   email: z.string().email("Nieprawidłowy format email"),
-  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków")
+  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
 });
 
 export const loginSchema = z.object({
   email: z.string().email("Nieprawidłowy format email"),
-  password: z.string().min(1, "Hasło jest wymagane")
+  password: z.string().min(1, "Hasło jest wymagane"),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().email("Nieprawidłowy format email")
+  email: z.string().email("Nieprawidłowy format email"),
 });
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token jest wymagany"),
-  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków")
+  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
 });
 ```
 
@@ -694,22 +774,24 @@ export const resetPasswordSchema = z.object({
 **Wykorzystanie istniejącego modułu**: `src/lib/api/responses.ts`
 
 Prawdopodobnie istnieją już funkcje helper do generowania odpowiedzi. Należy je wykorzystać:
+
 - `errorResponse(message: string, status: number, code?: string)` -> JSON error response
 - `successResponse(data: any)` -> JSON success response
 
 **Mapowanie błędów Supabase**:
+
 ```typescript
 // Przykładowa funkcja helper
 function mapSupabaseAuthError(error: AuthError): { message: string; code: string; status: number } {
   switch (error.message) {
-    case 'User already registered':
-      return { message: 'Użytkownik o podanym adresie email już istnieje', code: 'USER_ALREADY_EXISTS', status: 409 };
-    case 'Invalid login credentials':
-      return { message: 'Nieprawidłowy email lub hasło', code: 'INVALID_CREDENTIALS', status: 401 };
-    case 'Email not confirmed':
-      return { message: 'Email nie został potwierdzony', code: 'EMAIL_NOT_CONFIRMED', status: 401 };
+    case "User already registered":
+      return { message: "Użytkownik o podanym adresie email już istnieje", code: "USER_ALREADY_EXISTS", status: 409 };
+    case "Invalid login credentials":
+      return { message: "Nieprawidłowy email lub hasło", code: "INVALID_CREDENTIALS", status: 401 };
+    case "Email not confirmed":
+      return { message: "Email nie został potwierdzony", code: "EMAIL_NOT_CONFIRMED", status: 401 };
     default:
-      return { message: 'Wystąpił błąd podczas operacji', code: 'UNKNOWN_ERROR', status: 500 };
+      return { message: "Wystąpił błąd podczas operacji", code: "UNKNOWN_ERROR", status: 500 };
   }
 }
 ```
@@ -717,10 +799,12 @@ function mapSupabaseAuthError(error: AuthError): { message: string; code: string
 ### 2.4. Aktualizacja sposobu renderowania stron
 
 **Obecna konfiguracja** (`astro.config.mjs`):
+
 - `output: "server"` - SSR mode włączony globalnie
 - `adapter: node({ mode: "standalone" })` - standalone server
 
 **Wymagane zmiany**:
+
 - Wszystkie nowe strony auth (`/auth/*`) muszą mieć `export const prerender = false`
 - Wszystkie endpointy API (`/api/auth/*`) muszą mieć `export const prerender = false`
 - Middleware będzie działał dla wszystkich requestów dzięki SSR
@@ -736,12 +820,14 @@ function mapSupabaseAuthError(error: AuthError): { message: string; code: string
 #### Konfiguracja Supabase Client
 
 **Obecna konfiguracja** (`src/db/supabase.client.ts`):
+
 - Standard client z anon key (enforces RLS)
 - Service role client dla development (bypasses RLS)
 - Środowiskowe zmienne: `SUPABASE_URL`, `SUPABASE_KEY`
 
 **Wymagane rozszerzenie**:
 Konfiguracja Supabase Auth do obsługi sesji w cookies (już zaimplementowane w middleware):
+
 - Sesje są automatycznie zarządzane przez Supabase SDK
 - Cookies są ustawiane przez Supabase po `signUp()` i `signInWithPassword()`
 - `auth.getUser()` weryfikuje sesję na podstawie cookies
@@ -749,10 +835,11 @@ Konfiguracja Supabase Auth do obsługi sesji w cookies (już zaimplementowane w 
 #### Przepływ autentykacji
 
 **Rejestracja (signUp)**:
+
 ```typescript
 const { data, error } = await supabase.auth.signUp({
-  email: 'user@example.com',
-  password: 'password123'
+  email: "user@example.com",
+  password: "password123",
 });
 // Supabase:
 // 1. Tworzy użytkownika w auth.users
@@ -761,10 +848,11 @@ const { data, error } = await supabase.auth.signUp({
 ```
 
 **Logowanie (signInWithPassword)**:
+
 ```typescript
 const { data, error } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'password123'
+  email: "user@example.com",
+  password: "password123",
 });
 // Supabase:
 // 1. Weryfikuje credentials
@@ -773,8 +861,12 @@ const { data, error } = await supabase.auth.signInWithPassword({
 ```
 
 **Weryfikacja sesji (getUser)**:
+
 ```typescript
-const { data: { user }, error } = await supabase.auth.getUser();
+const {
+  data: { user },
+  error,
+} = await supabase.auth.getUser();
 // Supabase:
 // 1. Odczytuje access_token z cookies
 // 2. Weryfikuje token
@@ -782,6 +874,7 @@ const { data: { user }, error } = await supabase.auth.getUser();
 ```
 
 **Wylogowanie (signOut)**:
+
 ```typescript
 const { error } = await supabase.auth.signOut();
 // Supabase:
@@ -790,9 +883,10 @@ const { error } = await supabase.auth.signOut();
 ```
 
 **Reset hasła (resetPasswordForEmail)**:
+
 ```typescript
-const { error } = await supabase.auth.resetPasswordForEmail('user@example.com', {
-  redirectTo: 'https://app.com/auth/reset-password'
+const { error } = await supabase.auth.resetPasswordForEmail("user@example.com", {
+  redirectTo: "https://app.com/auth/reset-password",
 });
 // Supabase:
 // 1. Generuje recovery token
@@ -801,16 +895,17 @@ const { error } = await supabase.auth.resetPasswordForEmail('user@example.com', 
 ```
 
 **Weryfikacja tokenu i zmiana hasła**:
+
 ```typescript
 // Krok 1: Weryfikacja tokenu
 const { data, error } = await supabase.auth.verifyOtp({
   token_hash: tokenFromUrl,
-  type: 'recovery'
+  type: "recovery",
 });
 
 // Krok 2: Aktualizacja hasła
 const { data, error } = await supabase.auth.updateUser({
-  password: 'newPassword123'
+  password: "newPassword123",
 });
 ```
 
@@ -819,8 +914,8 @@ const { data, error } = await supabase.auth.updateUser({
 **Lokalizacja**: `src/middleware/index.ts`
 
 **Obecna funkcjonalność**:
+
 - Wstrzykuje Supabase client do `context.locals.supabase`
-- Obsługuje SKIP_AUTH dla developmentu
 - Przekierowuje zalogowanych z `/` na `/dashboard`
 
 **Rozszerzenie - pełna ochrona**:
@@ -830,31 +925,24 @@ import { defineMiddleware } from "astro:middleware";
 import { supabaseClient, supabaseServiceClient } from "../db/supabase.client.ts";
 
 const PUBLIC_PATHS = [
-  '/',
-  '/auth/signup',
-  '/auth/login',
-  '/auth/forgot-password',
-  '/auth/reset-password',
-  '/auth/verify-email'
+  "/",
+  "/auth/signup",
+  "/auth/login",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/verify-email",
 ];
 
-const AUTH_PATHS = [
-  '/auth/signup',
-  '/auth/login',
-  '/auth/forgot-password',
-  '/auth/reset-password'
-];
+const AUTH_PATHS = ["/auth/signup", "/auth/login", "/auth/forgot-password", "/auth/reset-password"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Use service role client when SKIP_AUTH is enabled (bypasses RLS for development)
-  const skipAuth = import.meta.env.SKIP_AUTH === "true";
-  context.locals.supabase = skipAuth ? supabaseServiceClient : supabaseClient;
+  context.locals.supabase = supabaseClient;
 
   // Get current path
   const currentPath = context.url.pathname;
 
   // Skip auth check for API routes (they handle auth internally)
-  if (currentPath.startsWith('/api/')) {
+  if (currentPath.startsWith("/api/")) {
     return next();
   }
 
@@ -888,6 +976,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 ```
 
 **Logika decyzyjna**:
+
 1. **API routes** (`/api/*`) - pomijamy middleware, auth sprawdzany wewnątrz endpointu
 2. **Zalogowany + auth page** (`/auth/*`) -> redirect na `/dashboard`
 3. **Zalogowany + landing page** (`/`) -> redirect na `/dashboard`
@@ -903,11 +992,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 Strony te już używają sprawdzania auth i przekierowują na `/auth/login` przy 401 z API.
 
 **Wymagane zmiany**:
+
 - Middleware będzie automatycznie przekierowywał niezalogowanych na `/auth/login`
 - Można uprościć kod stron - usunąć ręczne sprawdzanie i redirecty
 - Server-side fetch do API będzie automatycznie zawierał cookies sesji
 
 **Przykład - uproszczona wersja dashboard.astro**:
+
 ```astro
 ---
 // Middleware już sprawdził auth - user istnieje
@@ -934,13 +1025,13 @@ if (response.ok) {
 **Lokalizacja**: `src/lib/api/auth.ts`
 
 **Obecna funkcja**:
+
 ```typescript
 export async function verifyAuth(context: APIContext) {
-  if (import.meta.env.SKIP_AUTH === "true") {
-    return { user: mockUser, error: false };
-  }
-
-  const { data: { user }, error } = await context.locals.supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await context.locals.supabase.auth.getUser();
 
   if (error || !user) {
     return { user: null, error: true };
@@ -957,9 +1048,11 @@ Wszystkie chronione endpointy (`/api/profile`, `/api/training-plans/*`, etc.) u�
 ### 3.5. Konfiguracja Supabase Auth (Dashboard)
 
 #### Email Templates
+
 Supabase pozwala na konfigurację szablonów emaili w Dashboard -> Authentication -> Email Templates
 
 **Wymagane szablony**:
+
 1. **Confirmation** (opcjonalnie) - email weryfikacyjny po rejestracji
    - W MVP można wyłączyć weryfikację email (Settings -> Auth -> Enable email confirmations = OFF)
 2. **Password Reset** - email z linkiem resetującym hasło
@@ -968,7 +1061,9 @@ Supabase pozwala na konfigurację szablonów emaili w Dashboard -> Authenticatio
    - Redirect URL: `https://app.com/auth/reset-password`
 
 #### Auth Settings
+
 **Settings -> Authentication**:
+
 - **Enable email confirmations**: OFF (dla MVP - użytkownik od razu aktywny)
   - Alternatywnie ON - wtedy dodać stronę `/auth/verify-email` i obsługę email confirmation
 - **Enable sign ups**: ON
@@ -978,19 +1073,18 @@ Supabase pozwala na konfigurację szablonów emaili w Dashboard -> Authenticatio
   - `https://athletica.com/auth/reset-password`
 
 #### Password Requirements
+
 - Minimum length: 8 characters (zgodne z walidacją w aplikacji)
 
 ### 3.6. Zmienne środowiskowe
 
 **`.env` file**:
+
 ```bash
 # Supabase
 SUPABASE_URL=https://xxx.supabase.co
 SUPABASE_KEY=xxx.anon.key
-SUPABASE_SERVICE_ROLE_KEY=xxx.service_role.key  # tylko dla dev z SKIP_AUTH
-
-# Auth
-SKIP_AUTH=false  # tylko development!
+SUPABASE_SERVICE_ROLE_KEY=xxx.service_role.key
 
 # App URLs (dla redirectów)
 PUBLIC_APP_URL=http://localhost:3000  # dev
@@ -998,12 +1092,11 @@ PUBLIC_APP_URL=http://localhost:3000  # dev
 ```
 
 **`.env.example`** - dodać nowe zmienne:
+
 ```bash
 SUPABASE_URL=
 SUPABASE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-
-SKIP_AUTH=false
 
 PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -1130,7 +1223,6 @@ export interface ResetPasswordResponseDTO {
 // - ApiErrorResponse
 // - ValidationErrorDetail
 // - ApiSuccessResponse<T>
-
 ```
 
 ### 5.2. Komponenty Props
@@ -1168,6 +1260,7 @@ export interface LogoutButtonProps {
 ### 6.1. Brak wpływu na istniejące funkcjonalności
 
 **Moduł auth jest addytywny** - nie modyfikuje istniejącego flow aplikacji:
+
 - Survey generation nadal działa tak samo
 - Dashboard rendering nie zmienia się
 - Profile view pozostaje bez zmian
@@ -1185,12 +1278,10 @@ export interface LogoutButtonProps {
 
 ### 6.3. Backward compatibility
 
-**SKIP_AUTH mode** - pozostaje bez zmian:
-- Development może nadal używać `SKIP_AUTH=true`
-- Mock user pozostaje taki sam
-- RLS bypass działa tak samo
+**Uwaga**: SKIP_AUTH mode został usunięty z kodu. Development i testing używa teraz standardowej autentykacji Supabase.
 
 **Sesja w cookies**:
+
 - Supabase automatycznie zarządza cookies
 - Nie ma konfliktu z istniejącym kodem (kod nie używa custom cookies auth)
 
@@ -1203,6 +1294,7 @@ export interface LogoutButtonProps {
 **Obecny stan**: RLS włączony dla wszystkich tabel w bazie (`profiles`, `personal_records`, `training_plans`, `workout_days`)
 
 **Auth integration**:
+
 - Polityki RLS używają `auth.uid()` do weryfikacji dostępu
 - Supabase automatycznie ustawia `auth.uid()` na podstawie sesji użytkownika
 - Po zalogowaniu przez `signInWithPassword()` lub `signUp()`, wszystkie zapytania do bazy będą miały poprawny `auth.uid()`
@@ -1212,6 +1304,7 @@ export interface LogoutButtonProps {
 ### 7.2. CSRF Protection
 
 **Supabase Auth** automatycznie zabezpiecza przed CSRF:
+
 - Używa HTTP-only cookies dla session tokens
 - Access token jest weryfikowany server-side
 - Brak potrzeby implementacji własnych tokenów CSRF
@@ -1219,6 +1312,7 @@ export interface LogoutButtonProps {
 ### 7.3. Rate Limiting
 
 **Supabase Auth** ma wbudowane rate limiting:
+
 - Domyślnie: max 4 próby logowania na email per hour
 - Można skonfigurować w Dashboard -> Authentication -> Rate Limits
 
@@ -1227,6 +1321,7 @@ export interface LogoutButtonProps {
 ### 7.4. Password Security
 
 **Supabase** automatycznie:
+
 - Hashuje hasła (bcrypt)
 - Wymusza minimum 6 znaków (ale my wymuszamy 8 w walidacji)
 - Nie przechowuje plaintext passwords
@@ -1234,6 +1329,7 @@ export interface LogoutButtonProps {
 ### 7.5. Token Security
 
 **Reset password tokens**:
+
 - Generowane przez Supabase
 - Jednokrotnego użytku
 - Wygasają po określonym czasie (domyślnie 1 godzina)
@@ -1242,6 +1338,7 @@ export interface LogoutButtonProps {
 ### 7.6. Information Disclosure
 
 **Forgot password endpoint**:
+
 - ZAWSZE zwraca 200 OK (nawet jeśli email nie istnieje)
 - Zapobiega enumeracji użytkowników
 - Security best practice
@@ -1253,6 +1350,7 @@ export interface LogoutButtonProps {
 ### 8.1. Scenariusze testowe
 
 #### US-001: Rejestracja
+
 - [ ] Pomyślna rejestracja z poprawnymi danymi -> redirect na `/survey`
 - [ ] Rejestracja z istniejącym emailem -> błąd 409
 - [ ] Rejestracja z nieprawidłowym emailem -> błąd walidacji
@@ -1260,17 +1358,20 @@ export interface LogoutButtonProps {
 - [ ] Rejestracja z niezgodnymi hasłami -> błąd walidacji client-side
 
 #### US-002: Logowanie
+
 - [ ] Pomyślne logowanie z poprawnymi danymi -> redirect na `/dashboard`
 - [ ] Logowanie z błędnym hasłem -> błąd 401
 - [ ] Logowanie z nieistniejącym emailem -> błąd 401
 - [ ] Logowanie z nieprawidłowym formatem email -> błąd walidacji
 
 #### US-003: Wylogowanie
+
 - [ ] Pomyślne wylogowanie -> redirect na `/auth/login`
 - [ ] Wylogowanie usuwa sesję (sprawdzenie cookies)
 - [ ] Po wylogowaniu brak dostępu do chronionych stron
 
 #### US-004: Reset hasła
+
 - [ ] Żądanie resetu z istniejącym emailem -> email wysłany
 - [ ] Żądanie resetu z nieistniejącym emailem -> 200 OK (security)
 - [ ] Zmiana hasła z prawidłowym tokenem -> sukces
@@ -1278,6 +1379,7 @@ export interface LogoutButtonProps {
 - [ ] Zmiana hasła z hasłem < 8 znaków -> błąd walidacji
 
 #### Middleware
+
 - [ ] Niezalogowany dostęp do `/dashboard` -> redirect na `/auth/login`
 - [ ] Niezalogowany dostęp do `/survey` -> redirect na `/auth/login`
 - [ ] Zalogowany dostęp do `/auth/login` -> redirect na `/dashboard`
@@ -1297,12 +1399,13 @@ export interface LogoutButtonProps {
 ## 9. DEPLOYMENT CHECKLIST
 
 ### 9.1. Environment Variables
+
 - [ ] `SUPABASE_URL` ustawiony
 - [ ] `SUPABASE_KEY` (anon key) ustawiony
 - [ ] `PUBLIC_APP_URL` ustawiony na production URL
-- [ ] `SKIP_AUTH=false` (NIGDY true w production!)
 
 ### 9.2. Supabase Configuration
+
 - [ ] Email templates skonfigurowane (polski język)
 - [ ] Redirect URLs whitelisted w Supabase Dashboard
 - [ ] Site URL ustawiony poprawnie
@@ -1310,6 +1413,7 @@ export interface LogoutButtonProps {
 - [ ] Rate limiting skonfigurowany
 
 ### 9.3. Code Review
+
 - [ ] Wszystkie endpointy auth mają `prerender = false`
 - [ ] Wszystkie strony auth mają `prerender = false`
 - [ ] Middleware poprawnie chroni strony
@@ -1318,6 +1422,7 @@ export interface LogoutButtonProps {
 - [ ] Błędy Supabase są mapowane na user-friendly messages
 
 ### 9.4. Security Audit
+
 - [ ] RLS włączony dla wszystkich tabel
 - [ ] Passwords hashed (Supabase)
 - [ ] Forgot password nie ujawnia, czy email istnieje
@@ -1329,6 +1434,7 @@ export interface LogoutButtonProps {
 ## 10. KOLEJNOŚĆ IMPLEMENTACJI
 
 ### Faza 1: Backend i API
+
 1. Utworzyć katalog `src/pages/api/auth/`
 2. Zaimplementować Zod schemas (`src/lib/validation/auth.schemas.ts`)
 3. Zaimplementować endpointy API:
@@ -1340,11 +1446,13 @@ export interface LogoutButtonProps {
 4. Przetestować endpointy (Postman/curl)
 
 ### Faza 2: Middleware i ochrona stron
+
 1. Zaktualizować middleware (`src/middleware/index.ts`)
 2. Uprościć istniejące protected pages (usunąć redundantne sprawdzenia)
 3. Przetestować redirecty
 
 ### Faza 3: Frontend - komponenty React
+
 1. Utworzyć katalog `src/components/auth/`
 2. Zaimplementować komponenty formularzy:
    - `SignupForm.tsx`
@@ -1354,6 +1462,7 @@ export interface LogoutButtonProps {
 3. Dodać typy (`src/components/auth/types.ts`)
 
 ### Faza 4: Frontend - strony Astro
+
 1. Utworzyć katalog `src/pages/auth/`
 2. Zaimplementować strony:
    - `signup.astro`
@@ -1363,16 +1472,19 @@ export interface LogoutButtonProps {
 3. Zaktualizować landing page (`/`) - zmiana linku CTA
 
 ### Faza 5: Nawigacja i wylogowanie
+
 1. Zaktualizować `Navbar.astro` - przycisk wylogowania
 2. Zaktualizować `BottomNav.tsx` - przycisk wylogowania (jeśli istnieje)
 
 ### Faza 6: Testy i polish
+
 1. Przeprowadzić testy wszystkich scenariuszy
 2. Poprawić UX (loading states, error messages)
 3. Dodać animacje/transitions (opcjonalnie)
 4. Code review
 
 ### Faza 7: Konfiguracja Supabase i deployment
+
 1. Skonfigurować email templates w Supabase Dashboard
 2. Skonfigurować redirect URLs
 3. Ustawić zmienne środowiskowe w production

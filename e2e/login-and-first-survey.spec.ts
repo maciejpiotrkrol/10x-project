@@ -164,7 +164,7 @@ test.describe("Scenariusz 1: Logowanie i pierwsze użycie", () => {
 
     // Powinny pojawić się błędy walidacji (sprawdzamy różne komunikaty)
     // Longer timeout for mobile browsers which are slower
-    const validationError = page.locator('text=/Pole wymagane|wymagany|Musisz zaakceptować|Wybierz/i').first();
+    const validationError = page.locator("text=/Pole wymagane|wymagany|Musisz zaakceptować|Wybierz/i").first();
     await expect(validationError).toBeVisible({ timeout: 15000 });
   });
 

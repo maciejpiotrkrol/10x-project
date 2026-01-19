@@ -20,11 +20,6 @@ export const prerender = false;
  * exist or belongs to another user, RLS makes it invisible and the delete
  * operation succeeds without deleting anything (idempotent behavior).
  *
- * Development Mode:
- * When SKIP_AUTH=true is set in .env, this endpoint uses the service role
- * client which bypasses RLS. This is useful for testing without authentication
- * but should NEVER be used in production.
- *
  * @param context - Astro API context containing Supabase client and request params
  * @returns Empty response with status code
  *
@@ -45,19 +40,13 @@ export const prerender = false;
  *
  * Examples:
  * ```bash
- * # With authentication (production)
  * curl -X DELETE http://localhost:3000/api/personal-records/550e8400-e29b-41d4-a716-446655440000 \
  *   -H "Authorization: Bearer <jwt-token>"
- *
- * # Without authentication (SKIP_AUTH=true in dev mode)
- * curl -X DELETE http://localhost:3000/api/personal-records/550e8400-e29b-41d4-a716-446655440000
  * ```
  */
 export async function DELETE(context: APIContext): Promise<Response> {
   try {
     // Step 1: Verify authentication
-    // Uses verifyAuth() helper which handles both JWT verification (production)
-    // and mock user mode (SKIP_AUTH=true in development)
     const { user, error: authError } = await verifyAuth(context);
 
     if (authError || !user) {

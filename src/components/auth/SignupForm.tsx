@@ -70,7 +70,7 @@ export function SignupForm() {
       }
 
       // Success - user is automatically logged in, redirect to survey
-      window.location.href = "/survey";
+      window.location.assign("/survey");
     } catch (error) {
       setGeneralError("Wystąpił błąd podczas rejestracji. Spróbuj ponownie.");
       console.error("Signup error:", error);

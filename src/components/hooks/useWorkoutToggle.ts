@@ -70,7 +70,7 @@ export function useWorkoutToggle(initialWorkouts: WorkoutDayDTO[]): UseWorkoutTo
 
       // Show success toast
       toast.success(newCompletedStatus ? "Trening oznaczony jako wykonany" : "Oznaczenie cofnięte");
-    } catch (_error) {
+    } catch {
       // Rollback on error
       setWorkouts(previousWorkouts);
       toast.error("Nie udało się zaktualizować. Spróbuj ponownie.");

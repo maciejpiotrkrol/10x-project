@@ -80,8 +80,8 @@ export function ForgotPasswordForm() {
         <CardContent className="space-y-4">
           <div className="p-4 rounded-md bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900">
             <p className="text-sm text-green-800 dark:text-green-300">
-              Jeśli podany adres email istnieje w systemie, wysłaliśmy na niego link do resetowania hasła. Sprawdź
-              swoją skrzynkę.
+              Jeśli podany adres email istnieje w systemie, wysłaliśmy na niego link do resetowania hasła. Sprawdź swoją
+              skrzynkę.
             </p>
           </div>
 

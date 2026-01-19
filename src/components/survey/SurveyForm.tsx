@@ -31,7 +31,7 @@ export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: Surv
   // Setup React Hook Form with Zod validation
   const form = useForm<SurveyFormData>({
     resolver: zodResolver(surveyFormSchema),
-    mode: "onBlur", // Validation on blur
+    mode: "onSubmit", // Validation on submit
     defaultValues: {
       // Training Goals
       goal_distance: initialProfile?.goal_distance || "",
@@ -169,7 +169,13 @@ export function SurveyForm({ initialProfile, initialPersonalRecords = [] }: Surv
 
           {/* Submit Button */}
           <div className="flex justify-end">
-            <Button type="submit" size="lg" disabled={form.formState.isSubmitting} className="min-w-[200px]" data-testid="survey-submit-button">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={form.formState.isSubmitting}
+              className="min-w-[200px]"
+              data-testid="survey-submit-button"
+            >
               {form.formState.isSubmitting ? "Generowanie..." : "Wygeneruj plan"}
             </Button>
           </div>

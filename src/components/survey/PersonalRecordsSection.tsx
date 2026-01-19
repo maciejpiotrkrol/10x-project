@@ -81,7 +81,15 @@ export function PersonalRecordsSection() {
                     <FormLabel>Czas</FormLabel>
                     <div className="relative">
                       <FormControl>
-                        <Input type="number" placeholder="0" min="0" step="1" {...field} className="pr-20" data-testid={`record-time-input-${index}`} />
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          min="0"
+                          step="1"
+                          {...field}
+                          className="pr-20"
+                          data-testid={`record-time-input-${index}`}
+                        />
                       </FormControl>
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         sekund
@@ -111,7 +119,13 @@ export function PersonalRecordsSection() {
         </div>
 
         {/* Add Record Button */}
-        <Button type="button" variant="outline" onClick={handleAddRecord} className="w-full" data-testid="add-record-button">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAddRecord}
+          className="w-full"
+          data-testid="add-record-button"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Dodaj kolejny rekord
         </Button>

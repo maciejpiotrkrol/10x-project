@@ -54,7 +54,15 @@ export function TrainingGoalsSection() {
               <FormLabel>Średni tygodniowy kilometraż</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" step="0.1" min="0" {...field} className="pr-12" data-testid="weekly-km-input" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    step="0.1"
+                    min="0"
+                    {...field}
+                    className="pr-12"
+                    data-testid="weekly-km-input"
+                  />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">km</span>
               </div>
@@ -73,7 +81,16 @@ export function TrainingGoalsSection() {
               <FormLabel>Liczba dni treningowych w tygodniu</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="2" max="7" step="1" {...field} className="pr-28" data-testid="training-days-input" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="2"
+                    max="7"
+                    step="1"
+                    {...field}
+                    className="pr-28"
+                    data-testid="training-days-input"
+                  />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                   dni/tydzień

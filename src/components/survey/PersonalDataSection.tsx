@@ -27,7 +27,16 @@ export function PersonalDataSection() {
               <FormLabel>Wiek</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="1" max="119" step="1" {...field} className="pr-12" data-testid="age-input" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="1"
+                    max="119"
+                    step="1"
+                    {...field}
+                    className="pr-12"
+                    data-testid="age-input"
+                  />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">lat</span>
               </div>
@@ -46,7 +55,16 @@ export function PersonalDataSection() {
               <FormLabel>Waga</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="0" max="300" step="0.1" {...field} className="pr-12" data-testid="weight-input" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    max="300"
+                    step="0.1"
+                    {...field}
+                    className="pr-12"
+                    data-testid="weight-input"
+                  />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">kg</span>
               </div>
@@ -65,7 +83,16 @@ export function PersonalDataSection() {
               <FormLabel>Wzrost</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type="number" placeholder="0" min="0" max="300" step="1" {...field} className="pr-12" data-testid="height-input" />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    max="300"
+                    step="1"
+                    {...field}
+                    className="pr-12"
+                    data-testid="height-input"
+                  />
                 </FormControl>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">cm</span>
               </div>

@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import type { TrainingGoalsData, PersonalData, PersonalRecord } from './types';
+import { Page, Locator, expect } from "@playwright/test";
+import type { TrainingGoalsData, PersonalData, PersonalRecord } from "./types";
 
 /**
  * Page Object Model dla strony ankiety
@@ -44,53 +44,62 @@ export class SurveyPage {
     this.page = page;
 
     // Training Goals Section
-    this.goalDistanceSelect = page.getByTestId('goal-distance-select');
-    this.weeklyKmInput = page.getByTestId('weekly-km-input');
-    this.trainingDaysInput = page.getByTestId('training-days-input');
+    this.goalDistanceSelect = page.getByTestId("goal-distance-select");
+    this.weeklyKmInput = page.getByTestId("weekly-km-input");
+    this.trainingDaysInput = page.getByTestId("training-days-input");
 
     // Personal Data Section
-    this.ageInput = page.getByTestId('age-input');
-    this.weightInput = page.getByTestId('weight-input');
-    this.heightInput = page.getByTestId('height-input');
-    this.genderMaleRadio = page.getByTestId('gender-male-radio');
-    this.genderFemaleRadio = page.getByTestId('gender-female-radio');
+    this.ageInput = page.getByTestId("age-input");
+    this.weightInput = page.getByTestId("weight-input");
+    this.heightInput = page.getByTestId("height-input");
+    this.genderMaleRadio = page.getByTestId("gender-male-radio");
+    this.genderFemaleRadio = page.getByTestId("gender-female-radio");
 
     // Personal Records Section
-    this.addRecordButton = page.getByTestId('add-record-button');
+    this.addRecordButton = page.getByTestId("add-record-button");
 
     // Disclaimer Section
-    this.disclaimerCheckbox = page.getByTestId('disclaimer-checkbox');
-    this.disclaimerText = page.getByTestId('disclaimer-text');
+    this.disclaimerCheckbox = page.getByTestId("disclaimer-checkbox");
+    this.disclaimerText = page.getByTestId("disclaimer-text");
 
     // Survey Form
-    this.surveyForm = page.getByTestId('survey-form');
-    this.submitButton = page.getByTestId('survey-submit-button');
+    this.surveyForm = page.getByTestId("survey-form");
+    this.submitButton = page.getByTestId("survey-submit-button");
 
     // Dialogi
-    this.confirmDialog = page.getByTestId('confirm-dialog');
-    this.confirmDialogCancel = page.getByTestId('confirm-dialog-cancel');
-    this.confirmDialogConfirm = page.getByTestId('confirm-dialog-confirm');
-    this.loadingModal = page.getByTestId('loading-modal');
-    this.loadingSpinner = page.getByTestId('loading-spinner');
-    this.loadingErrorRetry = page.getByTestId('loading-error-retry');
-    this.loadingErrorClose = page.getByTestId('loading-error-close');
+    this.confirmDialog = page.getByTestId("confirm-dialog");
+    this.confirmDialogCancel = page.getByTestId("confirm-dialog-cancel");
+    this.confirmDialogConfirm = page.getByTestId("confirm-dialog-confirm");
+    this.loadingModal = page.getByTestId("loading-modal");
+    this.loadingSpinner = page.getByTestId("loading-spinner");
+    this.loadingErrorRetry = page.getByTestId("loading-error-retry");
+    this.loadingErrorClose = page.getByTestId("loading-error-close");
   }
 
   /**
    * Nawiguje do strony ankiety
    */
   async goto() {
-    await this.page.goto('/survey');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/survey");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   /**
    * Wypełnia sekcję "Cele treningowe"
    */
   async fillTrainingGoals(data: TrainingGoalsData) {
+    // Mapowanie angielskich wartości na polskie nazwy wyświetlane
+    const distanceLabels: Record<string, string> = {
+      "5K": "5K",
+      "10K": "10K",
+      "Half Marathon": "Półmaraton",
+      "Marathon": "Maraton",
+    };
+
     // Kliknij select i wybierz dystans
     await this.goalDistanceSelect.click();
-    await this.page.getByRole('option', { name: data.goalDistance, exact: true }).click();
+    const polishLabel = distanceLabels[data.goalDistance] || data.goalDistance;
+    await this.page.getByRole("option", { name: polishLabel, exact: true }).click();
 
     // Wypełnij tygodniowy kilometraż
     await this.weeklyKmInput.fill(data.weeklyKm.toString());
@@ -108,7 +117,7 @@ export class SurveyPage {
     await this.heightInput.fill(data.height.toString());
 
     // Wybierz płeć
-    if (data.gender === 'M') {
+    if (data.gender === "M") {
       await this.genderMaleRadio.click();
     } else {
       await this.genderFemaleRadio.click();
@@ -141,6 +150,14 @@ export class SurveyPage {
    * Uwaga: Formularz zawsze startuje z 1 pustym rekordem
    */
   async fillPersonalRecords(records: PersonalRecord[]) {
+    // Mapowanie angielskich wartości na polskie nazwy wyświetlane
+    const distanceLabels: Record<string, string> = {
+      "5K": "5K",
+      "10K": "10K",
+      "Half Marathon": "Półmaraton",
+      "Marathon": "Maraton",
+    };
+
     // Jeśli jest więcej niż 1 rekord, dodaj brakujące
     for (let i = 1; i < records.length; i++) {
       await this.addRecordButton.click();
@@ -155,7 +172,8 @@ export class SurveyPage {
       // Kliknij select dystansu
       const distanceSelect = this.getRecordDistanceSelect(i);
       await distanceSelect.click();
-      await this.page.getByRole('option', { name: record.distance, exact: true }).click();
+      const polishLabel = distanceLabels[record.distance] || record.distance;
+      await this.page.getByRole("option", { name: polishLabel, exact: true }).click();
 
       // Wypełnij czas w sekundach
       const timeInput = this.getRecordTimeInput(i);
@@ -209,7 +227,7 @@ export class SurveyPage {
     // Czekaj na redirect do dashboard lub na zniknięcie loading modal
     await Promise.race([
       this.page.waitForURL(/\/dashboard/, { timeout }),
-      this.loadingModal.waitFor({ state: 'hidden', timeout }),
+      this.loadingModal.waitFor({ state: "hidden", timeout }),
     ]);
   }
 

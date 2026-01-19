@@ -123,7 +123,12 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
                   </Button>
                 )}
                 {onClose && (
-                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto" data-testid="loading-error-close">
+                  <Button
+                    onClick={onClose}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    data-testid="loading-error-close"
+                  >
                     Zamknij
                   </Button>
                 )}
@@ -157,7 +162,12 @@ export function LoadingModal({ isOpen, state, errorMessage, onRetry, onClose }: 
                   </Button>
                 )}
                 {onClose && (
-                  <Button onClick={onClose} variant="outline" className="w-full sm:w-auto" data-testid="loading-error-close">
+                  <Button
+                    onClick={onClose}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    data-testid="loading-error-close"
+                  >
                     Zamknij
                   </Button>
                 )}

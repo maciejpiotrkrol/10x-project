@@ -30,7 +30,7 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onBlur",
+    mode: "onSubmit",
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -87,6 +87,7 @@ export function LoginForm() {
               id="email"
               type="email"
               placeholder="twoj@email.com"
+              autoComplete="email"
               aria-invalid={!!errors.email}
               disabled={isSubmitting}
               data-testid="login-email-input"
@@ -102,6 +103,7 @@ export function LoginForm() {
               id="password"
               type="password"
               placeholder="Twoje hasło"
+              autoComplete="current-password"
               aria-invalid={!!errors.password}
               disabled={isSubmitting}
               data-testid="login-password-input"
@@ -113,13 +115,16 @@ export function LoginForm() {
           {/* Link do resetowania hasła */}
           <div className="text-right">
             <a href="/auth/forgot-password" className="text-sm text-primary hover:underline">
-              Zapomniałem hasła
+              Zapomniałeś hasła?
             </a>
           </div>
 
           {/* Błąd ogólny */}
           {generalError && (
-            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20" data-testid="login-error-message">
+            <div
+              className="p-3 rounded-md bg-destructive/10 border border-destructive/20"
+              data-testid="login-error-message"
+            >
               <p className="text-sm text-destructive">{generalError}</p>
             </div>
           )}

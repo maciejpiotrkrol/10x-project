@@ -3,15 +3,15 @@
  * Centralne miejsce przechowywania danych testowych
  */
 
-import type { SurveyData } from '../page-objects';
+import type { SurveyData } from "../page-objects";
 
 /**
  * Dane użytkownika testowego
  * W produkcji te dane powinny być pobierane z .env.test lub tworzone dynamicznie
  */
 export const testUser = {
-  email: process.env.TEST_USER_EMAIL || 'test@example.com',
-  password: process.env.TEST_USER_PASSWORD || 'Test1234!',
+  email: process.env.E2E_USERNAME || "test@example.com",
+  password: process.env.E2E_PASSWORD || "Test1234!",
 };
 
 /**
@@ -20,7 +20,7 @@ export const testUser = {
  */
 export const firstTimeSurveyData: SurveyData = {
   trainingGoals: {
-    goalDistance: 'Half Marathon',
+    goalDistance: "Half Marathon",
     weeklyKm: 30,
     trainingDays: 4,
   },
@@ -28,15 +28,15 @@ export const firstTimeSurveyData: SurveyData = {
     age: 30,
     weight: 70,
     height: 175,
-    gender: 'M',
+    gender: "M",
   },
   personalRecords: [
     {
-      distance: '5K',
+      distance: "5K",
       timeSeconds: 1350, // 22:30 (22 min 30 sek)
     },
     {
-      distance: '10K',
+      distance: "10K",
       timeSeconds: 2880, // 48:00 (48 min)
     },
   ],
@@ -48,7 +48,7 @@ export const firstTimeSurveyData: SurveyData = {
  */
 export const advancedRunnerSurveyData: SurveyData = {
   trainingGoals: {
-    goalDistance: 'Marathon',
+    goalDistance: "Marathon",
     weeklyKm: 60,
     trainingDays: 6,
   },
@@ -56,19 +56,19 @@ export const advancedRunnerSurveyData: SurveyData = {
     age: 35,
     weight: 68,
     height: 178,
-    gender: 'M',
+    gender: "M",
   },
   personalRecords: [
     {
-      distance: '10K',
+      distance: "10K",
       timeSeconds: 2400, // 40:00
     },
     {
-      distance: 'Half Marathon',
+      distance: "Half Marathon",
       timeSeconds: 5400, // 1:30:00
     },
     {
-      distance: 'Marathon',
+      distance: "Marathon",
       timeSeconds: 12600, // 3:30:00
     },
   ],
@@ -80,7 +80,7 @@ export const advancedRunnerSurveyData: SurveyData = {
  */
 export const beginnerSurveyData: SurveyData = {
   trainingGoals: {
-    goalDistance: '5K',
+    goalDistance: "5K",
     weeklyKm: 15,
     trainingDays: 3,
   },
@@ -88,11 +88,11 @@ export const beginnerSurveyData: SurveyData = {
     age: 28,
     weight: 65,
     height: 168,
-    gender: 'F',
+    gender: "F",
   },
   personalRecords: [
     {
-      distance: '5K',
+      distance: "5K",
       timeSeconds: 1800, // 30:00
     },
   ],

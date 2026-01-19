@@ -6,10 +6,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 export const prerender = false;
 ---
 
-<Layout
-  title="Logowanie - Athletica"
-  description="Zaloguj się do Athletica i zarządzaj swoimi planami treningowymi"
->
+<Layout title="Logowanie - Athletica" description="Zaloguj się do Athletica i zarządzaj swoimi planami treningowymi">
   <main class="min-h-screen flex items-center justify-center px-4 py-12 bg-background">
     <div class="w-full max-w-md">
       <LoginForm client:load />

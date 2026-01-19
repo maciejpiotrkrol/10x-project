@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from "@playwright/test";
 
 /**
  * Page Object Model dla strony dashboardu
@@ -16,17 +16,17 @@ export class DashboardPage {
     this.page = page;
 
     // Inicjalizacja lokatorów
-    this.trainingPlanView = page.getByTestId('training-plan-view');
-    this.planHeader = page.getByTestId('plan-header');
-    this.completionStats = page.getByTestId('plan-completion-stats');
+    this.trainingPlanView = page.getByTestId("training-plan-view");
+    this.planHeader = page.getByTestId("plan-header");
+    this.completionStats = page.getByTestId("plan-completion-stats");
   }
 
   /**
    * Nawiguje do strony dashboardu
    */
   async goto() {
-    await this.page.goto('/dashboard');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/dashboard");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   /**
@@ -59,7 +59,7 @@ export class DashboardPage {
    */
   async expectEmptyState() {
     // Empty state powinien zawierać przycisk "Wygeneruj plan" lub "Wypełnij ankietę"
-    const emptyStateButton = this.page.getByRole('link', { name: /wygeneruj plan|wypełnij ankietę/i });
+    const emptyStateButton = this.page.getByRole("link", { name: /wygeneruj plan|wypełnij ankietę/i });
     await expect(emptyStateButton).toBeVisible();
   }
 
@@ -68,7 +68,7 @@ export class DashboardPage {
    * @param weekNumber - Numer tygodnia (1-10)
    */
   getWeekAccordion(weekNumber: number): Locator {
-    return this.page.getByRole('button', { name: new RegExp(`tydzień ${weekNumber}`, 'i') });
+    return this.page.getByRole("button", { name: new RegExp(`tydzień ${weekNumber}`, "i") });
   }
 
   /**
@@ -79,9 +79,9 @@ export class DashboardPage {
     const weekAccordion = this.getWeekAccordion(weekNumber);
 
     // Sprawdź czy accordion jest już rozwinięty
-    const isExpanded = await weekAccordion.getAttribute('aria-expanded');
+    const isExpanded = await weekAccordion.getAttribute("aria-expanded");
 
-    if (isExpanded !== 'true') {
+    if (isExpanded !== "true") {
       await weekAccordion.click();
       // Krótkie oczekiwanie na animację rozwinięcia
       await this.page.waitForTimeout(300);
@@ -95,9 +95,9 @@ export class DashboardPage {
   async collapseWeek(weekNumber: number) {
     const weekAccordion = this.getWeekAccordion(weekNumber);
 
-    const isExpanded = await weekAccordion.getAttribute('aria-expanded');
+    const isExpanded = await weekAccordion.getAttribute("aria-expanded");
 
-    if (isExpanded === 'true') {
+    if (isExpanded === "true") {
       await weekAccordion.click();
       await this.page.waitForTimeout(300);
     }
@@ -107,7 +107,7 @@ export class DashboardPage {
    * Weryfikuje czy tytuł planu treningowego jest widoczny
    */
   async expectPlanTitle() {
-    await expect(this.page.getByRole('heading', { name: /twój plan treningowy/i })).toBeVisible();
+    await expect(this.page.getByRole("heading", { name: /twój plan treningowy/i })).toBeVisible();
   }
 
   /**
@@ -124,14 +124,14 @@ export class DashboardPage {
    * Przydatne do weryfikacji konkretnych wartości
    */
   async getCompletionStatsText(): Promise<string> {
-    return await this.completionStats.textContent() || '';
+    return (await this.completionStats.textContent()) || "";
   }
 
   /**
    * Weryfikuje progress bar
    */
   async expectProgressBar() {
-    const progressBar = this.page.getByRole('progressbar');
+    const progressBar = this.page.getByRole("progressbar");
     await expect(progressBar).toBeVisible();
   }
 }
